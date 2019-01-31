@@ -59,3 +59,9 @@ typings/
 
 # next.js build output
 .next
+.DS_Store
+cert.pem
+key.pem
+servers.json
+users.json
+config.json

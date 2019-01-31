@@ -1,0 +1,15 @@
+{
+  "name": "tally-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "atem": "^0.1.8",
+    "express": "^4.16.4",
+    "io-videohub": "github:daveyijzermans/io-videohub",
+    "mumble-client-tcp": "^1.0.1",
+    "mumble-client-websocket": "^1.0.0",
+    "socket.io": "^2.2.0",
+    "wol": "^1.0.5"
+  }
+}

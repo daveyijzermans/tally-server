@@ -1,0 +1,27 @@
+[
+  {
+    "username": "user1",
+    "name": "Person 1",
+    "camNumber": 1
+  },
+  {
+    "username": "user2",
+    "name": "Person 2",
+    "camNumber": 2
+  },
+  {
+    "username": "user3",
+    "name": "Person 3",
+    "camNumber": 3
+  },
+  {
+    "username": "user4",
+    "name": "Person 4",
+    "camNumber": 4
+  },
+  {
+    "username": "user5",
+    "name": "Person 5",
+    "camNumber": 5
+  }
+]

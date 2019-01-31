@@ -1,0 +1,36 @@
+[
+  {
+    "type": "mumble",
+    "hostname": "localhost",
+    "name": "Local Mumble server",
+    "username": "Tallybot",
+    "password": "serverpassword"
+  },
+  {
+    "type": "vmix",
+    "hostname": "vmix1.local",
+    "name": "vMix 1",
+    "wol": "00:00:00:00:00:00"
+  },
+  {
+    "type": "vmix",
+    "hostname": "vmix2.local",
+    "name": "vMix 2",
+    "wol": "00:00:00:00:00:00"
+  },
+  {
+    "type": "aten",
+    "hostname": "aten.local",
+    "name": "ATEN Matrix"
+  },
+  {
+    "type": "atem",
+    "hostname": "192.168.10.240",
+    "name": "ATEM TV Studio"
+  },
+  {
+    "type": "netgear",
+    "hostname": "netgear.local",
+    "name": "Netgear Switch"
+  }
+]

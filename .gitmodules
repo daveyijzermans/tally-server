@@ -1,0 +1,12 @@
+[submodule "www/vendor/bootstrap"]
+	path = www/vendor/bootstrap
+	url = git@github.com:daveyijzermans/bootstrap.git
+[submodule "www/vendor/font-awesome"]
+	path = www/vendor/font-awesome
+	url = git@github.com:daveyijzermans/font-awesome.git
+[submodule "www/vendor/jquery-md5"]
+	path = www/vendor/jquery-md5
+	url = git@github.com:daveyijzermans/jquery-md5.git
+[submodule "www/vendor/jquery"]
+	path = www/vendor/jquery
+	url = git@github.com:daveyijzermans/jquery-dist.git
