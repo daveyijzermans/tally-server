@@ -17,7 +17,7 @@ $(function()
     {
       cb(null);
 
-      $('#statusText').html('<i class="fas fa-check-circle"></i> Connected');
+      $('#serverStatus').html('<i class="fas fa-check-circle"></i> Connected');
       socket.emit('admin.update');
     });
     socket.on('admin.status.servers', function(data)
@@ -30,22 +30,28 @@ $(function()
       var $tpl = $('#tplServer');
       $.each(servers, function(id, server)
       {
-        var $li = $tpl.clone().attr('id', server.name).show().appendTo($servers);
-        var iClass = server.connected ? 'fa-check-circle' : 'fa-times-circle fa-beat';
-        $li.find('.fas').addClass(iClass);
-        var $dropdown = $li.find('.dropdown-menu').attr('aria-labelledby', server.name);
-
-        var $a = $li.find('a.nav-link').append(' ' + server.name);
-        $('<a class="dropdown-item disabled" href="#"></a>')
-          .text('Type: ' + server.type)
-          .appendTo($dropdown);
-        $('<a class="dropdown-item disabled" href="#"></a>')
-          .text('Hostname: ' + server.hostname)
-          .appendTo($dropdown);
+        var $tr = $tpl.clone().attr('id', server.name).show().appendTo($servers);
+        var sClass = server.connected ? 'bg-success' : 'bg-danger';
+        var $name = $tr.find('.name').text(server.name);
+        var $type = $tr.find('.type').text(server.type);
+        var $hostname = $tr.find('.hostname').text(server.hostname);
+        var $status = $tr.find('.status');
+        var $statusIcon = $status.find('.status-icon');
+        if (server.connected)
+        {
+          $statusIcon.addClass('bg-success');
+          $status.append(' Connected');
+        } else {
+          $statusIcon.addClass('bg-danger');
+          $status.append(' Disconnected');
+        }
 
         var wol = typeof server.wol == 'string';
         if(wol || server.type == 'netgear')
-          $dropdown.append('<div class="dropdown-divider"></div><h6 class="dropdown-header">ACTIONS</h6>');
+        {
+          var $actions = $tr.find('.actions').append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
+          var $dropdown = $actions.find('.dropdown-menu');
+        }
         if(wol)
         {
           $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="wake">Wake</a>')
@@ -72,21 +78,23 @@ $(function()
         return false;
       tallies = data;
       var max = tallies['_combined'].length;
-      var colors = ['#333', '#ff0000', '#00ff00'];
+      var states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
       $tallies.empty();
       var $tpl = $('#tplTally');
       $.each(tallies, function(host, result)
       {
-        var $li = $tpl.clone().attr('id','').show().appendTo($tallies);
+        var $t = $tpl.clone().attr('id','').show().appendTo($tallies);
         var name = host == '_combined' ? 'Combined result' : host;
-        var $a = $li.find('a.nav-link').html(name + '<br/>');
+        var $a = $t.find('b').text(name);
 
         for (var i = 0; i < max; i++)
         {
-          var $s = $('<span>&bull;</span>').appendTo($a);
-          c = typeof result == 'string' ? colors[result[i]] : '#ccc'
-          $s.css({ color: c });
+          var state = typeof result == 'string' ? states[result[i]] : states[0];
+          var $s = $('<span class="badge badge-pill"></span>')
+            .text(i + 1)
+            .addClass(state)
+            .appendTo($t.find('.tally-indicators'));
         }
       });
       updateUserTallies(tallies._combined);
@@ -99,12 +107,11 @@ $(function()
         $users.html('<p><em>No users are connected.</em></p>');
       $.each(users, function(id, user)
       {
-        var $u = $tpl.clone().attr('id', user.username).show().tooltip({
-          title: user.name,
-        }).appendTo($users);
-        $u.find('.user').attr('data-camnumber', user.camNumber);
-        $u.find('h6').append(' ' + user.username);
-        $u.find('.camNumber').append(' ' + user.camNumber);
+        var $u = $tpl.clone().attr('id', user.username).show().appendTo($users)
+          .attr('data-camnumber', user.camNumber);
+        $u.find('.name').text(user.name);
+        $u.find('.username').text(user.username);
+        $u.find('.camNumber').text(user.camNumber);
         var $dropdown = $u.find('.dropdown-menu').attr('aria-labelledby', user.username);
         $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
             .data('user', user)
@@ -120,7 +127,7 @@ $(function()
     });
     socket.on('disconnect', function()
     {
-      $('#statusText').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
+      $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
       cb(new Error('Could not connect to socket'));
     });
   }
@@ -130,9 +137,10 @@ $(function()
     var t = t.split('');
     for (var i = 0; i < t.length; i++) {
       var val = t[i];
-      $users.find('[data-camnumber="' + (i + 1) + '"]')
-        .toggleClass('user-program', val == '1')
-        .toggleClass('user-preview', val == '2');
+      $users.find('[data-camnumber="' + (i + 1) + '"] .tally')
+        .toggleClass('text-danger', val == '1')
+        .toggleClass('text-success', val == '2')
+        .toggleClass('text-secondary', val == '0');
     }
   }
 
