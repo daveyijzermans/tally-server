@@ -17,7 +17,7 @@ $(function()
     {
       cb(null);
 
-      $('#statusText').html('<i class="fas ffa-check-circle"></i> Connected');
+      $('#statusText').html('<i class="fas fa-check-circle"></i> Connected');
       socket.emit('admin.update');
     });
     socket.on('admin.status.servers', function(data)

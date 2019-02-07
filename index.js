@@ -456,7 +456,7 @@ io.on('connection', socket => {
         if(server.type == 'vmix')
         {
           // Reboot windows pc
-          return exec('/usr/bin/net rpc shutdown -r -I ' + server.hostname + ' -U ' + config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+          return exec('shutdown /r /m \\\\' + server.hostname + ' /f /t 5 /c "Reboot by administration interface"');
         }
         if(server.type == 'netgear')
           server.rebootPending = true; // will reboot on next ping
@@ -470,7 +470,7 @@ io.on('connection', socket => {
       {
         // Shutdown windows pc
         if(server.type == 'vmix')
-          return exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+          return exec('shutdown /s /m \\\\' + server.hostname + ' /f /t 5 /c "Shutdown by administration interface"');
       }
     });
     socket.on('admin.wake', (p) =>
@@ -496,10 +496,10 @@ io.on('connection', socket => {
       config.servers.forEach((server) =>
       {
         // Shutdown windows pc
-        exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+        exec('shutdown /s /m \\\\' + server.hostname + ' /f /t 5 /c "Shutdown by administration interface"');
       });
       // Shutdown self
-      exec('/sbin/shutdown now');
+      exec('shutdown /s /f /t 10 /c "Shutdown by administration interface"');
     });
   }
 });
