@@ -10,6 +10,7 @@
     "mumble-client-tcp": "^1.0.1",
     "mumble-client-websocket": "^1.0.0",
     "socket.io": "^2.2.0",
+    "tplink-smarthome-api": "^1.2.0",
     "wol": "^1.0.5"
   }
 }

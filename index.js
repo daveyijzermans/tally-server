@@ -385,6 +385,31 @@ config.servers.forEach((server) =>
 });
 
 /**
+ * Connect to smart plugs
+ */
+
+const TPLink = require('tplink-smarthome-api').Client;
+
+config.smartplugs.forEach(host =>
+{
+  let client = new TPLink({ defaultSendOptions: { timeout: 10000, transport: 'tcp' } });
+  client.getDevice({ host: host }).then(device =>
+  {
+    let pushState = state =>
+    {
+      io.to('admins').emit('admin.status.plugs', {
+        host: host,
+        name: device.alias,
+        description: device.description,
+        on: state
+      });
+    }
+    device.on('power-update', pushState);
+    device.startPolling(5000);
+  });
+});
+
+/**
  * Socket.io server
  */
 const express = require('express'),
@@ -418,7 +443,10 @@ io.on('connection', socket => {
       room.emit('status', config.getUser(username));
     });
 
-    socket.on('disconnect', () => broadcastChanges('users'));
+    socket.on('disconnect', () =>
+    {
+      io.to('admins').emit('admin.user.disconnect', username)
+    });
   }
 
   let password = socket.handshake.query.password;

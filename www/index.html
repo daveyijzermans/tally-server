@@ -66,13 +66,16 @@
                     </tr>
                   </thead>
                   <tbody id="servers">
+                    <tr class="noresults">
+                      <td colspan="5"><p><em>No servers are defined.</em></td>
+                    </tr>
                   </tbody>
                   <tbody>
                     <tr style="display:none" id="tplServer">
                       <td class="name"></td>
                       <td class="type"></td>
                       <td class="hostname"></td>
-                      <td class="status"><span class="status-icon"></span></td>
+                      <td class="status"><span class="status-icon"></span> <span class="status-text"></span></td>
                       <td class="actions"><div class="dropdown-menu"></div></td>
                     </tr>
                   </tbody>
@@ -94,6 +97,7 @@
                 </div>
               </div>
               <div class="box-body" id="users">
+                <p class="noresults"><em>No users are connected.</em></p>
               </div>
               <div class="user-panel" style="display:none" id="tplUser">
                 <div class="user-panel-image avatar avatar-sm camNumber">
@@ -120,6 +124,26 @@
                 <b></b>:<br/>
                 <span class="tally-indicators"></span>
               </p>
+            </div>
+            <div class="box">
+              <div class="box-header">
+                <h3>Smart plugs</h3>
+              </div>
+              <div class="box-body" id="plugs"></div>
+              <div class="user-panel" style="display:none" id="tplPlug">
+                <div class="user-panel-image">
+                  <div class="avatar avatar-sm">
+                    <img src="images/avatar-2.jpg" alt="">
+                  </div>
+                </div>
+                <div class="user-panel-info">
+                  <p class="name">Front Screens</p>
+                  <small class="text-black-50 description">Description</small>
+                </div>
+                <div class="user-panel-actions">
+                  <a href="#"><i class="fas fa-power-off"></i></a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

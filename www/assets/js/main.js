@@ -7,6 +7,39 @@ $(function()
       $tallies = $('#tallies'),
       $users = $('#users');
 
+  var animatePuff = function(el, removeEl)
+  {
+    var $el = $(el);
+    var bgTop = 0,
+        frame = 0,
+        frames = 6,
+        frameSize = 32,
+        frameRate = 80,
+        pos = $el.offset(),
+        left = pos.left + $el.outerWidth() / 2 - frameSize / 2,
+        top = pos.top + $el.outerHeight() / 2 - frameSize / 2,
+        $puff = $('<div class="puff"></div>').css({
+          left: left,
+          top: top
+        }).appendTo('body');
+    if(removeEl) $el.remove();
+
+    var a = function()
+    {
+      if(frame < frames)
+      {
+        $puff.css({
+          backgroundPosition: "0 "+bgTop+"px"
+        });
+        bgTop = bgTop - frameSize;
+        frame++;
+        setTimeout(a, frameRate);
+      }
+    };
+    a();
+    // setTimeout(function() { $puff.remove() }, frames * frameRate);
+  }
+
   var connect = function(p, cb) {
     socket = io({
       query: {
@@ -25,51 +58,50 @@ $(function()
       if(JSON.stringify(data) === JSON.stringify(servers))
         return false;
       servers = data;
+      $servers.find('.noresults').toggle(servers.length == 0);
 
-      $servers.empty();
       var $tpl = $('#tplServer');
       $.each(servers, function(id, server)
       {
-        var $tr = $tpl.clone().attr('id', server.name).show().appendTo($servers);
+        var $tr = $servers.find('[data-name="' + server.name + '"]')
+        if($tr.length == 0)
+        {
+          $tr = $tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo($servers);
+
+          var wol = typeof server.wol == 'string';
+          if(wol || server.type == 'netgear')
+          {
+            var $actions = $tr.find('.actions').append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
+            var $dropdown = $actions.find('.dropdown-menu');
+          }
+          if(wol)
+          {
+            $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="wake">Wake</a>')
+              .attr('data-param', server.name)
+              .appendTo($dropdown);
+          }
+          if(wol || server.type == 'netgear')
+          {
+            $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
+              .attr('data-param', server.name)
+              .appendTo($dropdown);
+          }
+          if(wol)
+          {
+            $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
+              .attr('data-param', server.name)
+              .appendTo($dropdown);
+          }
+        }
         var sClass = server.connected ? 'bg-success' : 'bg-danger';
         var $name = $tr.find('.name').text(server.name);
         var $type = $tr.find('.type').text(server.type);
         var $hostname = $tr.find('.hostname').text(server.hostname);
-        var $status = $tr.find('.status');
-        var $statusIcon = $status.find('.status-icon');
-        if (server.connected)
-        {
-          $statusIcon.addClass('bg-success');
-          $status.append(' Connected');
-        } else {
-          $statusIcon.addClass('bg-danger');
-          $status.append(' Disconnected');
-        }
-
-        var wol = typeof server.wol == 'string';
-        if(wol || server.type == 'netgear')
-        {
-          var $actions = $tr.find('.actions').append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
-          var $dropdown = $actions.find('.dropdown-menu');
-        }
-        if(wol)
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="wake">Wake</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
-        if(wol || server.type == 'netgear')
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
-        if(wol)
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
+        $tr.find('.status-icon')
+          .toggleClass('bg-success', server.connected == true)
+          .toggleClass('bg-danger', server.connected == false);
+        $tr.find('.status-text')
+          .text(server.connected ? 'Connected' : 'Disconnected');
       });
     });
     socket.on('admin.status.tallies', function(data)
@@ -80,50 +112,79 @@ $(function()
       var max = tallies['_combined'].length;
       var states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
-      $tallies.empty();
       var $tpl = $('#tplTally');
       $.each(tallies, function(host, result)
       {
-        var $t = $tpl.clone().attr('id','').show().appendTo($tallies);
+        var $t = $tallies.find('[data-host="' + host + '"]');
+        if($t.length == 0)
+        {
+          $t = $tpl.clone().attr('id', '').attr('data-host', host).show().appendTo($tallies);
+        }
         var name = host == '_combined' ? 'Combined result' : host;
         var $a = $t.find('b').text(name);
 
+        $indicators = $t.find('.tally-indicators').empty();
         for (var i = 0; i < max; i++)
         {
           var state = typeof result == 'string' ? states[result[i]] : states[0];
           var $s = $('<span class="badge badge-pill"></span>')
             .text(i + 1)
             .addClass(state)
-            .appendTo($t.find('.tally-indicators'));
+            .appendTo($indicators);
         }
       });
       updateUserTallies(tallies._combined);
     });
+    socket.on('admin.user.disconnect', function(username)
+    {
+      var $user = $users.find('[data-username="' + username + '"]');
+      animatePuff($user, true);
+      $users.find('.noresults').toggle($users.find('.user-panel').length == 0);
+    });
     socket.on('admin.users.list', function(users)
     {
-      $users.empty();
+      $users.find('.noresults').toggle(users.length == 0);
+
       var $tpl = $('#tplUser');
-      if(users.length == 0)
-        $users.html('<p><em>No users are connected.</em></p>');
       $.each(users, function(id, user)
       {
-        var $u = $tpl.clone().attr('id', user.username).show().appendTo($users)
-          .attr('data-camnumber', user.camNumber);
+        var $u = $users.find('[data-username="' + user.username + '"]')
+        if($u.length == 0)
+        {
+          $u = $tpl.clone().attr('id', '').attr('data-username', user.username).show().appendTo($users);
+          var $dropdown = $u.find('.dropdown-menu').attr('aria-labelledby', user.username);
+          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
+              .data('user', user)
+              .appendTo($dropdown);
+          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
+              .attr('data-param', user.username)
+              .appendTo($dropdown);
+          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
+              .attr('data-param', user.username)
+              .appendTo($dropdown);
+        }
+
+        $u.attr('data-camnumber', user.camNumber);
         $u.find('.name').text(user.name);
         $u.find('.username').text(user.username);
         $u.find('.camNumber').text(user.camNumber);
-        var $dropdown = $u.find('.dropdown-menu').attr('aria-labelledby', user.username);
-        $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
-            .data('user', user)
-            .appendTo($dropdown);
-        $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
-            .attr('data-param', user.username)
-            .appendTo($dropdown);
-        $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
-            .attr('data-param', user.username)
-            .appendTo($dropdown);
       });
       updateUserTallies(tallies._combined);
+    });
+    var $plugs = $('#plugs');
+    socket.on('admin.status.plugs', function(plug)
+    {
+      var $tpl = $('#tplPlug');
+      var $p = $plugs.find('[data-host="' + plug.host + '"]');
+      if($p.length == 0)
+      {
+        $p = $tpl.clone().attr('id', '').attr('data-host', plug.host).show().appendTo($plugs);
+      }
+
+      $p.find('.name').text(plug.name);
+      $p.find('.description').text(plug.description);
+      $p.find('.fas').toggleClass('text-success', plug.on == true);
+      $p.find('.fas').toggleClass('text-danger', plug.on == false);
     });
     socket.on('disconnect', function()
     {

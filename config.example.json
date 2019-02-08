@@ -1,5 +1,12 @@
 {
   "cycleChannels": ["Root","Engineering","Cameras","Production"],
   "adminPass": "md5password",
-  "winUserPass": "windowsuser%password"
+  "winUserPass": "windowsuser%password",
+  "smartplugs": [
+    "192.168.1.130",
+    "192.168.1.131",
+    "192.168.1.132",
+    "192.168.1.133",
+    "192.168.1.134"
+  ]
 }

@@ -6,6 +6,15 @@
   line-height: 14px;
 }
 
+.puff {
+  cursor: pointer;
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  background: url(../images/puff.png) no-repeat;
+  z-index: 50;
+}
+
 /**
  * Font Awesome animations
  */
