@@ -37,7 +37,7 @@ $(function()
       }
     };
     a();
-    // setTimeout(function() { $puff.remove() }, frames * frameRate);
+    setTimeout(function() { $puff.remove() }, frames * frameRate);
   }
 
   var connect = function(p, cb) {
