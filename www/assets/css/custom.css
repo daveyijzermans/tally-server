@@ -15,7 +15,7 @@
   z-index: 50;
 }
 
-#servers tr :last-child {
+#servers .actions {
   width: 16px;
 }
 
