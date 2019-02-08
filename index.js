@@ -233,7 +233,7 @@ connectToAten = aten =>
 
   client.connect(23, aten.hostname, () =>
   {
-    client.write(aten.username'\r\n' + aten.password + '\r\n');
+    client.write(aten.username + '\r\n' + aten.password + '\r\n');
 
     readline.createInterface({
       input: client
@@ -667,7 +667,7 @@ broadcastChanges = (s) =>
   {
     let result = [];
     plugs.forEach(device =>
-    {
+    { f
       let plug = {
         hostname: device.host,
         name: device.alias,
