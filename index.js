@@ -667,7 +667,7 @@ broadcastChanges = (s) =>
   {
     let result = [];
     plugs.forEach(device =>
-    { f
+    {
       let plug = {
         hostname: device.host,
         name: device.alias,
