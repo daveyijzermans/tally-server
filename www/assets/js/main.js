@@ -134,13 +134,17 @@ $(function()
             .appendTo($indicators);
         }
       });
+
+      var hostsOnline = $tallies.find('.tally-entry').length > 1;
+      $tallies.siblings('.noresults').toggle(!hostsOnline);
+      $tallies.find('.tally-entry').toggle(hostsOnline);
       updateUserTallies(tallies._combined);
     });
     socket.on('admin.user.disconnect', function(username)
     {
       var $user = $users.find('[data-username="' + username + '"]');
       animatePuff($user, true);
-      $users.find('.noresults').toggle($users.find('.user-panel').length == 0);
+      $users.find('.noresults').toggle($users.find('.user-entry').length == 0);
     });
     socket.on('admin.users.list', function(users)
     {
@@ -185,7 +189,7 @@ $(function()
           $p = $tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo($plugs);
           $p.find('a.toggle').click(function(event)
           {
-            $(this).find('.user-panel-actions .fas')
+            $(this).find('.fas')
               .removeClass('text-success text-danger fa-power-off')
               .addClass('fa-circle-notch fa-spin')
             socket.emit('admin.plug.toggle', plug.hostname);
@@ -195,7 +199,7 @@ $(function()
 
         $p.find('.name').text(plug.name);
         $p.find('.description').text(plug.description);
-        $p.find('.user-panel-actions .fas')
+        $p.find('.actions .fas')
           .removeClass('fa-circle-notch fa-spin')
           .addClass('fa-power-off')
           .toggleClass('text-success', plug.on == true)
@@ -206,11 +210,11 @@ $(function()
     {
       var $plug = $plugs.find('[data-hostname="' + hostname + '"]');
       animatePuff($plug, true);
-      $plugs.find('.noresults').toggle($plugs.find('.user-panel').length == 0);
+      $plugs.find('.noresults').toggle($plugs.find('.plug-entry').length == 0);
     });
     socket.on('disconnect', function()
     {
-      animatePuff($plugs.find('.user-panel'), true);
+      animatePuff($plugs.find('.user-entry'), true);
       $plugs.find('.noresults').toggle(true);
 
       $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');

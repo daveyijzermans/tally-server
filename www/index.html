@@ -65,7 +65,7 @@
               <div class="box-body" id="users">
                 <p class="noresults"><em>No users are connected.</em></p>
               </div>
-              <div class="user-panel" style="display:none" id="tplUser">
+              <div class="user-panel user-entry" style="display:none" id="tplUser">
                 <div class="user-panel-image avatar avatar-sm camNumber">
                 </div>
                 <div class="user-panel-info">
@@ -89,8 +89,11 @@
                   <div class="box-header">
                     <h3>Tallies</h3>
                   </div>
-                  <div class="box-body" id="tallies"></div>
-                  <p class="text-black" style="display:none" id="tplTally">
+                  <div class="box-body">
+                    <p class="noresults"><em>No tally sources are online.</em></p>
+                    <div id="tallies"></div>
+                  </div>
+                  <p class="text-black tally-entry" style="display:none" id="tplTally">
                     <b></b>:<br/>
                     <span class="tally-indicators"></span>
                   </p>
@@ -104,13 +107,13 @@
                   <div class="box-body" id="plugs">
                     <p class="noresults"><em>No plugs are yet discovered on the network.</em></p>
                   </div>
-                  <div class="user-panel" style="display:none" id="tplPlug">
+                  <div class="user-panel plug-entry" style="display:none" id="tplPlug">
                     <div class="user-panel-image avatar avatar-sm fas fa-plug"></div>
                     <div class="user-panel-info">
                       <p class="name">Front Screens</p>
                       <small class="text-black-50 description">Description</small>
                     </div>
-                    <div class="user-panel-actions">
+                    <div class="user-panel-actions actions">
                       <a href="#" class="toggle"><i class="fas fa-power-off"></i></a>
                     </div>
                   </div>
