@@ -137,10 +137,10 @@ $(function()
     var t = t.split('');
     for (var i = 0; i < t.length; i++) {
       var val = t[i];
-      $users.find('[data-camnumber="' + (i + 1) + '"] .tally')
-        .toggleClass('text-danger', val == '1')
-        .toggleClass('text-success', val == '2')
-        .toggleClass('text-secondary', val == '0');
+      $users.find('[data-camnumber="' + (i + 1) + '"] .avatar')
+        .toggleClass('avatar-danger', val == '1')
+        .toggleClass('avatar-success', val == '2')
+        .toggleClass('avatar-secondary', val == '0');
     }
   }
 
