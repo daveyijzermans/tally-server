@@ -116,18 +116,15 @@ $(function()
       var max = tallies['_combined'].length;
       var states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
+      $tallies.empty();
       var $tpl = $('#tplTally');
       $.each(tallies, function(host, result)
       {
-        var $t = $tallies.find('[data-host="' + host + '"]');
-        if($t.length == 0)
-        {
-          $t = $tpl.clone().attr('id', '').attr('data-host', host).show().appendTo($tallies);
-        }
+        var $t = $tpl.clone().attr('id', '').attr('data-host', host).show().appendTo($tallies);
         var name = host == '_combined' ? 'Combined result' : host;
         var $a = $t.find('b').text(name);
 
-        $indicators = $t.find('.tally-indicators').empty();
+        var $indicators = $t.find('.tally-indicators');
         for (var i = 0; i < max; i++)
         {
           var state = typeof result == 'string' ? states[result[i]] : states[0];
@@ -188,7 +185,7 @@ $(function()
           $p = $tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo($plugs);
           $p.find('a.toggle').click(function(event)
           {
-            $(this).find('.fas')
+            $(this).find('.user-panel-actions .fas')
               .removeClass('text-success text-danger fa-power-off')
               .addClass('fa-circle-notch fa-spin')
             socket.emit('admin.plug.toggle', plug.hostname);
@@ -198,7 +195,7 @@ $(function()
 
         $p.find('.name').text(plug.name);
         $p.find('.description').text(plug.description);
-        $p.find('.fas')
+        $p.find('.user-panel-actions .fas')
           .removeClass('fa-circle-notch fa-spin')
           .addClass('fa-power-off')
           .toggleClass('text-success', plug.on == true)

@@ -49,46 +49,12 @@
         <div class="content-header content-header-scene"></div>
 
         <div class="row">
-          <div class="col-lg-8">
-            <div class="box">
-              <div class="box-header">
-                <h3>Connections</h3>
-              </div>
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Hostname</th>
-                      <th>Status</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody id="servers">
-                    <tr class="noresults">
-                      <td colspan="5"><p><em>No servers are defined.</em></td>
-                    </tr>
-                  </tbody>
-                  <tbody>
-                    <tr style="display:none" id="tplServer">
-                      <td class="name"></td>
-                      <td class="type"></td>
-                      <td class="hostname"></td>
-                      <td class="status"><span class="status-icon"></span> <span class="status-text"></span></td>
-                      <td class="actions"><div class="dropdown-menu"></div></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
           <div class="col-lg-4">
             <div class="box">
               <div class="box-header">
                 <h3>Intercom</h3>
                 <div class="box-actions">
-                  <div class="dropdown-menu" aria-labelledby="usersMenu">
+                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="usersMenu">
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="rebootUsers">Reboot all</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="updateUsers">Update all</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownUsers">Shutdown all</a>
@@ -115,35 +81,84 @@
                 <a href="#" class="text-secondary text-sm d-block">Show more contacts <i class="fas fa-chevron-right"></i></a>
               </div>
             </div>
-            <div class="box">
-              <div class="box-header">
-                <h3>Tallies</h3>
+          </div>
+          <div class="col-lg-8">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="box">
+                  <div class="box-header">
+                    <h3>Tallies</h3>
+                  </div>
+                  <div class="box-body" id="tallies"></div>
+                  <p class="text-black" style="display:none" id="tplTally">
+                    <b></b>:<br/>
+                    <span class="tally-indicators"></span>
+                  </p>
+                </div>
               </div>
-              <div class="box-body" id="tallies"></div>
-              <p class="text-black" style="display:none" id="tplTally">
-                <b></b>:<br/>
-                <span class="tally-indicators"></span>
-              </p>
-            </div>
-            <div class="box">
-              <div class="box-header">
-                <h3>Smart plugs</h3>
-              </div>
-              <div class="box-body" id="plugs">
-                <p class="noresults"><em>No plugs are yet discovered on the network.</em></p>
-              </div>
-              <div class="user-panel" style="display:none" id="tplPlug">
-                <div class="user-panel-image">
-                  <div class="avatar avatar-sm">
-                    <img src="images/avatar-2.jpg" alt="">
+              <div class="col-lg-6">
+                <div class="box">
+                  <div class="box-header">
+                    <h3>Smart plugs</h3>
+                  </div>
+                  <div class="box-body" id="plugs">
+                    <p class="noresults"><em>No plugs are yet discovered on the network.</em></p>
+                  </div>
+                  <div class="user-panel" style="display:none" id="tplPlug">
+                    <div class="user-panel-image avatar avatar-sm fas fa-plug"></div>
+                    <div class="user-panel-info">
+                      <p class="name">Front Screens</p>
+                      <small class="text-black-50 description">Description</small>
+                    </div>
+                    <div class="user-panel-actions">
+                      <a href="#" class="toggle"><i class="fas fa-power-off"></i></a>
+                    </div>
                   </div>
                 </div>
-                <div class="user-panel-info">
-                  <p class="name">Front Screens</p>
-                  <small class="text-black-50 description">Description</small>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="box">
+                  <div class="box-header">
+                    <h3>AV</h3>
+                  </div>
                 </div>
-                <div class="user-panel-actions">
-                  <a href="#" class="toggle"><i class="fas fa-power-off"></i></a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="box">
+                  <div class="box-header">
+                    <h3>Connections</h3>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Hostname</th>
+                          <th>Status</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="servers">
+                        <tr class="noresults">
+                          <td colspan="5"><p><em>No servers are defined.</em></td>
+                        </tr>
+                      </tbody>
+                      <tbody>
+                        <tr style="display:none" id="tplServer">
+                          <td class="name"></td>
+                          <td class="type"></td>
+                          <td class="hostname"></td>
+                          <td class="status"><span class="status-icon"></span> <span class="status-text d-none d-md-inline-flex"></span></td>
+                          <td class="actions"><div class="dropdown-menu"></div></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
