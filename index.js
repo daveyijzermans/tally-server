@@ -1,3 +1,7 @@
+/**
+ * Load and save config functions
+ */
+
 const config = require('./config.json'),
       fs = require('fs');
 config.servers = require('./servers.json').map(a =>
@@ -108,8 +112,9 @@ connectToMumble = (mumble) =>
 
 /**
  * Cycle a specific user to the next channel set in config.cycleChannels
- * @param  {string}
- * @return {boolean} Whether the move was executed
+ * @param  {Object} mumble   Mumble client
+ * @param  {string} username
+ * @return {boolean}         Whether the move was executed
  */
 cycleUser = (mumble, username) =>
 {
@@ -125,6 +130,7 @@ cycleUser = (mumble, username) =>
     let index = config.cycleChannels.indexOf(channel);
     if(index != -1)
     {
+      // Figure out the next channel, or reset to the 0th one.
       index = index + 1 >= config.cycleChannels.length ? 0 : index + 1;
       let newChannel = mumble.client.getChannel(config.cycleChannels[index]);
       console.log('Moving to channel', newChannel.name);
@@ -212,19 +218,6 @@ connectToVmix = vmix =>
 }
 
 /**
- * Execute a TCP command on all vMix hosts
- * @param  {string}
- */
-vMix = command =>
-{
-  config.getServersByType('vmix').forEach((vmix) =>
-  {
-    let client = vmix.client;
-    if(typeof client != 'undefined' && client.readable) client.write(command);
-  });
-}
-
-/**
  * Aten switcher connections
  */
 
@@ -240,7 +233,7 @@ connectToAten = aten =>
 
   client.connect(23, aten.hostname, () =>
   {
-    client.write('administrator\r\npassword\r\n');
+    client.write(aten.username'\r\n' + aten.password + '\r\n');
 
     readline.createInterface({
       input: client
@@ -391,13 +384,16 @@ config.servers.forEach((server) =>
 const TPLink = require('tplink-smarthome-api').Client;
 const tplink = new TPLink();
 const plugs = [];
-tplink.startDiscovery({
-  deviceTypes: ['plug']
-}).on('plug-new', (device) =>
+tplink.startDiscovery().on('plug-new', (device) =>
 {
   console.log('Found smartplug ' + device.alias + ' on the network!');
   plugs.push(device);
 
+  /**
+   * Poll the smart plug. If we get a response, call broadcastChanges
+   * to send the new states to clients. If we get an error, assume the
+   * device is dead and will be found again later by auto-discovery.
+   */
   let poll = () =>
   {
     device.getSysInfo().then(obj =>
@@ -427,11 +423,10 @@ const express = require('express'),
 server.listen(80);
 app.use(express.static('www'));
 
+/**
+ * User joins socket server
+ */
 io.on('connection', socket => {
-  socket.on('cycleUser', () =>
-  {
-    config.getServersByType('mumble').forEach((m) => cycleUser(m));
-  });
   let username = socket.handshake.query.username;
   if(username == 's')
     return socket.disconnect(); //disallow username 'users'
@@ -440,14 +435,20 @@ io.on('connection', socket => {
   {
     socket.join('users');
     broadcastChanges('users');
-
     let room = socket.join(username);
+
+    /**
+     * User-only commands
+     */
     socket.on('request', () =>
     {
       console.log('Got update request from', username);
       room.emit('status', config.getUser(username));
     });
-
+    socket.on('cycleUser', () =>
+    {
+      config.getServersByType('mumble').forEach((m) => cycleUser(m, username));
+    });
     socket.on('disconnect', () =>
     {
       io.to('admins').emit('admin.user.disconnect', username)
@@ -463,6 +464,13 @@ io.on('connection', socket => {
     socket.join('admins').emit('authenticated');
     console.log('Admin connected!');
 
+    /**
+     * Admin-only commands
+     */
+
+    /**
+     * Set new data on a user and save the config file
+     */
     socket.on('admin.set.user', (data, cb) =>
     {
       let user = config.getUser(data.username);
@@ -480,6 +488,9 @@ io.on('connection', socket => {
       cb(null);
     });
 
+    /**
+     * Toggle the power state of a smart plug
+     */
     socket.on('admin.plug.toggle', (hostname) =>
     {
       if(typeof hostname == 'undefined') return false;
@@ -488,14 +499,25 @@ io.on('connection', socket => {
       if(device) device.togglePowerState();
     })
 
+    /**
+     * Broadcast all settings
+     */
     socket.on('admin.update', () => broadcastChanges());
+    /**
+     * Restart the server by exiting the process and letting
+     * forever start it again.
+     */
     socket.on('admin.restart', () => process.exit(0));
+    /**
+     * Reboot a user or server.
+     */
     socket.on('admin.reboot', (p) =>
     {
       if(p.indexOf('user') == 0)
         return io.to(p).emit('reboot');
       let server = config.getServer(p);
       if(typeof server != 'undefined')
+      {
         if(server.type == 'vmix')
         {
           // Reboot windows pc
@@ -503,7 +525,11 @@ io.on('connection', socket => {
         }
         if(server.type == 'netgear')
           server.rebootPending = true; // will reboot on next ping
+      }
     });
+    /**
+     * Shutdown a user or server.
+     */
     socket.on('admin.shutdown', (p) =>
     {
       if(p.indexOf('user') == 0)
@@ -516,6 +542,9 @@ io.on('connection', socket => {
           return exec('shutdown /s /m \\\\' + server.hostname + ' /f /t 5 /c "Shutdown by administration interface"');
       }
     });
+    /**
+     * Send a WOL packet to a server that supports it.
+     */
     socket.on('admin.wake', (p) =>
     {
       let server = config.getServer(p);
@@ -530,9 +559,21 @@ io.on('connection', socket => {
       }
     });
 
+    /**
+     * Reboot all users
+     */
     socket.on('admin.rebootUsers', () => io.to('users').emit('reboot'));
+    /**
+     * Update the client software on all users.
+     */
     socket.on('admin.updateUsers', () => io.to('users').emit('update'));
+    /**
+     * Shutdown all users
+     */
     socket.on('admin.shutdownUsers', () => io.to('users').emit('shutdown'));
+    /**
+     * Shutdown all users and servers, and then shut down self.
+     */
     socket.on('admin.shutdownAll', () =>
     {
       io.to('users').emit('shutdown');
@@ -553,6 +594,9 @@ io.on('connection', socket => {
  */
 broadcastChanges = (s) =>
 {
+  /**
+   * Broadcast server updates
+   */
   if(s == 'servers' || !s)
   {
     let result = config.servers.map(s =>
@@ -563,23 +607,36 @@ broadcastChanges = (s) =>
     });
     io.to('admins').emit('admin.status.servers', result);
   }
+  /**
+   * Broadcast tally updates
+   */
   if(s == 'tallies' || !s)
   {
-    let result = Object.assign({}, hostTallies);
-    let tallies = combineTallies(hostTallies);
-    result._combined = tallies.join('');
+    let result = {};
+    // Make a duplicate and sort by server name
+    Object.keys(hostTallies).sort().forEach(key => result[key] = hostTallies[key]);
+    // Append the combined (calculated) tally state at the end with a special key '_combined'
+    result._combined = combineTallies(hostTallies).join('');
+    io.to('admins').emit('admin.status.tallies', result);
+
+    /**
+     * Compare connected users' old tally state and only emit
+     * an event when it has changed.
+     */
     config.users.forEach(user =>
     {
       let oldStatus = user.status;
-      let newStatus = tallies[user.camNumber - 1];
+      let newStatus = result._combined[user.camNumber - 1];
       if(newStatus != oldStatus)
       {
         user.status = newStatus;
         io.to(user.username).emit('status', user);
       }
-    io.to('admins').emit('admin.status.tallies', result);
     });
   }
+  /**
+   * Broadcast user updates
+   */
   if(s == 'users' || !s)
   {
     io.in('users').clients((error, users) =>
@@ -589,9 +646,11 @@ broadcastChanges = (s) =>
       {
         let socket = io.sockets.connected[id];
         let username = socket.handshake.query.username;
+        // Users only appear if they exists in the users.json file
         if(user = config.getUser(username))
           result.push(user);
       });
+      // Sort users by username
       result.sort((a, b) =>
       {
         let textA = a.username.toUpperCase();
@@ -601,6 +660,9 @@ broadcastChanges = (s) =>
       io.to('admins').emit('admin.users.list', result);
     });
   }
+  /**
+   * Broadcast smart plug updates
+   */
   if(s == 'plugs' || !s)
   {
     let result = [];
@@ -614,6 +676,7 @@ broadcastChanges = (s) =>
       }
       result.push(plug);
     });
+    // Sort them by name
     result.sort((a, b) =>
     {
       let textA = a.name.toUpperCase();

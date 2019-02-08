@@ -153,13 +153,14 @@ $(function()
       var $tpl = $('#tplUser');
       $.each(users, function(id, user)
       {
-        var $u = $users.find('[data-username="' + user.username + '"]')
+        var $u = $users.find('[data-username="' + user.username + '"]');
+        var $dropdown = $u.find('.dropdown-menu');
         if($u.length == 0)
         {
           $u = $tpl.clone().attr('id', '').attr('data-username', user.username).show().appendTo($users);
-          var $dropdown = $u.find('.dropdown-menu').attr('aria-labelledby', user.username);
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
-              .data('user', user)
+          $dropdown = $u.find('.dropdown-menu');
+          $dropdown.attr('aria-labelledby', user.username);
+          $('<a class="dropdown-item edit-user-modal" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
               .appendTo($dropdown);
           $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
               .attr('data-param', user.username)
@@ -173,6 +174,7 @@ $(function()
         $u.find('.name').text(user.name);
         $u.find('.username').text(user.username);
         $u.find('.camNumber').text(user.camNumber);
+        $dropdown.find('.edit-user-modal').data('user', user);
       });
       updateUserTallies(tallies._combined);
     });
@@ -222,16 +224,19 @@ $(function()
     });
   }
 
-  updateUserTallies = function(t)
+  updateUserTallies = function(tallies)
   {
-    var t = t.split('');
-    for (var i = 0; i < t.length; i++) {
-      var val = t[i];
-      $users.find('[data-camnumber="' + (i + 1) + '"] .avatar')
+    var t = tallies.split('');
+    $u = $users.find('.user-entry').each(function(i)
+    {
+      var $this = $(this);
+      var n = $this.attr('data-camnumber');
+      var val = t[n - 1];
+      $this.find('.avatar')
         .toggleClass('avatar-danger', val == '1')
         .toggleClass('avatar-success', val == '2')
         .toggleClass('avatar-secondary', val == '0');
-    }
+    });
   }
 
   var loginCallback = function(err)
@@ -343,11 +348,11 @@ $(function()
     var $btn = $(this).find('.btn-primary').off('click');
     $btn.on('click', function()
     {
-      socket.emit('admin.set.user', {
-        username: user.username,
-        name: $name.val(),
-        camNumber: $camNumber.val()
-      }, (err) =>
+      var newData = Object.assign({}, user);
+      newData.name = $name.val();
+      newData.camNumber = $camNumber.val();
+
+      socket.emit('admin.set.user', newData, (err) =>
         {
           if (err)
           {

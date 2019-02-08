@@ -21,7 +21,9 @@
   {
     "type": "aten",
     "hostname": "aten.local",
-    "name": "ATEN Matrix"
+    "name": "ATEN Matrix",
+    "username": "administrator",
+    "password": "password"
   },
   {
     "type": "atem",
