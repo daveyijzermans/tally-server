@@ -142,7 +142,7 @@ cycleUser = (mumble, username) =>
 
 const Socket = require('net').Socket,
       readline = require('readline');
-var hostTallies = {};
+const hostTallies = {};
 
 /**
  * Process an object with tally states from multiple vMix instances
@@ -389,24 +389,29 @@ config.servers.forEach((server) =>
  */
 
 const TPLink = require('tplink-smarthome-api').Client;
-
-config.smartplugs.forEach(host =>
+const tplink = new TPLink();
+const plugs = [];
+tplink.startDiscovery({
+  deviceTypes: ['plug']
+}).on('plug-new', (device) =>
 {
-  let client = new TPLink({ defaultSendOptions: { timeout: 10000, transport: 'tcp' } });
-  client.getDevice({ host: host }).then(device =>
+  console.log('Found smartplug ' + device.alias + ' on the network!');
+  plugs.push(device);
+
+  let poll = () =>
   {
-    let pushState = state =>
+    device.getSysInfo().then(obj =>
     {
-      io.to('admins').emit('admin.status.plugs', {
-        host: host,
-        name: device.alias,
-        description: device.description,
-        on: state
-      });
-    }
-    device.on('power-update', pushState);
-    device.startPolling(5000);
-  });
+      broadcastChanges('plugs');
+      setTimeout(poll, 5000);
+    }).catch(error =>
+    {
+      console.log('No connection to smartplug ' + device.alias + ' or an error occured.');
+      delete plugs[plugs.indexOf(device)];
+      io.to('admins').emit('admin.plugs.disconnect', device.host)
+    });
+  }
+  poll();
 });
 
 /**
@@ -474,6 +479,14 @@ io.on('connection', socket => {
       config.saveUsers();
       cb(null);
     });
+
+    socket.on('admin.plug.toggle', (hostname) =>
+    {
+      if(typeof hostname == 'undefined') return false;
+      let result = plugs.filter((a) => a.host == hostname);
+      let device = result.length == 1 ? result[0] : false;
+      if(device) device.togglePowerState();
+    })
 
     socket.on('admin.update', () => broadcastChanges());
     socket.on('admin.restart', () => process.exit(0));
@@ -581,11 +594,32 @@ broadcastChanges = (s) =>
       });
       result.sort((a, b) =>
       {
-        var textA = a.username.toUpperCase();
-        var textB = b.username.toUpperCase();
+        let textA = a.username.toUpperCase();
+        let textB = b.username.toUpperCase();
         return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
       });
       io.to('admins').emit('admin.users.list', result);
     });
+  }
+  if(s == 'plugs' || !s)
+  {
+    let result = [];
+    plugs.forEach(device =>
+    {
+      let plug = {
+        hostname: device.host,
+        name: device.alias,
+        description: device.description,
+        on: device.relayState
+      }
+      result.push(plug);
+    });
+    result.sort((a, b) =>
+    {
+      let textA = a.name.toUpperCase();
+      let textB = b.name.toUpperCase();
+      return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+    io.to('admins').emit('admin.plugs.list', result);
   }
 };

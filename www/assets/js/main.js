@@ -5,39 +5,43 @@ $(function()
       $servers = $('#servers'),
       tallies = null,
       $tallies = $('#tallies'),
-      $users = $('#users');
+      $users = $('#users'),
+      $plugs = $('#plugs');
 
-  var animatePuff = function(el, removeEl)
+  var animatePuff = function(els, removeEl)
   {
-    var $el = $(el);
-    var bgTop = 0,
-        frame = 0,
-        frames = 6,
-        frameSize = 32,
-        frameRate = 80,
-        pos = $el.offset(),
-        left = pos.left + $el.outerWidth() / 2 - frameSize / 2,
-        top = pos.top + $el.outerHeight() / 2 - frameSize / 2,
-        $puff = $('<div class="puff"></div>').css({
-          left: left,
-          top: top
-        }).appendTo('body');
-    if(removeEl) $el.remove();
-
-    var a = function()
+    $(els).each(function(i)
     {
-      if(frame < frames)
+      var $el = $(this),
+          bgTop = 0,
+          frame = 0,
+          frames = 6,
+          frameSize = 32,
+          frameRate = 80,
+          pos = $el.offset(),
+          left = pos.left + $el.outerWidth() / 2 - frameSize / 2,
+          top = pos.top + $el.outerHeight() / 2 - frameSize / 2,
+          $puff = $('<div class="puff"></div>').css({
+            left: left,
+            top: top
+          }).appendTo('body');
+      if(removeEl) $el.remove();
+
+      var a = function()
       {
-        $puff.css({
-          backgroundPosition: "0 "+bgTop+"px"
-        });
-        bgTop = bgTop - frameSize;
-        frame++;
-        setTimeout(a, frameRate);
-      }
-    };
-    a();
-    setTimeout(function() { $puff.remove() }, frames * frameRate);
+        if(frame < frames)
+        {
+          $puff.css({
+            backgroundPosition: "0 "+bgTop+"px"
+          });
+          bgTop = bgTop - frameSize;
+          frame++;
+          setTimeout(a, frameRate);
+        }
+      };
+      a();
+      setTimeout(function() { $puff.remove() }, frames * frameRate);
+    });
   }
 
   var connect = function(p, cb) {
@@ -171,23 +175,47 @@ $(function()
       });
       updateUserTallies(tallies._combined);
     });
-    var $plugs = $('#plugs');
-    socket.on('admin.status.plugs', function(plug)
+    socket.on('admin.plugs.list', function(plugs)
     {
-      var $tpl = $('#tplPlug');
-      var $p = $plugs.find('[data-host="' + plug.host + '"]');
-      if($p.length == 0)
-      {
-        $p = $tpl.clone().attr('id', '').attr('data-host', plug.host).show().appendTo($plugs);
-      }
+      $plugs.find('.noresults').toggle(plugs.length == 0);
 
-      $p.find('.name').text(plug.name);
-      $p.find('.description').text(plug.description);
-      $p.find('.fas').toggleClass('text-success', plug.on == true);
-      $p.find('.fas').toggleClass('text-danger', plug.on == false);
+      var $tpl = $('#tplPlug');
+      $.each(plugs, function(id, plug)
+      {
+        var $p = $plugs.find('[data-hostname="' + plug.hostname + '"]');
+        if($p.length == 0)
+        {
+          $p = $tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo($plugs);
+          $p.find('a.toggle').click(function(event)
+          {
+            $(this).find('.fas')
+              .removeClass('text-success text-danger fa-power-off')
+              .addClass('fa-circle-notch fa-spin')
+            socket.emit('admin.plug.toggle', plug.hostname);
+            event.preventDefault();
+          });
+        }
+
+        $p.find('.name').text(plug.name);
+        $p.find('.description').text(plug.description);
+        $p.find('.fas')
+          .removeClass('fa-circle-notch fa-spin')
+          .addClass('fa-power-off')
+          .toggleClass('text-success', plug.on == true)
+          .toggleClass('text-danger', plug.on == false);
+      });
+    });
+    socket.on('admin.plugs.disconnect', function(hostname)
+    {
+      var $plug = $plugs.find('[data-hostname="' + hostname + '"]');
+      animatePuff($plug, true);
+      $plugs.find('.noresults').toggle($plugs.find('.user-panel').length == 0);
     });
     socket.on('disconnect', function()
     {
+      animatePuff($plugs.find('.user-panel'), true);
+      $plugs.find('.noresults').toggle(true);
+
       $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
       cb(new Error('Could not connect to socket'));
     });
