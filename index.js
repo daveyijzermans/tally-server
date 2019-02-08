@@ -203,6 +203,8 @@ connectToVmix = vmix =>
     if(vmix.connected == true)
     {
       vmix.connected = false;
+      delete hostTallies[vmix.name];
+      broadcastChanges('tallies');
       broadcastChanges('servers');
     }
     setTimeout(() => connectToVmix(vmix), 3000);
