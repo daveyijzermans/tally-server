@@ -1,0 +1,41 @@
+// -----------------------------------------------------------------------------
+// This file contains alert block styles.
+// 
+// Used in: public/component-alerts.html
+// -----------------------------------------------------------------------------
+
+.alert {
+	@include block-style();
+
+	padding: 18px 25px;
+	font-size: 14px;
+
+	h4 {
+		font-size: 16px;
+		margin-top: 0;
+	}
+
+	&-close {
+		font-size: 16px;
+		line-height: 23px;
+		float: right;
+		color: #000;
+		opacity: .15;
+		outline: none;
+
+		&:hover,
+		&:focus,
+		&:active{
+			opacity: .08
+		}
+	}
+}
+
+@include alert-style('primary', $primary-color);
+@include alert-style('secondary', $gray-color);
+@include alert-style('success', $green-color);
+@include alert-style('warning', $orange-color);
+@include alert-style('danger', $red-color);
+@include alert-style('info', $light-blue-color);
+@include alert-style('light', $light-gray-color, $black-color);
+@include alert-style('dark', $black-color);

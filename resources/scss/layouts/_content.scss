@@ -1,0 +1,114 @@
+// -----------------------------------------------------------------------------
+// This file contains content block styles.
+// -----------------------------------------------------------------------------
+
+.content {
+	position: relative;
+	display: block;
+	padding-top: 80px;
+	transition: .25s;
+
+	&-print {
+		@media print { 
+			* {
+				box-shadow: 0 !important;
+			}
+	
+			.box {
+				border: 0 !important;
+			}
+			.box-footer,
+			i {
+				display: none;
+			}
+
+			*[class*="container"] {
+				padding: 0 !important;
+			}
+		}
+	}
+}
+
+.content-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 20px;
+	padding-bottom: 25px;
+
+	@include phone() {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	h1 {
+		position: relative;
+		padding-left: 10px;
+		margin-bottom: 0;
+
+		small {
+			display: block;
+			font-size: 14px;
+			font-weight: 400;
+			color: $gray-color;
+
+			@include phone() {
+				margin-bottom: 10px;
+				line-height: 19px;
+			}
+		}
+
+		&:after {
+			position: absolute;
+			top: 0px;
+			left: 0;
+			content: '';
+			width: 3px;
+			height: 33px;
+			background: $primary-color;
+		}
+	}
+
+	&-scene {
+		position: relative;
+		left: -27px;
+		margin-bottom: -90px;
+		padding: 40px 27px 120px 27px;
+		height: calc(100% + 400px);
+		width: calc(100% + 54px);
+
+		& * {
+			position: relative;
+			z-index: 3;
+		}
+
+		h1 {
+			padding-left: 0;
+
+			&:after {
+				display: none;
+			}
+		}
+
+		&:after {
+			position: absolute;
+			top: 0;
+			left: -40vw;
+			width: calc(100% + 80vw);
+			height: 100%;
+			background: #fff;
+			content: '';
+		}
+	}
+}
+
+.content-title {
+	margin-bottom: 25px;
+
+	small {
+		display: block;
+		font-size: 14px;
+		font-weight: 400;
+		color: $gray-color;
+	}
+}

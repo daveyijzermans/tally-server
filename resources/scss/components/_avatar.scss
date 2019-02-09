@@ -1,0 +1,163 @@
+// -----------------------------------------------------------------------------
+// This file contains avatar block styles.
+// 
+// Used in: public/component-avatar.html
+// -----------------------------------------------------------------------------
+
+.avatar {
+	position: relative;
+	display: inline-block;
+	width: 65px;
+	height: 65px;
+	border-radius: 100px;
+	background: $gray-color;
+	vertical-align: top;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	color: rgba(#fff, .75);
+	font-weight: 700;
+
+	&:hover,
+	&:focus,
+	&:active {
+		text-decoration: none;
+	}
+
+	i {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		width: 19px;
+		height: 19px;
+		font-size: 14px;
+		line-height: 20px;
+		text-align: center;
+		background: #fff;
+		border-radius: 100px;
+	}
+	
+	&.avatar-bordered {
+		border: 4px solid rgba(255,255,255,.75);
+	}
+
+	&.avatar-lg{
+		width: 125px;
+		height: 125px;
+
+		i {
+			font-size: 24px;
+			line-height: 30px;
+			width: 30px;
+			height: 30px;
+		}
+	}
+
+	&.avatar-md {
+		width: 95px;
+		height: 95px;
+
+		i {
+			font-size: 18px;
+			line-height: 23px;
+			width: 23px;
+			height: 23px;
+		}
+	}
+
+	&.avatar-sm {
+		width: 45px;
+		height: 45px;
+
+		i {
+			font-size: 9px;
+			width: 13px;
+			height: 13px;
+			line-height: 13px;
+		}
+	}
+
+	&.avatar-xs {
+		width: 30px;
+		height: 30px;
+
+		i {
+			font-size: 6px;
+			width: 10px;
+			height: 10px;
+			line-height: 10px;
+		}
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 100%;
+	}
+
+	&-primary {
+		background: $primary-color;
+	}
+
+	&-secondary {
+		background: $gray-color;
+	}
+
+	&-success {
+		background: $green-color;
+	}
+
+	&-warning {
+		background: $orange-color;
+	}
+
+	&-danger {
+		background: $red-color;
+	}
+
+	&-info {
+		background: $light-blue-color;
+	}
+
+	&-light {
+		background: $light-gray-color;
+		color: $gray-color;
+	}
+
+	&-dark {
+		background: $black-color;
+	}
+}
+
+.avatar-stack {
+	position: relative;
+	
+	& > .avatar {
+		margin-right: -35px;
+		transition: .35s;
+	}
+
+	& > .avatar-xs {
+		margin-right: -14px;
+	}
+
+	& > .avatar-sm {
+		margin-right: -20px;
+	}
+
+	& > .avatar-lg {
+		margin-right: -70px;
+	}
+
+	&.avatar-stack-zoom:hover {
+		& > .avatar {
+			opacity: .5;
+			&:hover {
+				opacity: 1;
+				transform: scale(1.2);
+				z-index: 5;
+			}
+		}
+	}
+}

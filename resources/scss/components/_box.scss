@@ -1,0 +1,198 @@
+// -----------------------------------------------------------------------------
+// This file contains box block styles.
+// 
+// Used in: public/component-box.html
+// -----------------------------------------------------------------------------
+
+.box {
+	@include block-style();
+
+	&-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 15px 25px;
+		border-top-left-radius: 5px;
+		border-top-right-radius: 5px;
+		border-bottom: 1px solid #f7f7f7;
+		font-size: 16px;
+
+		@include phone() {
+			overflow-x: auto;
+			overflow-y: hidden;
+			-webkit-overflow-scrolling: touch;
+			-ms-overflow-style: -ms-autohiding-scrollbar;
+		}
+
+		&-border {
+			border-top: 2px solid $primary-color;
+		}
+
+		@include phone() {
+			padding: 15px 20px;
+		}
+
+		h3 {
+			margin: 0;
+			@include phone() {
+				min-width: 45%;
+			}
+		}
+
+		.user-panel {
+			width: 100%;
+		}
+	}
+
+	&-actions {
+		display: flex;
+		align-items: center;
+
+		input {
+			min-width: 120px;
+			max-width: 150px;
+
+		}
+
+		&-item {
+			margin: 0px 9px;
+			color: $gray-color;
+			opacity: .45;
+			font-weight: 700;
+			font-size: 12px;
+			line-height: 0;
+			white-space: nowrap;
+
+			&:hover,
+			&:active,
+			&:focus {
+				opacity: .45;
+				text-decoration: none;
+			}
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+
+	&-body {
+		padding: 15px 25px;
+
+		@include phone() {
+			padding: 15px 20px;
+		}
+	}
+
+	&-footer {
+		display: flex;
+		align-items: center;
+		padding: 15px 25px;
+		border-top: $block-border;
+		background: $light-gray-color;
+		border-bottom-left-radius: 5px;
+		border-bottom-right-radius: 5px;
+
+		@include phone() {
+			padding: 10px;
+		}
+
+		.btn + .btn {
+			margin-left: 15px;
+		}
+
+		p {
+			margin: 0;
+		}
+	}
+
+	&-arrow-top:before {
+		@include box-arrow();
+	}
+
+	&-arrow-top-right:before {
+		@include box-arrow();
+		left: auto;
+		right: 25px;
+	}
+
+	&-arrow-top-center:before {
+		@include box-arrow();
+		left: 50%;
+		margin-left: -7px;
+	}
+
+	&-arrow-left:before {
+		@include box-arrow();
+		top: 25px;
+		left: -8px;
+		transform: translateY(-50%) rotate(-135deg);
+	}
+
+	&-arrow-right:before {
+		@include box-arrow();
+		top: 25px;
+		left: auto;
+		right: -7px;
+		transform: translateY(-50%) rotate(45deg);
+	}
+
+	&-arrow-bottom:before {
+		@include box-arrow();
+		top: auto;
+		left: 25px;
+		bottom: -16px;
+		transform: translateY(-50%) rotate(135deg);
+	}
+
+	&-arrow-bottom-center:before {
+		@include box-arrow();
+		top: auto;
+		left: 50%;
+		margin-left: -7px;
+		bottom: -16px;
+		transform: translateY(-50%) rotate(135deg);
+	}
+
+	&-arrow-bottom-right:before {
+		@include box-arrow();
+		top: auto;
+		left: auto;
+		right: 25px;
+		bottom: -16px;
+		transform: translateY(-50%) rotate(135deg);
+	}
+
+	&-chat {
+		margin-top: 20px;
+		display: flex;
+
+		@include phone() {
+			flex-direction: column-reverse;
+		}
+	}
+
+	&-sm &-header,
+	&-sm &-body,
+	&-sm &-footer {
+		padding: 7px 15px;
+	}
+
+	&-sm &-footer .comments {
+		padding: 10px 15px;
+
+		&:before {
+			width: 10px;
+			height: 10px;
+		}
+	}
+}
+
+@include box-style('primary', $primary-color);
+@include box-style('secondary', $gray-color);
+@include box-style('success', $green-color);
+@include box-style('warning', $orange-color);
+@include box-style('danger', $red-color);
+@include box-style('info', $light-blue-color);
+@include box-style('light', $light-gray-color);
+@include box-style('dark', $black-color);

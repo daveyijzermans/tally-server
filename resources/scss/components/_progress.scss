@@ -1,0 +1,28 @@
+// -----------------------------------------------------------------------------
+// This file contains progress block styles.
+// 
+// Used in: public/component-tables.html
+// -----------------------------------------------------------------------------
+
+.progress {
+	position: relative;
+	display: flex;
+	align-items: center;
+	height: 6px;
+	background: $light-gray-color;
+	border-radius: $block-border-radius;
+
+	&.progress-lg {
+		height: 8px;
+	}
+
+	&.progress-sm {
+		height: 4px;
+	}
+
+	&-bar {
+		position: absolute;
+		height: 100%;
+		background: $primary-color;
+	}
+}

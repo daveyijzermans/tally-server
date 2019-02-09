@@ -1,0 +1,138 @@
+// -----------------------------------------------------------------------------
+// This file contains card block styles.
+// 
+// Used in: public/component-card.html
+// -----------------------------------------------------------------------------
+
+.card {
+	display: flex;
+	overflow: hidden;
+
+	@include block-style();
+
+	@include phone() {
+		flex-direction: column !important;
+	}
+
+	&-reverse {
+		flex-direction: row-reverse;
+	}
+
+	&-column {
+		flex-direction: column;
+
+		&.card-reverse {
+			flex-direction: column-reverse;
+		}
+
+		.card-image {
+			width: 100%;
+			height: 140px;
+		}
+
+		.card-body {
+			width: 100%;
+		}
+	}
+
+	&-bg {
+
+		.card-image {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+
+			&:after {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				content: '';
+				background: rgba(0,0,0,.3);
+			}
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-position: center;
+			}
+		}
+
+		.card-body {
+			padding: 45px;
+			width: 100%;
+			position: relative;
+			z-index: 3;
+
+			@include phone() {
+				padding: 25px;
+			}
+		}
+	}
+
+	&-sm {
+		.card-image {
+			width: 25%;
+		}
+
+		.card-body {
+			width: 75%;
+		}
+	}
+
+	&-image {
+		position: relative;
+		width: 35%;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			font-family: 'object-fit: cover;';
+		}
+
+		@include phone() {
+			width: 100% !important;
+		}
+	}
+
+	&-body {
+		width: 65%;
+		padding: 25px 30px;
+
+		@include phone() {
+			width: 100% !important;
+		}
+
+		&-jumbotron {
+			display: flex;
+			min-height: 280px;
+			justify-content: space-between;
+			align-items: flex-end;
+
+			@include phone(){
+				// padding: 35px 50px !important;
+				min-height: auto;
+				flex-direction: column;
+			    align-items: center;
+			    justify-content: center;
+
+			    & > *:not(:last-child) {
+					margin-bottom: 20px;
+			    }
+			}
+		}
+	}
+
+	.user-panel {
+		&:last-child {
+			margin-top: 15px;
+		}
+		&:not(:last-child) {
+			margin: 15px 0
+		}
+	}
+}

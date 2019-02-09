@@ -1,0 +1,69 @@
+// -----------------------------------------------------------------------------
+// This file contains tooltip block styles.
+// 
+// Used in: public/component-button.html
+// -----------------------------------------------------------------------------
+
+.tooltip {
+	margin: 7px;
+	padding: 5px 10px;
+	min-width: 100px;
+	font-weight: 400;
+	font-size: 13px;
+	text-align: center;
+	border-radius: 4px;
+	color: $black-color;
+	border: $block-border;
+	box-shadow: 0px 4px 10px rgba(#000, .025);
+	background: #fff;
+}
+
+.tooltip-arrow {
+	position: absolute;
+	left: 50%;
+	top: 100%;
+	height: 6px;
+	width: 6px;
+	background-color: #fff;
+	border-left: $block-border;
+	border-bottom: $block-border;
+	transform: translateY(-50%) rotate(-45deg);
+	z-index: 30;
+}
+
+div[aria-hidden="false"] {
+	animation-name: fadeIn;
+	animation-duration: .15s;
+	animation-timing-function: linear;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+div[x-placement="left"] .tooltip-arrow{
+	left: calc(100% - 3px);
+	border-left: 0;
+	border-bottom: $block-border;
+	border-right: $block-border;
+}
+
+div[x-placement="right"] .tooltip-arrow{
+	left: -3px;
+	border-top: $block-border;
+	border-bottom: 0;
+}
+
+div[x-placement="bottom"] .tooltip-arrow{
+	top: auto;
+	bottom: calc(100% - 6px);
+	border-top: $block-border;
+	border-right: $block-border;
+	border-bottom: 0;
+	border-left: 0;
+}

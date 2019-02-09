@@ -9,9 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="format-detection" content="telephone=no">
 
-  <link href="/vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/main.css">
-  <link rel="stylesheet" href="/assets/css/custom.css">
 </head>
 <body>
   <div class="wrapper theme-inverse">
@@ -30,7 +28,7 @@
             <i class="far fa-bell"></i>
             <span class="badge badge-pill"></span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-right" id="log"></ul>
+          <div class="dropdown-menu py-10 px-25 dropdown-menu-right" id="log"></div>
         </li>
         <li>
           <a href="#" class="user-panel dropdown-toggle" id="serverMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -106,11 +104,136 @@
             <div class="row">
               <div class="col-lg-12">
                 <div class="box">
-                  <div class="box-header">
-                    <h3><i class="fas fa-code-branch"></i> Signal Flow</h3>
+                  <div class="tabs-box">
+                    <h3 class="pull-left"><i class="fas fa-code-branch"></i> Signal Flow</h3>
+                    <div class="nav" role="tablist">
+                      <button class="tabs-trigger active" id="avFrontTab" data-toggle="tab" href="#avFront" role="tab" aria-controls="avFront" aria-selected="true">Front</button>
+                      <button class="tabs-trigger" id="avBackTab" data-toggle="tab" href="#avBack" role="tab" aria-controls="avBack" aria-selected="false">Back</button>
+                      <button class="tabs-trigger" id="avRackTab" data-toggle="tab" href="#avRack" role="tab" aria-controls="avRack" aria-selected="false">Rack</button>
+                    </div>
                   </div>
-                  <div class="box-body">
-                    This section will contain the AV path flow
+                  <div class="tab-content">
+                    <div class="tab-pane box-body show active" id="avFront" role="tabpanel" aria-labelledby="avFrontTab">
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="info-box bg-dark shadow-dark">
+                                <div class="info-box-content">
+                                  <div class="info-box-text">
+                                    <span class="info-box-number">
+                                      3510
+                                    </span>
+                                    Tascam DR-60D
+                                  </div>
+                                  <div class="info-box-icon text-dark">
+                                    <i class="far fa-save"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="info-box bg-danger shadow-danger">
+                                <div class="info-box-content">
+                                  <div class="info-box-text">
+                                    <span class="info-box-number">
+                                      3510
+                                    </span>
+                                    Blackmagic Video Assist
+                                  </div>
+                                  <div class="info-box-icon text-danger">
+                                    <i class="fas fa-sd-card"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="row">
+                            <div class="col-lg-4">
+                              <div class="info-box bg-warning shadow-warning">
+                                <div class="info-box-content">
+                                  <div class="info-box-text">
+                                    <span class="info-box-number">
+                                      3510
+                                    </span>
+                                    Sales
+                                  </div>
+                                  <div class="info-box-icon text-warning">
+                                    <i class="i-shopping-cart"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="info-box bg-warning shadow-warning">
+                                <div class="info-box-content">
+                                  <div class="info-box-text">
+                                    <span class="info-box-number">
+                                      3510
+                                    </span>
+                                    Sales
+                                  </div>
+                                  <div class="info-box-icon text-warning">
+                                    <i class="i-shopping-cart"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="info-box bg-warning shadow-warning">
+                                <div class="info-box-content">
+                                  <div class="info-box-text">
+                                    <span class="info-box-number">
+                                      3510
+                                    </span>
+                                    Sales
+                                  </div>
+                                  <div class="info-box-icon text-warning">
+                                    <i class="i-shopping-cart"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="info-box bg-success shadow-success">
+                            <div class="info-box-content">
+                              <div class="info-box-text">
+                                <span class="info-box-number">
+                                  3510
+                                </span>
+                                Sales
+                              </div>
+                              <div class="info-box-icon text-success">
+                                <i class="i-shopping-cart"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="info-box bg-success shadow-success">
+                            <div class="info-box-content">
+                              <div class="info-box-text">
+                                <span class="info-box-number">
+                                  3510
+                                </span>
+                                Sales
+                              </div>
+                              <div class="info-box-icon text-success">
+                                <i class="i-shopping-cart"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane box-body" id="avBack" role="tabpanel" aria-labelledby="avBackTab">...</div>
+                    <div class="tab-pane box-body" id="avRack" role="tabpanel" aria-labelledby="avRackTab">...</div>
                   </div>
                 </div>
               </div>
@@ -263,9 +386,6 @@
       </div>
     </div>
   </div>
-  <script src="/vendor/jquery/dist/jquery.slim.min.js"></script>
-  <script src="/vendor/jquery-md5/jquery.md5.js"></script>
-  <script src="/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/assets/js/main.js"></script>
 </body>

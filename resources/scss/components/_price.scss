@@ -1,0 +1,63 @@
+// -----------------------------------------------------------------------------
+// This file contains price block styles.
+// 
+// Used in: public/component-widgets.html
+// -----------------------------------------------------------------------------
+
+.price {
+	@include block-style();
+	position: relative;
+	overflow: hidden;
+	height: calc(100% - 20px);
+
+	&-top {
+		padding: 25px;
+		text-align: center;
+		border-bottom: $block-border;
+
+		p {
+			margin: 15px 0;
+		}
+
+		small {
+			display: block;
+			font-size: 10px;
+		}
+
+		&[class*="bg-"] *{
+			color: #fff !important;
+		}
+	}
+
+	&-number {
+		display: block;
+		font-size: 36px;
+
+		small {
+			display: inline-block;
+			font-size: 16px;
+			font-weight: 400;
+		}
+
+		sup {
+			font-size: 18px;
+		}
+	}
+
+	&-bottom {
+		padding: 20px 25px;
+
+		ul {
+			padding: 0;
+			list-style: none;
+		}
+
+		li {
+			font-size: 14px;
+
+			i {
+				margin-right: 5px;
+			}
+		}
+	}
+}

@@ -1,0 +1,346 @@
+// -----------------------------------------------------------------------------
+// This file contains all typography styles.
+// -----------------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// Headlines.
+// -----------------------------------------------------------------------------
+h1, h2, h3, h4, h5, h6 {
+	margin-top: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
+
+    &:first-child {
+    	margin-top: 0;
+    }
+
+    small {
+    	display: block;
+    	font-size: 13px;
+    	font-weight: 500;
+    	color: $gray-color;
+    }
+}
+
+h1 {
+	font-size: 28px;
+}
+
+h2 {
+	font-size: 24px;
+}
+
+h3 {
+	font-size: 20px;
+}
+
+h4 {
+	font-size: 18px;
+}
+
+h5 {
+	font-size: 16px;
+}
+
+h6 {
+	font-size: 14px;
+}
+
+.h1 {
+	font-size: 28px;
+}
+
+.h2 {
+	font-size: 24px;
+}
+
+.h3 {
+	font-size: 20px;
+}
+
+.h4 {
+	font-size: 18px;
+}
+
+.h5 {
+	font-size: 16px;
+}
+
+.h6 {
+	font-size: 14px;
+}
+
+// -----------------------------------------------------------------------------
+// Base.
+// -----------------------------------------------------------------------------
+
+p {
+	margin-bottom: 15px;
+	font-size: 14px;
+	line-height: 19px;
+	color: $gray-color;
+}
+
+a {
+	text-decoration: none;
+	color: $primary-color;
+	-webkit-tap-highlight-color: transparent;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
+}
+
+mark {
+	background: #fcf8e3;
+}
+
+code {
+	padding: 2px;
+	font-size: 13px;
+	color: $red-color;
+	background: rgba($red-color, .035);
+}
+
+// -----------------------------------------------------------------------------
+// Text preservation
+// -----------------------------------------------------------------------------
+a,
+p,
+small,
+span {
+	word-wrap: break-word;
+}
+
+// -----------------------------------------------------------------------------
+// List styles.
+// -----------------------------------------------------------------------------
+ul, ol {
+	padding-left: 20px;
+	color: $gray-color;
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 15px;
+
+	li {
+		margin-bottom: 4px;
+	}
+
+	& ul,
+	& ol {
+		margin-bottom: 0;
+	}
+}
+
+ul.unstyled,
+ol.unstyled {
+	padding-left: 0;
+	list-style: none;
+}
+
+.list-bordered {
+	li:not(:last-child) {
+		padding-bottom: 10px;
+		margin-bottom: 10px;
+		border-bottom: $block-border;
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Block quote.
+// -----------------------------------------------------------------------------
+blockquote {
+	margin-bottom: 15px;
+	padding: 14px 0 14px 20px;
+	border-radius: 4px;
+	border-left: 4px solid $primary-color;
+	background: linear-gradient(to right, rgba($primary-color, .05), transparent);
+
+	& p {
+		color: $black-color;
+		font-size: 16px;
+	}
+
+	& small {
+		color: $gray-color;
+		font-size: 14px;
+
+		&:before {
+			content: '– ';
+		}
+	}
+
+	.avatar {
+		margin-right: 15px;
+	}
+
+	&.d-flex > .d-block {
+		width: 80%;
+	}
+
+	&.pull-right {
+		margin: auto;
+		margin-bottom: 15px;
+		padding: 14px 20px 14px 0;
+		border-left: 0;
+		border-right: 4px solid $primary-color;
+		background: linear-gradient(to left, rgba($primary-color, .05), transparent);
+		text-align: right;
+
+		&.d-flex {
+			flex-direction: row-reverse;
+
+			.avatar {
+				margin: 0;
+				margin-left: 15px;
+			}
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Description.
+// -----------------------------------------------------------------------------
+dl {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+dt {
+	font-weight: 700;
+	color: $black-color;
+	line-height: 19px;
+}
+
+dt[class*="col-"] {
+	font-weight: 400;
+	color: $gray-color;
+	line-height: 19px;
+}
+
+dd {
+	position: relative;
+	padding-bottom: 8px;
+	line-height: 19px;
+	word-wrap: break-word;
+	color: $gray-color;
+
+	a.pull-right {
+		color: $primary-color;
+		font-size: 12px;
+	}
+
+	@include phone() {
+		padding-bottom: 12px;
+	}
+}
+
+hr {
+	margin: 12px 0;
+	margin-bottom: 8px;
+	border: 0;
+	border-bottom: 1px solid lighten($gray-color, 45%);
+}
+
+// -----------------------------------------------------------------------------
+// Text modifiers.
+// -----------------------------------------------------------------------------
+.text-primary {
+	color: $primary-color !important;
+}
+
+.text-secondary {
+	color: $gray-color !important;
+}
+
+.text-success {
+	color: $green-color !important;
+}
+
+.text-danger {
+	color: $red-color !important;
+}
+
+.text-warning {
+	color: $orange-color !important;
+}
+
+.text-info {
+	color: $light-blue-color !important;
+}
+
+.text-light {
+	color: $light-gray-color !important;
+}
+
+.text-dark {
+	color: $black-color !important;
+}
+
+.text-black {
+	color: $black-color !important;
+}
+
+.text-black-75 {
+	color: rgba(0, 0, 0, .75) !important;
+}
+
+.text-black-25 {
+	color: rgba(0, 0, 0, .25) !important;
+}
+
+.text-white {
+	color: #fff !important;
+}
+
+.text-white-75 {
+	color: rgba(255, 255, 255, .75) !important;
+}
+
+.text-white-25 {
+	color: rgba(255, 255, 255, .25) !important;
+}
+
+.text-sm {
+	font-size: 12px;
+
+	i {
+		font-size: 11px;
+		margin-right: 3px;
+	}
+}
+
+.text-lg {
+	font-size: 16px;
+
+	i {
+		font-size: 14px;
+		margin-right: 4px;
+	}
+}
+
+.lead {
+	font-weight: 300;
+}
+
+.display-1 {
+	font-size: 72px !important;
+	font-weight: 300 !important;
+}
+
+.display-2 {
+	font-size: 64px !important;
+	font-weight: 300 !important;
+}
+
+.display-3 {
+	font-size: 52px !important;
+	font-weight: 300 !important;
+}
+
+.display-4 {
+	font-size: 43px !important;
+	font-weight: 300 !important;
+}

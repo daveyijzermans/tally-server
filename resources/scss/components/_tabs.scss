@@ -1,0 +1,128 @@
+// -----------------------------------------------------------------------------
+// This file contains tabs block styles.
+// 
+// Used in: public/component-box.html
+// -----------------------------------------------------------------------------
+
+.tabs-row {
+	display: flex;
+	margin-top: 10px;
+	margin-bottom: 25px;
+	border-bottom: 2px solid lighten($gray-color, 30%);
+
+	.tabs-trigger {
+		position: relative;
+		display: flex;
+		align-items: center;
+		padding: 10px 15px;
+		font-size: 16px;
+		font-weight: 500;
+		color: $gray-color;
+		outline: none;
+
+		@include phone() {
+			padding: 8px 10px;
+			font-size: 14px;
+		}
+
+		&:hover {
+			color: $primary-color;
+		}
+
+		&:after {
+			position: absolute;
+			content: '';
+			top: 100%;
+			left: 0;
+			height: 2px;
+			width: 100%;
+			background: transparent;
+		}
+
+		i {
+			margin-right: 8px;
+			font-size: 20px;
+		}
+
+		&.active {
+			color: $primary-color;
+
+			&:after {
+				background: $primary-color;
+			}
+		}
+	}
+}
+
+
+.tabs-box {
+	display: flex;
+	align-items: center;
+	padding: 10px 25px 0px 25px;
+	font-size: 16px;
+	background: $light-gray-color;
+	color: $gray-color;
+	border-bottom: $block-border;
+	overflow: scroll;
+
+	@include phone() {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+	}
+
+	h1,h2,h3,h4,h5,h6 {
+		font-size: 18px;
+		font-weight: 700;
+		margin: 0;
+
+		@include phone() {
+			font-size: 15px;
+			min-width: 70px;
+		}
+	}
+
+	.tabs-trigger {
+		position: relative;
+		top: 1px;
+		padding: 5px 15px;
+		border: 1px solid transparent;
+		border-top-right-radius: $block-border-radius;
+		border-top-left-radius: $block-border-radius;
+		transition: .25s;
+
+		@include phone() {
+			min-width: 70px;
+			padding: 5px 10px;
+			-webkit-overflow-scrolling: touch;
+			-ms-overflow-style: -ms-autohiding-scrollbar;
+		}
+
+		&.active {
+			background: #fff;
+			color: $primary-color;
+			border: $block-border;
+			border-bottom: 1px solid transparent;
+		}
+
+		&:hover,
+		&:active,
+		&:focus {
+			color: $primary-color;
+			outline: none;
+		}
+	}
+}
+
+.tabs-item {
+	display: none;
+
+	&.active {
+		display: block;
+	}
+
+	&.row.active {
+		display: flex;
+	}
+}

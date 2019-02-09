@@ -1,0 +1,91 @@
+// -----------------------------------------------------------------------------
+// This file contains info-box block styles.
+// 
+// Used in: public/dashboard-1.html
+// -----------------------------------------------------------------------------
+
+.info-box {
+	overflow: hidden;
+
+	@include block-style();
+
+	&-content {
+		display: flex;
+		align-items: center;
+		padding: 18px 25px;
+
+		& + * {
+			padding: 8px 15px;
+			border-top: 1px solid $light-gray-color;
+		}
+	}
+
+	&-number {
+		display: block;
+		font-weight: 700;
+		font-size: 20px;
+		color: $black-color;
+	}
+
+	&-text {
+		font-size: 14px;
+		color: $gray-color;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	&-icon {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-right: 15px;
+		width: 60px;
+		height: 60px;
+		line-height: 0;
+		font-size: 48px;
+
+		&[class*="bg-"] {
+			
+			border-radius: $block-border-radius;
+			color: #fff;
+			font-size: 32px;
+		}
+	}
+
+	&-text + &-icon {
+		margin-right: 0;
+		margin-left: auto;
+	}
+
+	&-chart {
+		width: 100%;
+		height: 50px;
+		border: 0;
+		padding: 0;
+	}
+
+	span {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&[class*="bg-"] &-text,
+	&[class*="bg-"] &-number,
+	&[class*="bg-"] span,
+	&[class*="bg-"] small,
+	&[class*="bg-"] p,
+	&[class*="bg-"] i{
+		color: #fff !important;
+	}
+
+	&.bg-white &-text,
+	&.bg-white &-number,
+	&.bg-white span,
+	&.bg-white small,
+	&.bg-white p,
+	&.bg-white i{
+		color: inherit !important;
+	}
+}

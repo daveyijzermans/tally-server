@@ -1,0 +1,71 @@
+// -----------------------------------------------------------------------------
+// This file contains table block styles.
+// 
+// Used in: public/component-tables.html
+// -----------------------------------------------------------------------------
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+
+	th {
+		padding: 5px 15px;
+		text-align: left;
+		text-transform: uppercase;
+		font-weight: 500;
+		font-size: 12px;
+		color: $gray-color;
+		border-bottom: 1px solid $light-gray-color;
+	}
+
+	tr {
+		border-bottom: 1px solid $light-gray-color;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		&:hover {
+			background: rgba(0,0,0,0.02);
+		}
+	}
+
+	td {
+		padding: 8px 15px;
+		text-align: left;
+	}
+
+	&-responsive {
+		display: block;
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+	}
+
+	&.table-bordered {
+		th, 
+		td {
+			border: 1px solid $light-gray-color;
+		}
+	}
+
+	&.table-noborder {
+		th, 
+		td,
+		tr {
+			border: 0;
+		}
+	}
+
+	&.table-stripped {
+		tr:nth-of-type(odd) {
+		    background: rgba(0,0,0,0.02);
+		}
+	}
+
+	.progress {
+		min-width: 200px;
+	}
+}

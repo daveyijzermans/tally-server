@@ -1,0 +1,41 @@
+// -----------------------------------------------------------------------------
+// This file contains text partition block styles.
+// 
+// Used in: public/page-profile.html
+// -----------------------------------------------------------------------------
+
+.text-partition {
+	position: relative;
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	margin-bottom: 10px;
+	font-size: 14px;
+
+	&:after {
+		position: absolute;
+		content: '';
+		top: 10px;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		background: lighten($gray-color, 40%);
+	}
+
+	a {
+		font-size: 12px;
+	}
+
+	& > * {
+		position: relative;
+		background: #fff;
+		z-index: 3;
+
+		&:first-child {
+			padding-right: 8px;
+		}
+		&:last-child:not(:nth-child(1)) {
+			padding-left: 8px;
+		}
+	}
+}

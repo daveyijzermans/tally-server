@@ -1,0 +1,36 @@
+// -----------------------------------------------------------------------------
+// This file contains event row styles.
+// 
+// Used in: public/component-events.html
+// -----------------------------------------------------------------------------
+
+.event-row {
+	display: flex;
+	flex-direction: column;
+
+	& > *:not(:last-child){
+		margin-bottom: 6px;
+	}
+
+	a {
+		color: $primary-color;
+		font-weight: 500;
+	}
+
+	&:not(:last-child) {
+		border-bottom: $block-border;
+		padding-bottom: 12px;
+		margin-bottom: 12px;
+	}
+
+	.d-flex {
+		flex-wrap: wrap;
+		& > .avatar {
+			margin-right: 8px;
+		}
+
+		& *:not(:first-child) {
+			max-width: 90%;
+		}
+	}
+}

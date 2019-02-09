@@ -1,0 +1,14 @@
+// -----------------------------------------------------------------------------
+// This file contains status icon styles.
+// 
+// Used in: public/component-avatar.html
+// -----------------------------------------------------------------------------
+
+.status-icon {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	background: $primary-color;
+	border-radius: 100px;
+	margin-right: 3px;
+}

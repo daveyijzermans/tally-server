@@ -1,0 +1,8 @@
+@include shadow-style('primary', $primary-color);
+@include shadow-style('secondary', $gray-color);
+@include shadow-style('success', $green-color);
+@include shadow-style('warning', $orange-color);
+@include shadow-style('danger', $red-color);
+@include shadow-style('info', $light-blue-color);
+@include shadow-style('light', $light-gray-color);
+@include shadow-style('dark', $black-color);

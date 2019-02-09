@@ -1,0 +1,121 @@
+// -----------------------------------------------------------------------------
+// This file contains header block styles.
+// -----------------------------------------------------------------------------
+
+.header {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	padding: 10px 20px;
+	height: 80px;
+	background: #fff;
+	border-bottom: 1px solid #eee;
+	transition: .25s;
+	z-index: 5;
+
+	.container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		@include phone() {
+			padding: 0;	
+		}
+	}
+
+	&-fixed {
+		position: fixed;
+		width: 100%;
+		z-index: 10;
+	}
+
+	&-nav {
+		display: flex;
+		align-items: center;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+		color: $primary-color;
+	
+		&-mobile {
+			@include phone() {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				display: none;
+				width: 100%;
+				padding: 5px 10px;
+				background: darken($blue-color, 5%);
+
+				.dropdown-menu {
+					width: 97%;
+				}
+			}
+		}
+
+		li {
+			margin-bottom: 0;
+		}
+
+		&-item {
+			position: relative;
+			display: flex;
+			min-width: 30px;
+			margin: 0px 3px;
+			padding: 8px 10px;
+			border-radius: $block-border-radius;
+			text-align: center;
+			font-size: 15px;
+			font-weight: 500;
+			color: rgba($primary-color, .9);
+			transition: .25s;
+
+			&.active {
+				background: lighten($primary-color, 35%);
+			}
+				
+			.badge {
+				position: absolute;
+				top: -1px;
+				right: -1px;
+				max-width: 30px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			
+			&:hover,
+			&:active,
+			&:focus {
+				background: rgba($primary-color, .05);
+				text-decoration: none;
+			}
+
+			i {
+				font-size: 24px;
+			}
+		}
+
+		.user-panel {
+			margin: 0px 10px;
+
+			small {
+				color: rgba(#fff, .75);
+			}
+
+			i {
+				color: #fff;
+			}
+		}
+	}
+
+	.logo {
+		height: auto;
+		padding-left: 0;
+		padding-right: 10px;
+		color: $primary-color;
+	}
+
+}

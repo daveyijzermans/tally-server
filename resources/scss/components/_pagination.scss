@@ -1,0 +1,114 @@
+// -----------------------------------------------------------------------------
+// This file contains pagination block styles.
+// 
+// Used in: public/component-buttons.html
+// -----------------------------------------------------------------------------
+
+.pagination {
+	display: flex;
+	padding: 0;
+	margin: 28px 0;
+	list-style: none;
+
+	@include phone() {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+	}
+
+	.page-link {
+		display: block;
+		padding: 8px 14px;
+		margin: 0;
+		background: transparent;
+		border: $block-border;
+		outline: none;
+
+		&.active {
+			background: $primary-color;
+			color: #fff;
+		}
+
+		&.disabled {
+			color: $gray-color;
+
+			&:hover {
+				background: transparent !important;
+				cursor: not-allowed;
+			}
+		}
+
+		&:hover,
+		&:focus,
+		&:active {
+			text-decoration: none;
+		}
+
+		&:not(:last-child){
+			border-right: 0;
+		}
+		
+		&:first-child {
+			border-top-left-radius: 6px;
+			border-bottom-left-radius: 6px;
+		}
+
+		&:last-child {
+			border-top-right-radius: 6px;
+			border-bottom-right-radius: 6px;
+		}
+	}
+
+	.page-item {
+		margin-bottom: 0;
+
+		.page-link {
+			border-radius: 0;
+		}
+
+		&:not(:last-child){
+			.page-link {
+				border-right: 0;
+			}
+		}
+		
+		&:first-child {
+			.page-link {
+				border-top-left-radius: 6px;
+				border-bottom-left-radius: 6px;
+			}
+		}
+
+		&:last-child {
+			.page-link {
+				border-top-right-radius: 6px;
+				border-bottom-right-radius: 6px;
+			}
+		}
+	}
+
+	a.page-link:not(.active):not(.disabled):hover,
+	a.page-link:not(.active):not(.disabled):focus {
+		text-decoration: none;
+		background: lighten($gray-color, 40%);
+	}
+
+	a.page-link:not(.active):not(.disabled):focus {
+		box-shadow: 0 0 0 3px rgba($primary-color, .4);
+	}
+
+	&-sm {
+		.page-link {
+			padding: 5px 10px;
+			font-size: 13px;
+		}
+	}
+
+	&-lg {
+		.page-link {
+			padding: 10px 18px;
+			font-size: 17px;
+		}
+	}
+}

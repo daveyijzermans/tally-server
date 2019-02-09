@@ -1,0 +1,87 @@
+// -----------------------------------------------------------------------------
+// SCSS main entry point.
+// 
+// Table of contents:
+// 
+// 1. Configuration and helpers
+// 2. Vendors
+// 3. Base
+// 4. Typography
+// 5. Layouts
+// 6. Components
+// -----------------------------------------------------------------------------
+
+@charset 'UTF-8';
+
+// 1. Configuration and helpers
+@import
+  'helpers/variables',
+  'helpers/mixins',
+  'helpers/service';
+
+// 2. Vendors
+@import
+  '../vendor/bootstrap/scss/bootstrap',
+  '../vendor/fontawesome/scss/fontawesome',
+  '../vendor/fontawesome/scss/brands',
+  '../vendor/fontawesome/scss/solid',
+  '../vendor/fontawesome/scss/regular';
+
+// 3. Base
+@import
+  'base',
+  'forms';
+  
+// 4. Typography
+@import
+  'typography/iconsfont',
+  'typography/typography';
+
+// 5. Layouts
+@import
+  'layouts/content',
+  'layouts/sidebar',
+  'layouts/header',
+  'layouts/footer',
+  'layouts/wrapper';
+
+// 6. Components
+@import
+  'components/chat',
+  'components/message',
+  'components/breadcrumb',
+  'components/button',
+  'components/progress',
+  'components/box',
+  'components/info-box',
+  'components/card',
+  'components/profile',
+  'components/table',
+  'components/badge',
+  'components/icon',
+  'components/status-icon',
+  'components/payments',
+  'components/flags',
+  'components/avatar',
+  'components/user-panel',
+  'components/text-partition',
+  'components/tabs',
+  'components/event-row',
+  'components/event-column',
+  'components/video',
+  'components/img',
+  'components/alert',
+  'components/tooltip',
+  'components/popover',
+  'components/jumbotron',
+  'components/comments',
+  'components/accordion',
+  'components/pagination',
+  'components/price',
+  'components/chart',
+  'components/dropdown',
+  'components/logo',
+  'components/loader',
+  'components/shadow';
+
+@import 'custom';

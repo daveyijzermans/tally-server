@@ -1,0 +1,163 @@
+// -----------------------------------------------------------------------------
+// This file contains button block styles.
+// 
+// Used in: public/component-button.html
+// -----------------------------------------------------------------------------
+
+button {
+	font: inherit;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	color: inherit;
+	border: none;
+	background-color: transparent;
+	outline: none;
+}
+
+.btn {
+	position: relative;
+	display: inline-block;
+	padding: 8px 12px;
+	text-align: center;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	color: $primary-color;
+	border-radius: 4px;
+	background: #fff;
+	border: $block-border;
+	transition: .2s;
+
+	&:disabled {
+		background: #fff;
+		cursor: not-allowed;
+		color: lighten($primary-color, 20%);
+
+		&:hover{
+			background: lighten(#fff, 20%);
+		}
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+		outline: none;
+		text-decoration: none;
+	}
+
+	&:hover{
+		background: darken(#fff, 4%);
+	}
+
+	&:focus {
+	  	box-shadow: 0 0 0 3px rgba($gray-color, .1);
+	}
+
+	&-group {
+		display: flex;
+		font-size: 0;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+
+		& > &:not(:last-child) > .btn, & > .btn:not(:last-child):not(.dropdown-toggle) {
+		    border-top-right-radius: 0;
+		    border-bottom-right-radius: 0;
+		}
+
+		& > &:not(:first-child)>.btn, & > .btn:not(:first-child){
+			border-top-left-radius: 0;
+    		border-bottom-left-radius: 0;
+		}
+	
+		.dropdown-toggle:nth-child(2) {
+			padding-left: 6px;
+		}
+
+		&-stretch {
+			display: flex;
+			.btn {
+				width: 100%;
+			}
+		}
+	}
+
+	&-toolbar {
+		display: flex;
+		flex-direction: flex-start;
+		align-items: center;
+
+		& > *:not(:last-child) {
+			margin-right: 5px;
+		}
+	}
+
+	&-lg {
+		padding: 12px 18px;
+		line-height: 16px;
+		font-size: 16px;
+	}
+
+	&-sm {
+		padding: 4px 11px;
+		font-size: 13px;
+	}
+
+	&-block {
+		width: 100%;
+		display: block;
+	}
+
+	&-block + &-block {
+		margin-top: 8px;
+	}
+
+	&-rounded {
+		border-radius: 50px;
+	}
+
+	&-link {
+		padding: 0px 8px;
+		background: transparent;
+		border: 1px solid transparent;
+		color: $primary-color;
+
+		&:hover,
+		&:focus,
+		&:active {
+			opacity: .5;
+			box-shadow: none;
+			background: transparent;
+		}
+
+		&.disabled,
+		&:disabled {
+			color: lighten($primary-color, 20%);
+			cursor: not-allowed;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+@include button-style('primary', $primary-color);
+@include button-style('secondary', $gray-color);
+@include button-style('success', $green-color);
+@include button-style('warning', $orange-color);
+@include button-style('danger', $red-color);
+@include button-style('info', $light-blue-color);
+@include button-style('light', $light-gray-color, $gray-color);
+@include button-style('dark', $black-color);
+
+@include button-link-style('primary', $primary-color);
+@include button-link-style('secondary', $gray-color);
+@include button-link-style('success', $green-color);
+@include button-link-style('warning', $orange-color);
+@include button-link-style('danger', $red-color);
+@include button-link-style('info', $light-blue-color);
+@include button-link-style('light', $light-gray-color, $black-color);
+@include button-link-style('dark', $black-color);

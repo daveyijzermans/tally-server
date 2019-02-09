@@ -1,0 +1,40 @@
+// -----------------------------------------------------------------------------
+// This file contains comments block styles.
+// 
+// Used in: public/page-profile.html
+// -----------------------------------------------------------------------------
+
+.comments {
+	position: relative;
+	padding: 15px 20px;
+	width: 100%;
+	background: #fff;
+	border: $block-border;
+	border-radius: 6px;
+
+	@include phone() {
+		padding: 10px;
+	}
+
+	&:before {
+		content: "";
+	    height: 15px;
+	    width: 15px;
+	    display: block;
+	    position: absolute;
+	    top: -1.5px;
+	    left: 50px;
+	    border-top: $block-border;
+	    border-right: $block-border;
+	    transform: translateY(-50%) rotate(-45deg);
+	    background-color: #fff;
+	}
+
+	& .user-panel {
+		&:not(:first-child) {
+			margin-top: 5px;
+			padding-top: 10px;
+			border-top: 1px solid #f7f7f7;
+		}
+	}
+}

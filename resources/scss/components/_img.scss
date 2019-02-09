@@ -1,0 +1,91 @@
+// -----------------------------------------------------------------------------
+// This file contains img block styles.
+// 
+// Used in: public/component-image.html
+// -----------------------------------------------------------------------------
+
+.img {
+	margin-bottom: 15px;
+	color: $gray-color;
+	font-weight: 900;
+	font-size: 16px;
+
+	&-bg {
+		background: $light-gray-color;
+	}
+
+	&-rounded {
+		border-radius: 4px;
+	}
+
+	&-square {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 80px;
+		height: 80px;
+		overflow: hidden;
+		color: $gray-color;
+		transition: .25s;
+
+		&:not(:last-child) {
+			margin-right: 10px;
+		}
+
+		&-lg {
+			width: 120px;
+			height: 120px;
+		}
+
+		&-sm {
+			width: 50px;
+			height: 50px;
+		}
+
+		&-xs {
+			width: 35px;
+			height: 35px;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	img {
+		position: relative;
+		display: block;
+		width: 100%;
+		text-align: center;
+		
+		&:before {
+			content: 'Image loading failed';
+			display: block;
+			font-weight: 400;
+			font-size: 13px;
+			padding: 25px 10px;
+		}
+
+		&:after {
+			content: "(url: " attr(src) ")";
+			display: block;
+			font-size: 12px;
+			padding-bottom: 15px;
+		}
+	}
+}
+
+a.img-square {
+	&:hover,
+	&:focus,
+	&:active {
+		text-decoration: none;
+		opacity: .5;
+	}
+}
+
+*[class*="img-"]{
+	margin-bottom: 8px;
+}

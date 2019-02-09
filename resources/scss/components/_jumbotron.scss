@@ -1,0 +1,65 @@
+// -----------------------------------------------------------------------------
+// This file contains jumbotron block styles.
+// 
+// Used in: public/dashboard-2.html
+// -----------------------------------------------------------------------------
+
+.jumbotron {
+	position: relative;
+	left: -25px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: calc(100% + 25px);
+	min-height: 400px;
+	padding: 0 45px;
+	margin-bottom: 30px;
+	background: darken($light-gray-color, 5%);
+	background: #fff;
+	color: $black-color;
+	overflow: hidden;
+
+	@include phone() {
+		padding: 50px 35px;
+
+		*[class*="col-"]:first-child {
+			margin-bottom: 20px;
+		}
+	}
+
+	b {
+		font-weight: 900;
+	}
+
+	.row {
+		align-items: center;
+	}
+
+	&-bg {
+		position: relative;
+		top: 0;
+		right: -45px;
+		height: 400px;
+		width: 100%;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		@include phone() {
+			right: auto;
+			top: auto;
+			left: -25px;
+			width: calc(100% + 60px);
+			bottom: -50px;
+		}
+	}
+
+	.tabs-row {
+		position: absolute;
+		bottom: 0;
+		margin: 0;
+	}
+}

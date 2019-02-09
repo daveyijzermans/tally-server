@@ -1,0 +1,58 @@
+// -----------------------------------------------------------------------------
+// This file contains icon block styles.
+// 
+// Used in: public/page-profile.html
+// -----------------------------------------------------------------------------
+
+.icon {
+	color: inherit;
+	font-size: 16px;
+	color: inherit;
+	margin-right: 10px;
+	outline: none;
+
+	&:last-child {
+		margin-right: 0;
+	}
+
+	&-sm {
+		font-size: 12px;
+	}
+
+	&:hover,
+	&:focus {
+		opacity: .5;
+	}
+
+	&-primary {
+		color: $primary-color;
+	}
+
+	&-secondary {
+		color: $gray-color;
+	}
+
+	&-success {
+		color: $green-color;
+	}
+
+	&-warning {
+		color: $orange-color;
+	}
+
+	&-danger {
+		color: $red-color;
+	}
+
+	&-info {
+		color: $light-blue-color;
+	}
+
+	&-light {
+		color: $light-gray-color;
+	}
+
+	&-dark {
+		color: $black-color;
+	}
+}

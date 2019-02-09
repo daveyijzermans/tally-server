@@ -5,8 +5,8 @@
 	path = resources/vendor/jquery-md5
 	url = git@github.com:daveyijzermans/jquery-md5.git
 [submodule "resources/vendor/jquery"]
-  path = resources/vendor/jquery
-  url = git@github.com:daveyijzermans/jquery-dist.git
+	path = resources/vendor/jquery
+	url = git@github.com:daveyijzermans/jquery-dist.git
 [submodule "resources/vendor/fontawesome"]
-  path = resources/vendor/fontawesome
-  url = git@github.com:daveyijzermans/font-awesome.git
+	path = resources/vendor/fontawesome
+	url = git@github.com:daveyijzermans/font-awesome.git

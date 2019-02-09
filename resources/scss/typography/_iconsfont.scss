@@ -1,0 +1,65 @@
+// -----------------------------------------------------------------------------
+// This file contains iconsfont styles.
+// -----------------------------------------------------------------------------
+
+@font-face {
+ 	font-family: 'Iconsfont';
+ 	src: url('../fonts/Iconsfont/Iconsfont.eot?1543611625');
+	src: url('../fonts/Iconsfont/Iconsfont.eot?#iefix-1543611625') format('embedded-opentype'),
+ 		url('../fonts/Iconsfont/Iconsfont.woff2?1543611625') format('woff2'),
+  		url('../fonts/Iconsfont/Iconsfont.woff?1543611625') format('woff'),
+  		url('../fonts/Iconsfont/Iconsfont.ttf?1543611625') format('truetype');
+ 	font-weight: normal;
+	font-style: normal;
+}
+
+[class^='i-'],
+[class*=' i-'] {
+	position: relative;
+	top: -1px;
+	display: inline-block;
+	vertical-align: bottom;
+	font-family: 'Iconsfont';
+	font-weight: normal;
+	font-style: normal;
+	font-size: inherit;
+	text-decoration: inherit;
+	text-transform: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	speak: none;
+}
+
+
+.i-calendar:before {
+	content: '\ea01';
+}
+
+.i-chat-bubble:before {
+	content: '\ea02';
+}
+
+.i-circle-chart:before {
+	content: '\ea03';
+}
+
+.i-like:before {
+	content: '\ea04';
+}
+
+.i-paper:before {
+	content: '\ea05';
+}
+
+.i-shopping-cart:before {
+	content: '\ea06';
+}
+
+.i-spinner:before {
+	content: '\ea07';
+}
+
+.i-user:before {
+	content: '\ea08';
+}

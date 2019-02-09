@@ -1,0 +1,90 @@
+// -----------------------------------------------------------------------------
+// This file contains message block styles.
+// 
+// Used in: public/page-chat.html
+// -----------------------------------------------------------------------------
+
+.message {
+	display: flex;
+	font-size: 14px;
+
+	&:not(:last-child){
+		margin-bottom: 15px;
+	}
+
+	&-event {
+		display: block;
+		margin-bottom: 20px;
+		font-size: 14px;
+		color: $gray-color;
+		text-align: center;
+	}
+
+	&-content {
+		margin-left: 15px;
+		max-width: 500px;
+	}
+
+	&-bubble {
+		position: relative;
+		padding: 12px 20px;
+		margin-bottom: 5px;
+		background: $primary-color;
+		color: #fff;
+		border-radius: 6px;
+
+		p {
+			color: #fff;
+			margin: 0;
+		}
+	}
+
+	&-actions {
+		padding: 8px 10px;
+		font-size: 18px;
+		visibility: hidden;
+		opacity: 0;
+		transition: .2s;
+
+		& > a,
+		& > button {
+			margin-right: 3px;
+			opacity: .35;
+			outline: none;
+
+			&:hover,
+			&:focus,
+			&:active {
+				opacity: .2;
+				text-decoration: none;
+			}
+		}
+	}
+
+	&-self {
+		flex-direction: row-reverse;
+	}
+
+	&-self &-content {
+		margin-left: 0;
+
+		small {
+			display: block;
+			text-align: right;
+		}
+	}
+
+	&-self &-bubble {
+		background: #fff;
+		color: $black-color;
+
+		p {
+			color: $gray-color;
+		}
+	}
+
+	&:hover &-actions {
+		visibility: visible;
+		opacity: 1;
+	}
+}

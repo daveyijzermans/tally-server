@@ -1,0 +1,27 @@
+// -----------------------------------------------------------------------------
+// This file contains chart styles.
+// 
+// Used in: public/component-chart.html
+// -----------------------------------------------------------------------------
+
+.chart {
+	width: 100%;
+	min-height: 100px;
+
+	&-circle {
+		margin-bottom: 5px;
+	}
+}
+
+.vector-map {
+	height: 243px;
+	width: 100%;
+
+	&-lg {
+		height: 450px;
+	}
+
+	@include phone() {
+		height: auto;
+	}
+}

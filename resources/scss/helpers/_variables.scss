@@ -1,0 +1,28 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass variables.
+// -----------------------------------------------------------------------------
+
+// Font settings
+$font-stack: 'Helvetica Neue', 'Segoe UI', 'Arial', sans-serif !default;
+	
+// Colors
+$black-color: #3b454e !default;
+$gray-color: #74818d !default;
+$light-gray-color: #f5f7f9 !default;
+$blue-color: #047e90 !default;
+$red-color: #ba1723 !default;
+$purple-color: #9f5ef5 !default;
+$orange-color: #f58424 !default;
+$green-color: #38c12f !default;
+$light-blue-color: #05aec8 !default;
+
+// Brand colors
+$primary-color: $light-blue-color;
+
+// Block styles
+$block-box-shadow: 3px 5px 10px rgba(0, 0, 0, 0.01);
+$block-border-radius: 6px;
+$block-border: 1px solid #e6ecf1;
+
+// Font awesome
+$fa-font-path:                "../fonts"

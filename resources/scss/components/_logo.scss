@@ -1,0 +1,38 @@
+// -----------------------------------------------------------------------------
+// This file contains logo block styles.
+// 
+// Used in: public/dashboard-1.html
+// -----------------------------------------------------------------------------
+
+.logo {
+	height: 90px;
+	display: flex;
+	align-items: center;
+	padding: 0 30px;
+	color: #fff;
+	font-size: 28px;
+	font-weight: 700;
+
+	img {
+		width: 60px;
+	}
+	
+	i {
+		margin-right: 10px;
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+		text-decoration: none;
+		opacity: .75;
+	}
+
+	&-lg {
+		height: 120px;
+
+		img {
+			width: 100px;
+		}
+	}
+}

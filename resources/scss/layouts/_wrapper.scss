@@ -1,0 +1,90 @@
+// -----------------------------------------------------------------------------
+// This file contains wrapper block styles.
+// -----------------------------------------------------------------------------
+
+.wrapper {
+	overflow: hidden;
+	& > .loader {
+		width: 100vw;
+		height: 100vh;
+	}
+}
+
+.wrapper.theme-inverse {
+	.header {
+		background: $primary-color;
+		border-bottom: 1px solid $primary-color;
+		color: #fff;
+
+		.logo {
+			color: #fff;
+		}
+
+		.user-panel {
+			color: #fff;
+		}
+
+		&-nav-item {
+			color: #fff;
+			&:hover,
+			&:active,
+			&:focus {
+				background: rgba(#fff, .1);
+				text-decoration: none;
+			}
+		}
+	}
+
+	.sidebar {
+		background: #fff;
+
+		& * {
+			color: $primary-color;
+		}
+
+		&-list-item {
+			opacity: 1;
+			&:hover {
+				text-decoration: none;
+				box-shadow: 0 15px 30px rgba(0,0,0,.06);
+				background: rgba($primary-color, 1);
+				color: #fff;
+
+				& > * {
+					color: #fff;
+					transition: .25s;
+				}
+			}
+		}
+
+		.input-group-icon i {
+			color: $primary-color;
+		}
+
+		.form-control {
+			color: $primary-color;
+
+			&::placeholder {
+			    color: $primary-color;
+			    opacity: 1;
+			}
+
+			&:-ms-input-placeholder {
+			    color: $primary-color;
+			}
+
+			&::-ms-input-placeholder {
+				color: $primary-color;
+			}
+		}
+	}
+
+	.content-header-scene {
+		& * {
+			color: #fff !important;
+		}
+		&:after {
+			background: $primary-color;
+		}
+	}
+}

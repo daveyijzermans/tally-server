@@ -1,0 +1,48 @@
+// -----------------------------------------------------------------------------
+// This file contains video block styles.
+// 
+// Used in: public/page-profile.html
+// -----------------------------------------------------------------------------
+
+.video {
+	
+	&:not(:last-child){
+		margin-bottom: 20px;
+	}
+
+	&-content {
+		width: 100% !important;
+		border-radius: 4px !important;
+		overflow: hidden !important;
+
+		& > video,
+		& > iframe {
+			display: block;
+			width: 100% !important;
+		}
+
+		& + * {
+			margin-top: 14px;
+		}
+	}
+
+	&-title {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		white-space: nowrap;
+		font-size: 14px;
+
+		a {
+			max-width: 85%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+
+	p {
+		margin: 4px 0;
+		font-size: 12px;
+	}
+}

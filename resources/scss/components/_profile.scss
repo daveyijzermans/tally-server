@@ -1,0 +1,82 @@
+// -----------------------------------------------------------------------------
+// This file contains profile block styles.
+// 
+// Used in: public/component-widgets.html
+// -----------------------------------------------------------------------------
+
+.profile {
+	@include block-style();
+
+	position: relative;
+	padding: 35px 35px 18px 35px;
+	font-size: 16px;
+	line-height: 20px;
+	text-align: center;
+	overflow: hidden;
+
+	@include phone() {
+		padding: 25px 10px;
+	}
+
+	&-bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100px;
+		width: 100%;
+		text-align: left;
+		overflow: hidden;
+
+		&-text {
+			padding: 25px;
+			position: absolute;
+			z-index: 3;
+
+			p {
+				font-size: 20px;
+				font-weight: 700;
+				color: #fff;
+				margin-bottom: 0;
+			}
+
+			small {
+				font-size: 13px;
+			}
+		}
+
+		.user-panel {
+			position: absolute;
+			z-index: 3;
+		}
+
+		& + .avatar-md {
+			margin-top: 20px;
+			margin-bottom: 15px;
+		}
+
+		& > img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			font-family: 'object-fit: cover;';
+		}
+
+		&-blur {
+			& > img {
+				filter: blur(10px) brightness(0.85);
+			}
+		}
+	}
+
+	.user-panel {
+		font-size: 20px;
+
+		&-info {
+			line-height: 23px;
+		}
+
+		small {
+			font-size: 14px;
+		}
+	}
+}

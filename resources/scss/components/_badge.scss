@@ -1,0 +1,46 @@
+// -----------------------------------------------------------------------------
+// This file contains badge block styles.
+// 
+// Used in: public/typography.html
+// -----------------------------------------------------------------------------
+
+.badge {
+	padding: 0px 5px;
+	min-width: 17px;
+	text-align: center;
+	font-size: 11px;
+	font-weight: 700;
+	border: 1px solid $light-gray-color;
+	border-radius: 4px;
+	color: $gray-color;
+	background: #fff;
+	box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+	&-pill {
+		display: inline-block;
+		min-width: 20px;
+		height: 20px;
+		padding: 0 6px;
+		border-radius: 150px;
+		line-height: 18px;
+	}
+}
+
+@include badge-style('primary', $primary-color);
+@include badge-style('secondary', $gray-color);
+@include badge-style('success', $green-color);
+@include badge-style('warning', $orange-color);
+@include badge-style('danger', $red-color);
+@include badge-style('info', $light-blue-color);
+@include badge-style('light', $light-gray-color, $black-color);
+@include badge-style('dark', $black-color);
+@include badge-style('link', $primary-color);
+
+@include badge-outline-style('primary', $primary-color);
+@include badge-outline-style('secondary', $gray-color);
+@include badge-outline-style('success', $green-color);
+@include badge-outline-style('warning', $orange-color);
+@include badge-outline-style('danger', $red-color);
+@include badge-outline-style('info', $light-blue-color);
+@include badge-outline-style('light', $light-gray-color, $black-color);
+@include badge-outline-style('dark', $black-color);

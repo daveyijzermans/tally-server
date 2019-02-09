@@ -1,0 +1,84 @@
+// -----------------------------------------------------------------------------
+// This file contains accordion block styles.
+// 
+// Used in: public/page-faq.html
+// -----------------------------------------------------------------------------
+
+.accordion {
+	@include block-style();
+	overflow: hidden;
+
+	&-header {
+		display: flex;
+		align-items: center;
+		padding: 12px 25px;
+		border: 1px solid transparent;
+		border-radius: 4px;
+		cursor: pointer;
+		transition: .25s;
+
+		&-text {
+			max-width: 80%;
+
+			@include phone() {
+				width: 100%;
+				max-width: 100%;
+
+				& > h3 {
+					font-size: 16px;
+				}
+			}
+
+			h3:last-child {
+				margin-bottom: 0;
+			}
+
+			p {
+				margin-bottom: 0;
+			}
+		}
+
+		.img{
+			margin-bottom: 0;
+			margin-right: 15px;
+
+			@include phone() {
+				position: absolute;
+				left: -15px;
+				top: -15px;
+				width: 80px;
+				height: 80px;
+				opacity: .08;
+				// display: none;
+			}
+		}
+
+		& > * {
+			margin-bottom: 0;
+		}
+	}
+
+	&-body {
+		display: none;
+		padding: 12px 25px;
+		padding-top: 20px;
+	}
+
+	&:hover {
+		border: 1px solid rgba($primary-color, .25);
+	}
+
+	&.active {
+		border: 1px solid rgba($primary-color, .25);
+		.accordion-header {
+			border: 1px solid transparent;
+			border-bottom: $block-border;
+			border-radius: 0;
+			background: rgba($primary-color, .035);
+
+			i {
+				transform: rotate(180deg)
+			}
+		}
+	}
+}
