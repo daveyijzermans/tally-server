@@ -25,7 +25,7 @@ var resources = {
 	js: [
 	  'resources/vendor/jquery/dist/jquery.js',
 	  'resources/vendor/jquery-md5/jquery.md5.js',
-	  'resources/vendor/jquery/dist/bootstrap.bundle.js',
+	  'resources/vendor/bootstrap/dist/js/bootstrap.bundle.js',
 	  'resources/js/**/*.*'
   ],
 	fonts: ['resources/fonts/**/*.*', 'resources/vendor/fontawesome/webfonts/*.*']
@@ -69,10 +69,12 @@ gulp.task('build:scss', function(){
 */
 gulp.task('build:js', function(done){
 	return gulp.src(resources.js)
-        .pipe(concat('main.js'))
+				.pipe(sourcemaps.init())
+        .pipe(concat('index.js'))
         .pipe(gulp.dest('www/assets/js'))
-        .pipe(rename('main.min.js'))
+        .pipe(rename('index.min.js'))
         .pipe(terser())
+				.pipe(sourcemaps.write())
         .pipe(gulp.dest('www/assets/js'));
 });
 
