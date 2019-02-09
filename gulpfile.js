@@ -3,6 +3,11 @@ var gulp = require('gulp'),
 	argv = require('yargs').argv,
 	sourcemaps = require('gulp-sourcemaps'),
 
+	// JS
+	concat = require('gulp-concat'),
+	rename = require('gulp-rename'),
+	terser = require('gulp-terser'),
+
 	// Styles
 	sass = require('gulp-sass'),
 	postcss = require('gulp-postcss'),
@@ -63,7 +68,12 @@ gulp.task('build:scss', function(){
 * Description: making JS bundle
 */
 gulp.task('build:js', function(done){
-	
+	return gulp.src(resources.js)
+        .pipe(concat('main.js'))
+        .pipe(gulp.dest('www/assets/js'))
+        .pipe(rename('main.min.js'))
+        .pipe(terser())
+        .pipe(gulp.dest('www/assets/js'));
 });
 
 /*
@@ -80,10 +90,11 @@ gulp.task('build:fonts', function(){
 * Main build task
 */
 gulp.task('build', [
+	'build:fonts',
 	'build:scss',
-	'build:js',
+	'build:js'
 ]);
 
 gulp.task('default', [
-	'build', 
+	'build'
 ]);

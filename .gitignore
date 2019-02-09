@@ -67,6 +67,6 @@ servers.json
 users.json
 config.json
 
-www/css/
-www/fonts/
-www/js/
+www/assets/css/
+www/assets/fonts/
+www/assets/js/
