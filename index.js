@@ -17,6 +17,12 @@ config.users = require('./users.json').map(a =>
   return a;
 });
 
+var logger = function(msg)
+{
+    console.log.apply(console, arguments);
+    io.to('admins').emit('admin.log', msg);
+};
+
 /**
  * Retrieve servers with certain type from config.servers
  * @param {string} type Which type to retrieve
@@ -60,7 +66,7 @@ config.saveUsers = () =>
   let json = JSON.stringify(config.users);
   fs.writeFile('./users.json', json, 'utf8', (err) => {
     if (err) return console.error(err);
-    console.log('Users.json file has been saved!');
+    logger('Users.json file has been saved!');
   });
 }
 
@@ -90,11 +96,11 @@ connectToMumble = (mumble) =>
   {
     if(err)
     {
-      console.log('No connection to Mumble host ' + mumble.name + '.');
+      logger('No connection to Mumble host ' + mumble.name + '.');
       setTimeout(() => connectToMumble(mumble), 3000);
       return;
     }
-    console.log('Connected to Mumble @ ' + mumble.hostname + '!');
+    logger('Connected to Mumble @ ' + mumble.hostname + '!');
     mumble.client = client;
     mumble.connected = true;
     broadcastChanges('servers');
@@ -104,7 +110,7 @@ connectToMumble = (mumble) =>
       mumble.client = null;
       mumble.connected = false;
       broadcastChanges('servers');
-      console.log('Disconnected from ' + mumble.name + '. Reconnect in 5 seconds...');
+      logger('Disconnected from ' + mumble.name + '. Reconnect in 5 seconds...');
       setTimeout(() => connectToMumble(mumble), 3000);
     });
   });
@@ -125,19 +131,17 @@ cycleUser = (mumble, username) =>
     if(user.username != username) return;
 
     let channel = user.channel.name;
-    process.stdout.write('Found ' + username + ' in channel ' + channel + '. ');
-
     let index = config.cycleChannels.indexOf(channel);
     if(index != -1)
     {
       // Figure out the next channel, or reset to the 0th one.
       index = index + 1 >= config.cycleChannels.length ? 0 : index + 1;
       let newChannel = mumble.client.getChannel(config.cycleChannels[index]);
-      console.log('Moving to channel', newChannel.name);
+      logger('Found ' + username + ' in channel ' + channel + '. Moving to channel ' + newChannel.name + '.');
       user.setChannel(newChannel);
       r = true;
     } else
-      console.log('Channel not in cycle list.');
+      logger('Found ' + username + ' in channel ' + channel + '. Channel not in cycle list.');
   });
   return r;
 }
@@ -183,7 +187,7 @@ connectToVmix = vmix =>
 
   client.connect(8099, vmix.hostname, () =>
   {
-    console.log('Connected to vMix @ ' + vmix.hostname + '!');
+    logger('Connected to vMix @ ' + vmix.hostname + '!');
     vmix.connected = true;
     broadcastChanges('servers');
 
@@ -205,7 +209,7 @@ connectToVmix = vmix =>
 
   client.on('close', () =>
   {
-    console.log('No connection to vMix host', vmix.hostname);
+    logger('No connection to vMix host ' + vmix.hostname + '.');
     if(vmix.connected == true)
     {
       vmix.connected = false;
@@ -241,7 +245,7 @@ connectToAten = aten =>
     {
       if(line.indexOf('Connection to VM0808HA is established') == 0)
       {
-        console.log('Connected to Aten @ ' + aten.hostname + '!');
+        logger('Connected to Aten @ ' + aten.hostname + '!');
         aten.connected = true;
         broadcastChanges('servers');
       }
@@ -252,7 +256,7 @@ connectToAten = aten =>
 
   client.on('close', () =>
   {
-    console.log('No connection to Aten host', aten.hostname);
+    logger('No connection to Aten host ' + aten.hostname + '.');
     if(aten.connected == true)
     {
       aten.connected = false;
@@ -290,6 +294,7 @@ connectToAtem = atem =>
       broadcastChanges('tallies');
     }
   }
+
   let client = atem.client = new Atem(atem.hostname);
   client.on('connectionStateChange', (state) =>
   {
@@ -298,11 +303,13 @@ connectToAtem = atem =>
      */
     if(!atem.connected && state.description == 'connected')
     {
+      logger('Connected to ATEM @ ' + atem.hostname + '!');
       atem.connected = true;
       broadcastChanges('servers');
     }
     if(atem.connected && state.description != 'connected')
     {
+      logger('No connection to ATEM host ' + atem.hostname + '.');
       atem.connected = false;
       broadcastChanges('servers');
     }
@@ -331,7 +338,7 @@ connectToNetgear = netgear =>
       }
       if(netgear.rebootPending)
       {
-        console.log('Rebooting Netgear...');
+        logger('Rebooting Netgear...');
         client.write('admin\r\npassword\r\nenable\r\n\r\nreload\r\nyy');
         netgear.selfDestroy = false;
         netgear.rebootPending = false;
@@ -386,7 +393,7 @@ const tplink = new TPLink();
 const plugs = [];
 tplink.startDiscovery().on('plug-new', (device) =>
 {
-  console.log('Found smartplug ' + device.alias + ' on the network!');
+  logger('Found smartplug ' + device.alias + ' on the network!');
   plugs.push(device);
 
   /**
@@ -402,7 +409,7 @@ tplink.startDiscovery().on('plug-new', (device) =>
       setTimeout(poll, 5000);
     }).catch(error =>
     {
-      console.log('No connection to smartplug ' + device.alias + ' or an error occured.');
+      logger('No connection to smartplug ' + device.alias + ' or an error occured.');
       delete plugs[plugs.indexOf(device)];
       io.to('admins').emit('admin.plugs.disconnect', device.host)
     });
@@ -442,7 +449,7 @@ io.on('connection', socket => {
      */
     socket.on('request', () =>
     {
-      console.log('Got update request from', username);
+      logger('Got update request from ' + username + '.');
       room.emit('status', config.getUser(username));
     });
     socket.on('cycleUser', () =>
@@ -451,6 +458,7 @@ io.on('connection', socket => {
     });
     socket.on('disconnect', () =>
     {
+      logger('User ' + username + ' has disconnected.');
       io.to('admins').emit('admin.user.disconnect', username)
     });
   }
@@ -462,7 +470,7 @@ io.on('connection', socket => {
       return socket.disconnect();
 
     socket.join('admins').emit('authenticated');
-    console.log('Admin connected!');
+    logger('Admin connected!');
 
     /**
      * Admin-only commands
@@ -554,7 +562,7 @@ io.on('connection', socket => {
         {
           // Wake windows pc
           let mac = server.wol;
-          wol.wake(mac, () => console.log('WOL sent to', mac));
+          wol.wake(mac, () => logger('WOL sent to ' + mac + '.'));
         }
       }
     });
@@ -584,6 +592,7 @@ io.on('connection', socket => {
       });
       // Shutdown self
       exec('shutdown /s /f /t 10 /c "Shutdown by administration interface"');
+      logger('Bye bye!');
     });
   }
 });

@@ -6,7 +6,8 @@ $(function()
       tallies = null,
       $tallies = $('#tallies'),
       $users = $('#users'),
-      $plugs = $('#plugs');
+      $plugs = $('#plugs'),
+      $log = $('#log');
 
   var animatePuff = function(els, removeEl)
   {
@@ -213,6 +214,21 @@ $(function()
       var $plug = $plugs.find('[data-hostname="' + hostname + '"]');
       animatePuff($plug, true);
       $plugs.find('.noresults').toggle($plugs.find('.plug-entry').length == 0);
+    });
+    socket.on('admin.log', function(msg)
+    {
+      var $items = $log.find('.dropdown-menu li');
+      if($items.length > 15) $items.last().remove();
+      var $dropdown = $log.find('.dropdown-menu')
+        .prepend($('<li class="dropdown-item disabled"></li>').text(msg));
+      $log.find('a').dropdown('update');
+      var $badge = $log.find('.badge');
+      if($dropdown.is(':hidden'))
+        $badge.text((parseInt($badge.text(), 10)||0)+1);
+    });
+    $log.on('show.bs.dropdown', function()
+    {
+      var $badge = $log.find('.badge').text('');
     });
     socket.on('disconnect', function()
     {
