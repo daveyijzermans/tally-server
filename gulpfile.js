@@ -207,4 +207,4 @@ let browser = () =>
 */
 exports.build = gulp.parallel(scss, js, fonts, images, html, client);
 exports.dev = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), forever, gulp.parallel(browser, watch));
-exports.default = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), forever);
+exports.default = forever;
