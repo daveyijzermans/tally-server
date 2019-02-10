@@ -1,20 +1,19 @@
-var gulp = require('gulp'),
-	plumber = require('gulp-plumber'),
-	argv = require('yargs').argv,
-	sourcemaps = require('gulp-sourcemaps'),
+const gulp = require('gulp'),
+	    plumber = require('gulp-plumber'),
+	    sourcemaps = require('gulp-sourcemaps'),
 
-	// JS
-	concat = require('gulp-concat'),
-	rename = require('gulp-rename'),
-	terser = require('gulp-terser'),
+	    // JS
+    	concat = require('gulp-concat'),
+    	rename = require('gulp-rename'),
+    	terser = require('gulp-terser'),
 
-	// Styles
-	sass = require('gulp-sass'),
-	postcss = require('gulp-postcss'),
-	autoprefixer = require('autoprefixer'),
-	cssnano = require('cssnano'),
-	customProperties = require('postcss-custom-properties'),
-	flexboxFix = require('postcss-flexbugs-fixes');
+    	// Styles
+    	sass = require('gulp-sass'),
+    	postcss = require('gulp-postcss'),
+    	autoprefixer = require('autoprefixer'),
+    	cssnano = require('cssnano'),
+    	customProperties = require('postcss-custom-properties'),
+    	flexboxFix = require('postcss-flexbugs-fixes');
 
 /**
  * Paths to source files
@@ -36,23 +35,16 @@ var resources = {
 *
 * Description: compile SASS and using PostCSS plugins
 */
-gulp.task('build:scss', function(){
-	var plugins = [
-        autoprefixer({browsers: ['last 8 versions'], cascade: false}),
+gulp.task('build:scss', () =>
+{
+	let plugins = [
+    autoprefixer({browsers: ['last 8 versions'], cascade: false}),
 		customProperties({
 			preserve: false
 		}),
-		flexboxFix()
-    ];
-
-    if (argv.prod) {
-    	plugins.push(cssnano());
-
-    	return gulp.src(resources.scss)
-    		.pipe(sass().on('error', sass.logError))
-    		.pipe(postcss(plugins))
-    		.pipe(gulp.dest('www/assets/css'));
-    }
+		flexboxFix(),
+    cssnano()
+  ];
 
 	return gulp.src(resources.scss)
 		.pipe(sourcemaps.init())
@@ -67,7 +59,8 @@ gulp.task('build:scss', function(){
 *
 * Description: making JS bundle
 */
-gulp.task('build:js', function(done){
+gulp.task('build:js', (done) =>
+{
 	return gulp.src(resources.js)
 				.pipe(sourcemaps.init())
         .pipe(concat('index.js'))
@@ -83,7 +76,8 @@ gulp.task('build:js', function(done){
 *
 * Description: just moving to /public folder.
 */
-gulp.task('build:fonts', function(){
+gulp.task('build:fonts', () =>
+{
 	return gulp.src(resources.fonts)
 		.pipe(gulp.dest('www/assets/fonts'));
 });
