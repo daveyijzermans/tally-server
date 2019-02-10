@@ -1,23 +1,37 @@
 import jQuery from 'jquery';
 import md5 from 'js-md5';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
 import 'bootstrap';
 
-jQuery(function($)
+jQuery($ =>
 {
-  var socket = null,
+  let socket = null,
       servers = null,
-      $servers = $('#servers'),
-      tallies = null,
-      $tallies = $('#tallies'),
-      $users = $('#users'),
-      $plugs = $('#plugs'),
-      $log = $('#log');
+      tallies = null;
+  const $servers = $('#servers'),
+        $tplServer = $('#tplServer'),
+        $tallies = $('#tallies'),
+        $tplTally = $('#tplTally'),
+        $users = $('#users'),
+        $tplUser = $('#tplUser'),
+        $plugs = $('#plugs'),
+        $tplPlug = $('#tplPlug'),
+        $log = $('#log'),
+        $avSources = $('.avSource'),
+        $avTargets = $('.avTarget'),
+        $loginModal = $('#loginModal'),
+        $txtPassword = $loginModal.find('#txtPassword'),
+        $frmLogin = $loginModal.find('form'),
+        $btnLogin = $loginModal.find('#btnLogin'),
+        $actionModal = $('#actionModal'),
+        $editUserModal = $('#editUserModal');
 
-  var animatePuff = function(els, removeEl)
+  const animatePuff = (els, removeEl) =>
   {
-    $(els).each(function(i)
+    $(els).each(i =>
     {
-      var $el = $(this),
+      let $el = $(this),
           bgTop = 0,
           frame = 0,
           frames = 6,
@@ -32,12 +46,12 @@ jQuery(function($)
           }).appendTo('body');
       if(removeEl) $el.remove();
 
-      var a = function()
+      let a = () =>
       {
         if(frame < frames)
         {
           $puff.css({
-            backgroundPosition: "0 "+bgTop+"px"
+            backgroundPosition: '0 ' + bgTop + 'px'
           });
           bgTop = bgTop - frameSize;
           frame++;
@@ -45,43 +59,45 @@ jQuery(function($)
         }
       };
       a();
-      setTimeout(function() { $puff.remove() }, frames * frameRate);
+      setTimeout(() => { $puff.remove(); }, frames * frameRate);
     });
-  }
+  };
 
-  var connect = function(p, cb) {
+  let connect = (p, cb) =>
+  {
     socket = io({
       query: {
         password: p
       }
     });
-    socket.on('authenticated', function()
+    socket.on('authenticated', () =>
     {
       cb(null);
 
       $('#serverStatus').html('<i class="fas fa-check-circle"></i> Connected');
       socket.emit('admin.update');
     });
-    socket.on('admin.status.servers', function(data)
+    
+    socket.on('admin.status.servers', data =>
     {
       if(JSON.stringify(data) === JSON.stringify(servers))
         return false;
       servers = data;
       $servers.find('.noresults').toggle(servers.length == 0);
 
-      var $tpl = $('#tplServer');
-      $.each(servers, function(id, server)
+      $.each(servers, (id, server) =>
       {
-        var $tr = $servers.find('[data-name="' + server.name + '"]')
+        let $tr = $servers.find('[data-name="' + server.name + '"]');
         if($tr.length == 0)
         {
-          $tr = $tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo($servers);
+          $tr = $tplServer.clone().attr('id', '').attr('data-name', server.name).show().appendTo($servers);
 
-          var wol = typeof server.wol == 'string';
+          let wol = typeof server.wol == 'string';
+          let $actions = $tr.find('.actions');
+          let $dropdown = $actions.find('.dropdown-menu');
           if(wol || server.type == 'netgear')
           {
-            var $actions = $tr.find('.actions').append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
-            var $dropdown = $actions.find('.dropdown-menu');
+            $actions.append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
           }
           if(wol)
           {
@@ -102,10 +118,10 @@ jQuery(function($)
               .appendTo($dropdown);
           }
         }
-        var sClass = server.connected ? 'bg-success' : 'bg-danger';
-        var $name = $tr.find('.name').text(server.name);
-        var $type = $tr.find('.type').text(server.type);
-        var $hostname = $tr.find('.hostname').text(server.hostname);
+        let sClass = server.connected ? 'bg-success' : 'bg-danger';
+        let $name = $tr.find('.name').text(server.name);
+        let $type = $tr.find('.type').text(server.type);
+        let $hostname = $tr.find('.hostname').text(server.hostname);
         $tr.find('.status-icon')
           .toggleClass('bg-success', server.connected == true)
           .toggleClass('bg-danger', server.connected == false);
@@ -113,56 +129,54 @@ jQuery(function($)
           .text(server.connected ? 'Connected' : 'Disconnected');
       });
     });
-    socket.on('admin.status.tallies', function(data)
+    socket.on('admin.status.tallies', data =>
     {
       if(JSON.stringify(data) === JSON.stringify(tallies))
         return false;
       tallies = data;
-      var max = tallies['_combined'].length;
-      var states = ['badge-secondary', 'badge-danger', 'badge-success'];
+      let max = tallies._combined.length;
+      let states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
       $tallies.empty();
-      var $tpl = $('#tplTally');
-      $.each(tallies, function(host, result)
+      $.each(tallies, (host, result) =>
       {
-        var $t = $tpl.clone().attr('id', '').attr('data-host', host).show().appendTo($tallies);
-        var name = host == '_combined' ? 'Combined result' : host;
-        var $a = $t.find('b').text(name);
+        let $t = $tplTally.clone().attr('id', '').attr('data-host', host).show().appendTo($tallies);
+        let name = host == '_combined' ? 'Combined result' : host;
+        let $a = $t.find('b').text(name);
 
-        var $indicators = $t.find('.tally-indicators');
-        for (var i = 0; i < max; i++)
+        let $indicators = $t.find('.tally-indicators');
+        for (let i = 0; i < max; i++)
         {
-          var state = typeof result == 'string' ? states[result[i]] : states[0];
-          var $s = $('<span class="badge badge-pill"></span>')
+          let state = typeof result == 'string' ? states[result[i]] : states[0];
+          let $s = $('<span class="badge badge-pill"></span>')
             .text(i + 1)
             .addClass(state)
             .appendTo($indicators);
         }
       });
 
-      var hostsOnline = $tallies.find('.tally-entry').length > 1;
+      let hostsOnline = $tallies.find('.tally-entry').length > 1;
       $tallies.siblings('.noresults').toggle(!hostsOnline);
       $tallies.find('.tally-entry').toggle(hostsOnline);
       updateUserTallies(tallies._combined);
     });
-    socket.on('admin.user.disconnect', function(username)
+    socket.on('admin.user.disconnect', username =>
     {
-      var $user = $users.find('[data-username="' + username + '"]');
+      let $user = $users.find('[data-username="' + username + '"]');
       animatePuff($user, true);
       $users.find('.noresults').toggle($users.find('.user-entry').length == 0);
     });
-    socket.on('admin.users.list', function(users)
+    socket.on('admin.users.list', users =>
     {
       $users.find('.noresults').toggle(users.length == 0);
 
-      var $tpl = $('#tplUser');
-      $.each(users, function(id, user)
+      $.each(users, (id, user) =>
       {
-        var $u = $users.find('[data-username="' + user.username + '"]');
-        var $dropdown = $u.find('.dropdown-menu');
+        let $u = $users.find('[data-username="' + user.username + '"]');
+        let $dropdown = $u.find('.dropdown-menu');
         if($u.length == 0)
         {
-          $u = $tpl.clone().attr('id', '').attr('data-username', user.username).show().appendTo($users);
+          $u = $tplUser.clone().attr('id', '').attr('data-username', user.username).show().appendTo($users);
           $dropdown = $u.find('.dropdown-menu');
           $dropdown.attr('aria-labelledby', user.username);
           $('<a class="dropdown-item edit-user-modal" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
@@ -183,22 +197,21 @@ jQuery(function($)
       });
       updateUserTallies(tallies._combined);
     });
-    socket.on('admin.plugs.list', function(plugs)
+    socket.on('admin.plugs.list', plugs =>
     {
       $plugs.find('.noresults').toggle(plugs.length == 0);
 
-      var $tpl = $('#tplPlug');
-      $.each(plugs, function(id, plug)
+      $.each(plugs, (id, plug) =>
       {
-        var $p = $plugs.find('[data-hostname="' + plug.hostname + '"]');
+        let $p = $plugs.find('[data-hostname="' + plug.hostname + '"]');
         if($p.length == 0)
         {
-          $p = $tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo($plugs);
-          $p.find('a.toggle').click(function(event)
+          $p = $tplPlug.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo($plugs);
+          $p.find('a.toggle').click(event =>
           {
             $(this).find('.fas')
               .removeClass('text-success text-danger fa-power-off')
-              .addClass('fa-circle-notch fa-spin')
+              .addClass('fa-circle-notch fa-spin');
             socket.emit('admin.plug.toggle', plug.hostname);
             event.preventDefault();
           });
@@ -213,39 +226,39 @@ jQuery(function($)
           .toggleClass('text-danger', plug.on == false);
       });
     });
-    socket.on('admin.plugs.disconnect', function(hostname)
+    socket.on('admin.plugs.disconnect', hostname =>
     {
-      var $plug = $plugs.find('[data-hostname="' + hostname + '"]');
+      let $plug = $plugs.find('[data-hostname="' + hostname + '"]');
       animatePuff($plug, true);
       $plugs.find('.noresults').toggle($plugs.find('.plug-entry').length == 0);
     });
-    socket.on('admin.log', function(msg)
+    socket.on('admin.log', msg =>
     {
-      var $dropdown = $log.find('.dropdown-menu')
+      let $dropdown = $log.find('.dropdown-menu')
         .prepend($('<p class="text-sm"></p>').text(msg));
       $log.find('a').dropdown('update');
-      var $badge = $log.find('.badge');
+      let $badge = $log.find('.badge');
       if($dropdown.is(':hidden'))
         $badge.text((parseInt($badge.text(), 10)||0)+1);
       $log.find('.dropdown-menu p:gt(99)').remove();
       $log.find('.dropdown-menu p:gt(29).read').remove();
     });
-    $log.on('show.bs.dropdown', function(event)
+    $log.on('show.bs.dropdown', event =>
     {
       $(event.relatedTarget).dropdown('update');
-      var $badge = $log.find('.badge').text('');
+      let $badge = $log.find('.badge').text('');
       $log.find('.dropdown-menu p:gt(29).read').remove();
     });
-    $log.on('shown.bs.dropdown', function(event)
+    $log.on('shown.bs.dropdown', event =>
     {
       $(event.relatedTarget).dropdown('update');
     });
-    $log.on('hide.bs.dropdown', function()
+    $log.on('hide.bs.dropdown', () =>
     {
       $log.find('.dropdown-menu p:gt(29).read').remove();
       $log.find('.dropdown-menu p').addClass('read');
     });
-    socket.on('disconnect', function()
+    socket.on('disconnect', () =>
     {
       animatePuff($plugs.find('.user-entry'), true);
       $plugs.find('.noresults').toggle(true);
@@ -253,24 +266,37 @@ jQuery(function($)
       $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
       cb(new Error('Could not connect to socket'));
     });
-  }
+  };
 
-  var updateUserTallies = function(tallies)
+  const updateUserTallies = tallies =>
   {
-    var t = tallies.split('');
-    $users.find('.user-entry').each(function(i)
+    let t = tallies.split('');
+    $users.find('.user-entry').each(i =>
     {
-      var $this = $(this);
-      var n = $this.attr('data-camnumber');
-      var val = t[n - 1];
+      let $this = $(this);
+      let n = $this.attr('data-camnumber');
+      let val = t[n - 1];
       $this.find('.avatar')
         .toggleClass('avatar-danger', val == '1')
         .toggleClass('avatar-success', val == '2')
         .toggleClass('avatar-secondary', val == '0');
     });
-  }
+  };
 
-  var loginCallback = function(err)
+  $avSources.draggable({
+    cursor: 'move',
+    revert: true
+  });
+  $avTargets.droppable({
+    drop: function(event, ui)
+    {
+      let $target = $(this);
+      let $source = ui.draggable;
+      console.log($source, $target);
+    }
+  });
+
+  const loginCallback = err =>
   {
     if(err)
     {
@@ -286,46 +312,44 @@ jQuery(function($)
       return false;
     }
     $loginModal.modal('hide');
-  }
+  };
 
   // Button event handlers
-  var loginHandler = function(event)
+  const loginHandler = event =>
   {
     $frmLogin.off('submit', loginHandler);
     $btnLogin.off('click', loginHandler);
-    var p = md5($txtPassword.val());
+    let p = md5($txtPassword.val());
     connect(p, loginCallback);
     event.preventDefault();
   };
 
   // Bind handlers to buttons and events
-  var $loginModal = $('#loginModal').on('shown.bs.modal', function ()
+  $loginModal.on('shown.bs.modal', () =>
   {
     $txtPassword.focus().select();
     $frmLogin.one('submit', loginHandler);
     $btnLogin.one('click', loginHandler);
-  }).on('hidden.bs.modal', function ()
+  }).on('hidden.bs.modal', () =>
   {
     $loginModal.modal('dispose');
   });
-  var $txtPassword = $loginModal.find('#txtPassword');
-  var $frmLogin = $loginModal.find('form');
-  var $btnLogin = $loginModal.find('#btnLogin');
 
-  var urlHash = location.hash.match(new RegExp('password=([^&]*)'));
+  let urlHash = location.hash.match(new RegExp('password=([^&]*)'));
   if(urlHash)
   {
-    var p = md5(urlHash[1]);
+    let p = md5(urlHash[1]);
     connect(p, loginCallback);
   }
   else
     $loginModal.modal();
-  var $actionModal = $('#actionModal').on('show.bs.modal', function(event)
+
+  $actionModal.on('show.bs.modal', (event) =>
   {
-    var rel = $(event.relatedTarget);
-    var cmd = rel.data('command');
-    var param = rel.data('param');
-    var $t = $actionModal.find('.modal-body');
+    let rel = $(event.relatedTarget);
+    let cmd = rel.data('command');
+    let param = rel.data('param');
+    let $t = $actionModal.find('.modal-body');
     switch(cmd)
     {
       case 'restart':
@@ -357,29 +381,29 @@ jQuery(function($)
         return false;
     }
 
-    var $btn = $(this).find('.btn-danger').focus().off('click').one('click', function()
+    let $btn = $(this).find('.btn-danger').focus().off('click').one('click', () =>
     {
       socket.emit('admin.' + cmd, param);
       $actionModal.modal('hide');
     });
-  }).on('shown.bs.modal', function()
+  }).on('shown.bs.modal', () =>
   {
-    $(this).find('.btn-danger').focus()
-  }).on('hide.bs.modal', function()
+    $(this).find('.btn-danger').focus();
+  }).on('hide.bs.modal', () =>
   {
     $(this).find('.btn-danger').off('click');
   });
-  var $editUserModal = $('#editUserModal').on('show.bs.modal', function(event)
+  $editUserModal.on('show.bs.modal', event =>
   {
-    var rel = $(event.relatedTarget);
-    var user = rel.data('user');
-    var $name = $editUserModal.find('#user-name').focus().val(user.name);
-    var $camNumber = $editUserModal.find('#user-camnumber').val(user.camNumber);
+    let rel = $(event.relatedTarget);
+    let user = rel.data('user');
+    let $name = $editUserModal.find('#user-name').focus().val(user.name);
+    let $camNumber = $editUserModal.find('#user-camnumber').val(user.camNumber);
 
-    var $btn = $(this).find('.btn-primary').off('click');
-    $btn.on('click', function()
+    let $btn = $(this).find('.btn-primary').off('click');
+    $btn.on('click', () =>
     {
-      var newData = Object.assign({}, user);
+      let newData = Object.assign({}, user);
       newData.name = $name.val();
       newData.camNumber = $camNumber.val();
 
@@ -393,10 +417,10 @@ jQuery(function($)
           $editUserModal.modal('hide');
         });
     });
-  }).on('shown.bs.modal', function()
+  }).on('shown.bs.modal', () =>
   {
-    $editUserModal.find('#user-name').focus()
-  }).on('hide.bs.modal', function()
+    $editUserModal.find('#user-name').focus();
+  }).on('hide.bs.modal', () =>
   {
     $(this).find('#user-camnumber').removeClass('is-invalid');
     $(this).find('.btn-primary').off('click');
