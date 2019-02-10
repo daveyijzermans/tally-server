@@ -26,6 +26,7 @@ jQuery($ =>
         $frmLogin = $loginModal.find('form'),
         $btnLogin = $loginModal.find('#btnLogin'),
         $actionModal = $('#actionModal'),
+        $btnActionModal = $actionModal.find('.btn-danger'),
         $editUserModal = $('#editUserModal');
 
   const animatePuff = (els, removeEl) =>
@@ -352,6 +353,7 @@ jQuery($ =>
     let cmd = rel.data('command');
     let param = rel.data('param');
     let $t = $actionModal.find('.modal-body');
+
     switch(cmd)
     {
       case 'restart':
@@ -386,7 +388,7 @@ jQuery($ =>
         return false;
     }
 
-    let $btn = $actionModal.find('.btn-danger').focus().off('click').one('click', () =>
+    $btnActionModal.focus().off('click').one('click', () =>
     {
       if(cmd == 'logout')
       {
@@ -397,10 +399,10 @@ jQuery($ =>
     });
   }).on('shown.bs.modal', () =>
   {
-    $(this).find('.btn-danger').focus();
+    $btnActionModal.focus();
   }).on('hide.bs.modal', () =>
   {
-    $(this).find('.btn-danger').off('click');
+    $btnActionModal.off('click');
   });
   $editUserModal.on('show.bs.modal', event =>
   {
