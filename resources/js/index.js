@@ -1,5 +1,6 @@
 import jQuery from 'jquery';
 import md5 from 'js-md5';
+import Cookies from 'js-cookie';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'bootstrap';
@@ -72,7 +73,7 @@ jQuery($ =>
     });
     socket.on('authenticated', () =>
     {
-      cb(null);
+      cb(null, p);
 
       $('#serverStatus').html('<i class="fas fa-check-circle"></i> Connected');
       socket.emit('admin.update');
@@ -296,7 +297,7 @@ jQuery($ =>
     }
   });
 
-  const loginCallback = err =>
+  const loginCallback = (err, p) =>
   {
     if(err)
     {
@@ -311,6 +312,8 @@ jQuery($ =>
       }
       return false;
     }
+    // if remember checkbox is ticked
+    Cookies.set('adminPass', p, { expires: 7 });
     $loginModal.modal('hide');
   };
 
@@ -335,14 +338,13 @@ jQuery($ =>
     $loginModal.modal('dispose');
   });
 
-  let urlHash = location.hash.match(new RegExp('password=([^&]*)'));
-  if(urlHash)
+  let storedPassword = Cookies.get('adminPass');
+  if(storedPassword)
   {
-    let p = md5(urlHash[1]);
-    connect(p, loginCallback);
-  }
-  else
+    connect(storedPassword, loginCallback);
+  } else {
     $loginModal.modal();
+  }
 
   $actionModal.on('show.bs.modal', (event) =>
   {
@@ -376,13 +378,20 @@ jQuery($ =>
       case 'shutdownAll':
         $t.text('Are you sure you want to shutdown everything? You will need to use Wake-On-LAN or power cycle to get everything back online.');
         break;
+      case 'logout':
+        $t.text('Are you sure you want to logout of the administration page?');
+        break;
       default:
         console.error('Invalid command');
         return false;
     }
 
-    let $btn = $(this).find('.btn-danger').focus().off('click').one('click', () =>
+    let $btn = $actionModal.find('.btn-danger').focus().off('click').one('click', () =>
     {
+      if(cmd == 'logout')
+      {
+        Cookies.remove('adminPass');
+      }
       socket.emit('admin.' + cmd, param);
       $actionModal.modal('hide');
     });

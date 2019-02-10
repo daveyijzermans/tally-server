@@ -436,7 +436,9 @@ app.use(express.static('www'));
 io.on('connection', socket => {
   let username = socket.handshake.query.username;
   if(username == 's')
+  {
     return socket.disconnect(); //disallow username 'users'
+  }
 
   if(username && username.indexOf('user') == 0)
   {
@@ -488,7 +490,7 @@ io.on('connection', socket => {
       if (isNaN(newNumber) || newNumber < 1 || newNumber > 99)
         return cb({ camnumber: false });
 
-      user.name = newName
+      user.name = newName;
       user.camNumber = newNumber;
       broadcastChanges('users');
       broadcastChanges('tallies');
@@ -507,6 +509,10 @@ io.on('connection', socket => {
       if(device) device.togglePowerState();
     })
 
+    /**
+     * Logout admin user
+     */
+    socket.on('admin.logout', () => socket.disconnect());
     /**
      * Broadcast all settings
      */

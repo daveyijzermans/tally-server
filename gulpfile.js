@@ -176,12 +176,7 @@ let watch = () =>
  */
 let forever = cb =>
 {
-  let child = new Forever('index.js', {
-    
-  }).on('watch:restart', (info) =>
-  {
-      console.error('Restaring script because ' + info.file + ' changed');
-  }).on('restart', () =>
+  let child = new Forever('index.js').on('restart', () =>
   {
       console.error('Forever restarting script for ' + child.times + ' time');
   }).on('exit:code', (code) =>
