@@ -312,8 +312,8 @@ jQuery($ =>
       }
       return false;
     }
-    // if remember checkbox is ticked
-    Cookies.set('adminPass', p, { expires: 7 });
+    if($('#chkRemember').is(':checked'))
+      Cookies.set('adminPass', p, { expires: 7 });
     $loginModal.modal('hide');
   };
 
