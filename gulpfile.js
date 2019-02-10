@@ -8,6 +8,7 @@ const webpack = require('webpack'),
       notifier = require('node-notifier'),
       argv = require('yargs').argv,
       sourcemaps = require('gulp-sourcemaps'),
+      Forever = require('forever-monitor').Monitor
 
       // Styles
       sass = require('gulp-sass'),
@@ -16,17 +17,6 @@ const webpack = require('webpack'),
       cssnano = require('cssnano'),
       customProperties = require('postcss-custom-properties'),
       flexboxFix = require('postcss-flexbugs-fixes');
-
-const browsersyncConfig = {
-        server: {
-            baseDir: './www',
-            index: 'index.html'
-        },
-        tunnel: true,
-        host: 'localhost',
-        port: 80,
-        // logLevel: 'silent'
-    };
 
 /**
  * Paths to source files
@@ -61,7 +51,8 @@ let webpackStatsConfig = {
 *
 * Description: compile SASS and using PostCSS plugins
 */
-gulp.task('build:scss', function(){
+let scss = () =>
+{
   let plugins = [
         autoprefixer({browsers: ['last 8 versions'], cascade: false}),
     customProperties({
@@ -78,7 +69,7 @@ gulp.task('build:scss', function(){
         .pipe(postcss(plugins))
         .pipe(gulp.dest('www/assets/css'))
         .pipe(browserSync.reload({stream: true}));
-    }
+    };
 
   return gulp.src(resources.scss)
     .pipe(sourcemaps.init())
@@ -87,112 +78,131 @@ gulp.task('build:scss', function(){
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('www/assets/css'))
     .pipe(browserSync.reload({stream: true}));
-});
+};
 
 /*
 * JS task
 *
 * Description: making JS bundle
 */
-gulp.task('build:js', function(done){
+let js = done =>
+{
   return gulp.src('resources/js/index.js')
     .pipe(plumber({
-      errorHandler: function(error){
+      errorHandler: error =>
+      {
         notifier.notify({
           title: 'Gulp',
           message: '❌ Build failed!'
         });
       }
     }))
-    .pipe(webpackGulp(require(argv.prod ? './webpack.prod.js' : './webpack.dev.js'), webpack, function(err, stats) {
-      if (err) {
+    .pipe(webpackGulp(require(argv.prod ? './webpack.prod.js' : './webpack.dev.js'), webpack, (err, stats) =>
+    {
+      if (err)
+      {
         notifier.notify({
           title: 'Webpack',
           message: '❌ Build failed!'
         });
         console.log(err);
-      }
+      };
       console.log(stats.toString(webpackStatsConfig));
     }))
     .pipe(gulp.dest('www/assets/js'))
     .pipe(browserSync.reload({stream: true}));
-});
+};
 
 /*
 * Fonts task
 *
 * Description: just moving to /www folder.
 */
-gulp.task('build:fonts', function(){
+let fonts = () =>
+{
   return gulp.src(resources.fonts)
     .pipe(gulp.dest('www/assets/fonts'))
     .pipe(browserSync.reload({stream: true}));
-});
+};
 
 /*
 * Images task
 *
 * Description: just moving to /www folder.
 */
-gulp.task('build:images', function(){
+let images = () =>
+{
   return gulp.src(resources.images)
     .pipe(gulp.dest('www/assets/images'))
     .pipe(browserSync.reload({stream: true}));
-});
+};
 
 /*
 * Client task
 *
 * Description: just moving to /www folder.
 */
-gulp.task('build:client', function(){
+let client = () =>
+{
   return gulp.src(resources.client)
     .pipe(gulp.dest('www/client'));
-});
+};
 
 /*
-* Build HTML templates 
+* Move HTML files 
 */
-gulp.task('build:html', function(){
+let html = () =>
+{
   return gulp.src(resources.html)
     .pipe(rigger())
     .pipe(gulp.dest('www'))
     .pipe(browserSync.reload({stream: true}));
-});
+};
 
 /*
 * Watch task
 */
-gulp.task('watch',function(){
-  gulp.watch(resources.fonts, ['build:fonts']);
-  gulp.watch(resources.scss, ['build:scss']);
-  gulp.watch(resources.js, ['build:js']);
-  gulp.watch(resources.images, ['build:images']);
-  gulp.watch(resources.html, ['build:html']);
-  gulp.watch(resources.client, ['build:client']);
-});
+let watch = () =>
+{
+  gulp.watch(resources.fonts, fonts);
+  gulp.watch(resources.scss, scss);
+  gulp.watch(resources.js, js);
+  gulp.watch(resources.images, images);
+  gulp.watch(resources.html, html);
+  gulp.watch(resources.client, client);
+};
 
-/*
-* Main build task
-*/
-gulp.task('build', [
-  'build:scss',
-  'build:js',
-  'build:fonts',
-  'build:images',
-  'build:html',
-  'build:client'
-]);
+/**
+ * Start app server task
+ */
+let forever = cb =>
+{
+  new Forever('index.js', {
+    
+  }).on('watch:restart', function(info) {
+      console.error('Restaring script because ' + info.file + ' changed');
+  }).on('restart', function() {
+      console.error('Forever restarting script for ' + child.times + ' time');
+  }).on('exit:code', function(code) {
+      console.error('Forever detected script exited with code ' + code);
+  }).start();
+};
+
+/**
+ * Browser sync task
+ */
+let browser = () =>
+{
+  browserSync.init(null, {
+    proxy: "http://localhost",
+        files: ["www/**/*.*"],
+        port: 3000,
+  });
+};
 
 /*
 * Start server task
 */
-gulp.task('server', function () {
-    gulp.run('build');
-    //start server
-});
-
-gulp.task('default', [
-  'server',
-  'watch'
-]);
+exports.build = gulp.parallel(scss, js, fonts, images, html, client);
+exports.dev = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), forever, gulp.parallel(browser, watch));
+exports.default = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), forever);
