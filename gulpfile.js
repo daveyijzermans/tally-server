@@ -31,7 +31,7 @@ let resources = {
   ],
   fonts: ['resources/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
   images: ['resources/images/**/*.*'],
-  html: ['resources/index.html'],
+  html: ['resources/html/**/*.*'],
   client: ['resources/client/**/*.*']
 };
 
@@ -206,5 +206,5 @@ let browser = () =>
 * Start server task
 */
 exports.build = gulp.parallel(scss, js, fonts, images, html, client);
-exports.dev = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), forever, gulp.parallel(browser, watch));
+exports.dev = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), gulp.parallel(forever, browser, watch));
 exports.default = forever;

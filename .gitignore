@@ -66,5 +66,7 @@ key.pem
 servers.json
 users.json
 config.json
+*.sublime-project
+*.sublime-workspace
 
 www/

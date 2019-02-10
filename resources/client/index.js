@@ -63,12 +63,12 @@ findArduino = () =>
     {
       let cn = port.comName;
       if(cn.indexOf(config.comPrefix) == 0)
-        paths.push(cn)
+        paths.push(cn);
     });
     if(paths.length > 0) tryConnect(paths);
     else findArduino();
   });
-}
+};
 
 var port = null;
 
@@ -96,22 +96,22 @@ tryConnect = (paths) =>
       port = null;
       findArduino();
     });
-  }
+  };
   tryNext();
-}
+};
 
 setCamNumber = (n) =>
 {
   if(!port) return false;
   if(typeof n == 'number' && n > 0 && n < 100)
     port.write('cam ' + n + '\n');
-}
+};
 
 setStatus = (status) =>
 {
   if(!port) return false;
   port.write('status ' + status + '\n');
-}
+};
 
 findArduino();
 
