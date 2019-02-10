@@ -1,4 +1,8 @@
-$(function()
+import jQuery from 'jquery';
+import md5 from 'js-md5';
+import 'bootstrap';
+
+jQuery(function($)
 {
   var socket = null,
       servers = null,
@@ -251,10 +255,10 @@ $(function()
     });
   }
 
-  updateUserTallies = function(tallies)
+  var updateUserTallies = function(tallies)
   {
     var t = tallies.split('');
-    $u = $users.find('.user-entry').each(function(i)
+    $users.find('.user-entry').each(function(i)
     {
       var $this = $(this);
       var n = $this.attr('data-camnumber');
@@ -289,7 +293,7 @@ $(function()
   {
     $frmLogin.off('submit', loginHandler);
     $btnLogin.off('click', loginHandler);
-    var p = $.md5($txtPassword.val());
+    var p = md5($txtPassword.val());
     connect(p, loginCallback);
     event.preventDefault();
   };
@@ -311,7 +315,7 @@ $(function()
   var urlHash = location.hash.match(new RegExp('password=([^&]*)'));
   if(urlHash)
   {
-    var p = $.md5(urlHash[1]);
+    var p = md5(urlHash[1]);
     connect(p, loginCallback);
   }
   else

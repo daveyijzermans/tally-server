@@ -21,11 +21,11 @@
 
 // 2. Vendors
 @import
-  '../vendor/bootstrap/scss/bootstrap',
-  '../vendor/fontawesome/scss/fontawesome',
-  '../vendor/fontawesome/scss/brands',
-  '../vendor/fontawesome/scss/solid',
-  '../vendor/fontawesome/scss/regular';
+  'node_modules/bootstrap/scss/bootstrap',
+  'node_modules/@fortawesome/fontawesome-free/scss/fontawesome',
+  'node_modules/@fortawesome/fontawesome-free/scss/brands',
+  'node_modules/@fortawesome/fontawesome-free/scss/solid',
+  'node_modules/@fortawesome/fontawesome-free/scss/regular';
 
 // 3. Base
 @import
