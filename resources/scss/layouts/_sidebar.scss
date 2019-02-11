@@ -186,7 +186,7 @@
 		}
 
 		@include phone() {
-			transform: translate(0);
+			transform: none;
 			padding-left: 15px;
 		}
 	}
@@ -289,7 +289,7 @@
 	& ~ .header,
 	& ~ .content,
 	& ~ .footer {
-		transform: translate(0, 0);
+		transform: none;
 		transition: .25s;
 
 		@include desktop() {

@@ -24,28 +24,6 @@ body {
 }
 
 // -----------------------------------------------------------------------------
-// Animation.
-// -----------------------------------------------------------------------------
-
-.loading {
-	animation-name: rotate;
-	animation-duration: .75s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-}
-
-@keyframes rotate {
-    0% {transform: rotate(0deg)}
-    100% {transform: rotate(360deg)}
-}
-
-@keyframes opacityChange {
-    0% {opacity: 1}
-    50% {opacity: .5}
-    100% {opacity: 1}
-}
-
-// -----------------------------------------------------------------------------
 // Block transition.
 // -----------------------------------------------------------------------------
 

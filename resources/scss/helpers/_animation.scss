@@ -1,0 +1,86 @@
+.loading {
+	animation-name: rotate;
+	animation-duration: .75s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+@keyframes rotate {
+    0% {transform: rotate(0deg)}
+    100% {transform: rotate(360deg)}
+}
+
+@keyframes opacityChange {
+    0% {opacity: 1}
+    50% {opacity: .5}
+    100% {opacity: 1}
+}
+
+
+.fadeIn {
+	display: block !important;
+	transition: all .35s;
+	animation-name: fadeIn;
+	animation-duration: .35s;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.fadeOut {
+	display: block !important;
+	transition: all .35s;
+	animation-name: fadeOut;
+	animation-duration: .35s;
+}
+
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.fadeInUp {
+	display: block !important;
+	transition: all .35s;
+	animation-name: fadeInUp;
+	animation-duration: .35s;
+}
+
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate(0, -50px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(0, 0);
+	}
+}
+
+.fadeOutUp {
+	display: block !important;
+	transition: all .35s;
+	animation-name: fadeOutUp;
+	animation-duration: .35s;
+}
+
+@keyframes fadeOutUp {
+	0% {
+		opacity: 1;
+		transform: translate(0, 0);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(0, -50px);
+	}
+}
