@@ -13,6 +13,7 @@ config.servers = require('./servers.json').map(a =>
 });
 config.users = require('./users.json').map(a =>
 {
+  a.channelName = '';
   a.status = null;
   a.talking = null;
   return a;
@@ -64,12 +65,13 @@ config.getUser = (username) =>
  */
 config.saveUsers = () =>
 {
-  let save = config.users.slice();
-  save.forEach(a =>
+  let save = config.users.map(a =>
   {
-    delete a.status;
-    delete a.talking;
-    return a;
+    return {
+      username: a.username,
+      name: a.name,
+      camNumber: a.camNumber
+    };
   });
   let json = JSON.stringify(save);
   fs.writeFile('./users.json', json, 'utf8', (err) => {
@@ -111,7 +113,23 @@ connectToMumble = (mumble) =>
       logger('Connected to Mumble @ ' + mumble.hostname + '!');
       mumble.client = client;
       mumble.connected = true;
+      client.users().forEach((mumbleUser) =>
+      {
+        let user = config.getUser(mumbleUser.name);
+        if(user) user.channelName = mumbleUser.channel.name;
+      });
+
       broadcastChanges('servers');
+      broadcastChanges('users');
+    });
+
+    client.on('user-move', (mumbleUser) =>
+    {
+      let user = config.getUser(mumbleUser.name);
+      if(user) user.channelName = mumbleUser.channel.name;
+
+      broadcastChanges('servers');
+      broadcastChanges('users');
     });
 
     let onVoice = (data) =>
@@ -510,12 +528,24 @@ io.on('connection', socket => {
       let user = config.getUser(data.username);
       let newName = data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
       let newNumber = parseInt(data.camNumber);
+      let r = {};
 
       if (isNaN(newNumber) || newNumber < 1 || newNumber > 99)
-        return cb({ camnumber: false });
+      {
+        r.camNumber = false;
+        r.errors = true;
+      }
+      if (config.cycleChannels.indexOf(channelName) == -1)
+      {
+        r.channelName = false;
+        r.errors = true;
+      }
+
+      if(r.errors) return cb(r);
 
       user.name = newName;
       user.camNumber = newNumber;
+      user.channel = data.channelName;
       broadcastChanges('users');
       broadcastChanges('tallies');
       config.saveUsers();
@@ -640,9 +670,13 @@ broadcastChanges = (s) =>
   {
     let result = config.servers.map(s =>
     {
-      let n = Object.assign({}, s);
-      delete n.client;
-      return n;
+      return {
+        type: s.type,
+        hostname: s.hostname,
+        name: s.name,
+        wol: s.wol,
+        connected: s.connected
+      };
     });
     io.to('admins').emit('admin.status.servers', result);
   }
@@ -704,16 +738,14 @@ broadcastChanges = (s) =>
    */
   if(s == 'plugs' || !s)
   {
-    let result = [];
-    plugs.forEach(device =>
+    let result = plugs.map(p =>
     {
-      let plug = {
-        hostname: device.host,
-        name: device.alias,
-        description: device.description,
-        on: device.relayState
-      }
-      result.push(plug);
+      return {
+        hostname: p.host,
+        name: p.alias,
+        description: p.description,
+        on: p.relayState
+      };
     });
     // Sort them by name
     result.sort((a, b) =>

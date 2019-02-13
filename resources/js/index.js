@@ -30,23 +30,20 @@ jQuery($ =>
         $btnActionModal = $actionModal.find('.btn-danger'),
         $editUserModal = $('#editUserModal');
 
-  const animatePuff = (els, removeEl) =>
+  const animatePuff = ($el, removeEl) =>
   {
-    $(els).each(i =>
-    {
-      let $el = $(this),
-          bgTop = 0,
-          frame = 0,
-          frames = 6,
-          frameSize = 32,
-          frameRate = 80,
-          pos = $el.offset(),
-          left = pos.left + $el.outerWidth() / 2 - frameSize / 2,
-          top = pos.top + $el.outerHeight() / 2 - frameSize / 2,
-          $puff = $('<div class="puff"></div>').css({
-            left: left,
-            top: top
-          }).appendTo('body');
+    let bgTop = 0,
+        frame = 0,
+        frames = 6,
+        frameSize = 32,
+        frameRate = 80,
+        pos = $el.offset(),
+        left = pos.left + $el.outerWidth() / 2 - frameSize / 2,
+        top = pos.top + $el.outerHeight() / 2 - frameSize / 2,
+        $puff = $('<div class="puff"></div>').css({
+          left: left,
+          top: top
+        }).appendTo('body');
       if(removeEl) $el.remove();
 
       let a = () =>
@@ -63,7 +60,6 @@ jQuery($ =>
       };
       a();
       setTimeout(() => { $puff.remove(); }, frames * frameRate);
-    });
   };
 
   const talkingIndicator = (el) =>
@@ -222,6 +218,7 @@ jQuery($ =>
         $u.find('.name').text(user.name);
         $u.find('.username').text(user.username);
         $u.find('.camNumber').text(user.camNumber);
+        $u.find('.channelName').text(user.channelName);
         $dropdown.find('.edit-user-modal').data('user', user);
       });
       updateUserTallies(tallies._combined);
