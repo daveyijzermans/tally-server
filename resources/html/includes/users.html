@@ -1,0 +1,32 @@
+<div class="box">
+  <div class="box-header">
+    <h3><i class="fas fa-users"></i> Intercom</h3>
+    <div class="box-actions">
+      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="usersMenu">
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="rebootUsers">Reboot all</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="updateUsers">Update all</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownUsers">Shutdown all</a>
+      </div>
+      <button class="box-actions-item btn-popout" id="usersPopout"><i class="fas fa-external-link-alt"></i></button>
+      <button class="box-actions-item" id="usersMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+    </div>
+  </div>
+  <div class="box-body" id="users">
+    <p class="noresults"><em>No users are connected.</em></p>
+  </div>
+  <div class="user-panel user-entry" style="display:none" id="tplUser">
+    <div class="user-panel-image avatar avatar-sm camNumber">
+    </div>
+    <div class="user-panel-info">
+      <p class="name"></p>
+      <small class="text-black-50 username"></small>
+    </div>
+    <div class="user-panel-actions">
+      <div class="dropdown-menu"></div>
+      <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+    </div>
+  </div>
+  <div class="box-footer">
+    <a href="#" class="text-secondary text-sm d-block">Show more contacts <i class="fas fa-chevron-right"></i></a>
+  </div>
+</div>

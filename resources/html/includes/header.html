@@ -1,0 +1,37 @@
+<header class="header">
+  <ul class="header-nav d-none d-md-flex">
+    <li>
+      <a href="#" class="logo">
+        Unit 1-2 administration
+      </a>
+    </li>
+  </ul>
+
+  <ul class="header-nav pull-right">
+    <li id="log">
+      <a href="#" class="header-nav-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="far fa-bell"></i>
+        <span class="badge badge-pill"></span>
+      </a>
+      <div class="dropdown-menu py-10 px-25 dropdown-menu-right"></div>
+    </li>
+    <li>
+      <a href="#" class="user-panel dropdown-toggle" id="serverMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="user-panel-image">
+          <div class="avatar avatar-sm">
+            <img src="/assets/images/logo-sm.png" alt="">
+          </div>
+        </div>
+        <div class="user-panel-info">
+          <p class="text-white" id="serverHost">SWITCH-INTERCOM</p>
+          <small class="text-black-50" id="serverStatus"><i class="fas fa-times-circle fa-beat"></i> Disconnected</small>
+        </div>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="serverMenu">
+        <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="logout">Logout</a></li>
+        <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="restart">Restart server</a></li>
+        <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownAll">Shutdown everything</a></li>
+      </ul>
+    </li>
+  </ul>
+</header>

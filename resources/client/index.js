@@ -66,7 +66,7 @@ findArduino = () =>
         paths.push(cn);
     });
     if(paths.length > 0) tryConnect(paths);
-    else findArduino();
+    else setTimeout(findArduino, 200);
   });
 };
 

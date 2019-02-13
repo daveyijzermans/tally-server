@@ -15,6 +15,7 @@ jQuery($ =>
         $tallies = $('#tallies'),
         $tplTally = $('#tplTally'),
         $users = $('#users'),
+        $btnUsersPopout = $('#usersPopout'),
         $tplUser = $('#tplUser'),
         $plugs = $('#plugs'),
         $tplPlug = $('#tplPlug'),
@@ -63,6 +64,15 @@ jQuery($ =>
       a();
       setTimeout(() => { $puff.remove(); }, frames * frameRate);
     });
+  };
+
+  const talkingIndicator = (el) =>
+  {          
+    let $circle = $('<div class="talking-indicator"></div>')
+      .appendTo(el);
+      
+    setTimeout(() => $circle.addClass('zoom'), 10);
+    setTimeout(() => $circle.remove(), 2010);
   };
 
   let connect = (p, cb) =>
@@ -191,6 +201,23 @@ jQuery($ =>
               .appendTo($dropdown);
         }
 
+        if(user.talking)
+        {
+          if(!$u.data('talkingTimer'))
+          {
+            let to = () =>
+            {
+              talkingIndicator($u);
+              $u.data('talkingTimer', setTimeout(to, 500));
+            };
+            to();
+          }
+        } else {
+          clearTimeout($u.data('talkingTimer'));
+          $u.data('talkingTimer', null);
+        }
+
+        $u.toggleClass('user-talking', user.talking);
         $u.attr('data-camnumber', user.camNumber);
         $u.find('.name').text(user.name);
         $u.find('.username').text(user.username);
@@ -198,6 +225,11 @@ jQuery($ =>
         $dropdown.find('.edit-user-modal').data('user', user);
       });
       updateUserTallies(tallies._combined);
+    });
+    $btnUsersPopout.click(event =>
+    {
+      window.open('/users_popout.html', 'users_popout', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
+      event.preventDefault();
     });
     socket.on('admin.plugs.list', plugs =>
     {
@@ -262,7 +294,7 @@ jQuery($ =>
     });
     socket.on('disconnect', () =>
     {
-      animatePuff($plugs.find('.user-entry'), true);
+      animatePuff($plugs.find('.plug-entry'), true);
       $plugs.find('.noresults').toggle(true);
 
       $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
@@ -411,10 +443,10 @@ jQuery($ =>
     let $name = $editUserModal.find('#user-name').focus().val(user.name);
     let $camNumber = $editUserModal.find('#user-camnumber').val(user.camNumber);
 
-    let $btn = $(this).find('.btn-primary').off('click');
+    let $btn = $editUserModal.find('.btn-primary').off('click');
     $btn.on('click', () =>
     {
-      let newData = Object.assign({}, user);
+      let newData = {username: user.username};
       newData.name = $name.val();
       newData.camNumber = $camNumber.val();
 

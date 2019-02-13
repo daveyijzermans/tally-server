@@ -1,3 +1,20 @@
+.user-entry {
+  .talking-indicator {
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    border: 3px solid red;
+    -webkit-transition: all 2s linear;
+    -webkit-transform: scale(0.435);
+    position: absolute;
+    top: -30px;
+    left: -30px;
+  }
+  .talking-indicator.zoom {
+    opacity: 0;
+    -webkit-transform: none;
+  }
+}
 .dropdown-menu {
   transition: none;
 }
@@ -33,6 +50,23 @@
   color: inherit;
   h1, h2, h3, h4, h5, h6 {
     font-size: 20px;
+  }
+}
+
+html.popout {
+  &, body {
+    height: 100%;
+  }
+  .wrapper {
+    min-height: 100%;
+  }
+  .box {
+    box-shadow: none;
+    border-radius: none;
+    border: none;
+  }
+  .btn-popout {
+    display: none
   }
 }
 

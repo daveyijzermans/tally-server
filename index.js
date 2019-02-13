@@ -14,6 +14,7 @@ config.servers = require('./servers.json').map(a =>
 config.users = require('./users.json').map(a =>
 {
   a.status = null;
+  a.talking = null;
   return a;
 });
 
@@ -63,7 +64,14 @@ config.getUser = (username) =>
  */
 config.saveUsers = () =>
 {
-  let json = JSON.stringify(config.users);
+  let save = config.users.slice();
+  save.forEach(a =>
+  {
+    delete a.status;
+    delete a.talking;
+    return a;
+  });
+  let json = JSON.stringify(save);
   fs.writeFile('./users.json', json, 'utf8', (err) => {
     if (err) return console.error(err);
     logger('Users.json file has been saved!');
@@ -74,7 +82,7 @@ config.saveUsers = () =>
  * Mumble bot
  */
 
-const connect = require('mumble-client-tcp');
+const Mumble = require('mumble');
 
 /**
  * Connect to the mumble server set in the config file and
@@ -84,15 +92,11 @@ const connect = require('mumble-client-tcp');
  */
 connectToMumble = (mumble) =>
 {
-  connect(mumble.hostname, 64738, {
-    tls: {
-      key: fs.readFileSync('key.pem'),
-      cert: fs.readFileSync('cert.pem'),
-      rejectUnauthorized: false
-    },
-    username: mumble.username,
-    password: mumble.password,
-  }, (err, client) =>
+  let opts = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
+  };
+  Mumble.connect('mumble://' + mumble.hostname, opts, (err, client) =>
   {
     if(err)
     {
@@ -100,10 +104,32 @@ connectToMumble = (mumble) =>
       setTimeout(() => connectToMumble(mumble), 3000);
       return;
     }
-    logger('Connected to Mumble @ ' + mumble.hostname + '!');
-    mumble.client = client;
-    mumble.connected = true;
-    broadcastChanges('servers');
+    client.authenticate(mumble.username);
+
+    client.on('initialized', () =>
+    {
+      logger('Connected to Mumble @ ' + mumble.hostname + '!');
+      mumble.client = client;
+      mumble.connected = true;
+      broadcastChanges('servers');
+    });
+
+    let onVoice = (data) =>
+    {
+      let username = data.name;
+      if(username.indexOf('user') == 0)
+      {
+        let user = config.getUser(username);
+        if(user.talking != data.talking)
+        {
+          config.getUser(username).talking = data.talking;
+          broadcastChanges('users');
+        }
+      }
+    };
+
+    client.on('voice-start', onVoice);
+    client.on('voice-end', onVoice);
 
     client.on('disconnected', () =>
     {
@@ -126,23 +152,21 @@ cycleUser = (mumble, username) =>
 {
   let r = false;
   if(!mumble.client) return r;
-  mumble.client.users.forEach(user =>
-  {
-    if(user.username != username) return;
+  let user = mumble.client.userByName(username);
+  if(!user) return r;
 
-    let channel = user.channel.name;
-    let index = config.cycleChannels.indexOf(channel);
-    if(index != -1)
-    {
-      // Figure out the next channel, or reset to the 0th one.
-      index = index + 1 >= config.cycleChannels.length ? 0 : index + 1;
-      let newChannel = mumble.client.getChannel(config.cycleChannels[index]);
-      logger('Found ' + username + ' in channel ' + channel + '. Moving to channel ' + newChannel.name + '.');
-      user.setChannel(newChannel);
-      r = true;
-    } else
-      logger('Found ' + username + ' in channel ' + channel + '. Channel not in cycle list.');
-  });
+  let curChannel = user.channel.name;
+  let index = config.cycleChannels.indexOf(curChannel);
+  if(index != -1)
+  {
+    // Figure out the next channel, or reset to the 0th one.
+    index = index + 1 >= config.cycleChannels.length ? 0 : index + 1;
+    let newChannel = mumble.client.channelByName(config.cycleChannels[index]);
+    logger('Found ' + username + ' in channel ' + channel + '. Moving to channel ' + newChannel.name + '.');
+    user.moveToChannel(newChannel);
+    r = true;
+  } else
+    logger('Found ' + username + ' in channel ' + channel + '. Channel not in cycle list.');
   return r;
 }
 

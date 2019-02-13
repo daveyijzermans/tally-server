@@ -13,8 +13,7 @@
     "atem": "^0.1.8",
     "express": "^4.16.4",
     "io-videohub": "github:daveyijzermans/io-videohub",
-    "mumble-client-tcp": "^1.0.1",
-    "mumble-client-websocket": "^1.0.0",
+    "mumble": "^0.3.19",
     "socket.io": "^2.2.0",
     "tplink-smarthome-api": "^1.2.0",
     "wol": "^1.0.5"

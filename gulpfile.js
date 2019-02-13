@@ -31,7 +31,8 @@ let resources = {
   ],
   fonts: ['resources/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
   images: ['resources/images/**/*.*'],
-  html: ['resources/html/**/*.*'],
+  html: ['resources/html/*.*'],
+  htmlIncludes: ['resources/html/includes/*.html'],
   client: ['resources/client/**/*.*']
 };
 
@@ -169,6 +170,7 @@ let watch = () =>
   gulp.watch(resources.images, images);
   gulp.watch(resources.html, html);
   gulp.watch(resources.client, client);
+  gulp.watch(resources.htmlIncludes, html);
 };
 
 /**
