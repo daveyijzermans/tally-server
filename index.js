@@ -162,11 +162,11 @@ cycleUser = (mumble, username) =>
     // Figure out the next channel, or reset to the 0th one.
     index = index + 1 >= config.cycleChannels.length ? 0 : index + 1;
     let newChannel = mumble.client.channelByName(config.cycleChannels[index]);
-    logger('Found ' + username + ' in channel ' + channel + '. Moving to channel ' + newChannel.name + '.');
+    logger('Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
     user.moveToChannel(newChannel);
     r = true;
   } else
-    logger('Found ' + username + ' in channel ' + channel + '. Channel not in cycle list.');
+    logger('Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
   return r;
 }
 
