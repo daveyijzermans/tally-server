@@ -548,8 +548,10 @@ io.on('connection', socket => {
       user.camNumber = newNumber;
       config.getServersByType('mumble').forEach((m) =>
       {
-        //TODO: better checking
-        m.client.userByName(data.username).moveToChannel(newChannel);
+        if(!m.client) return;
+        let mumbleUser = m.client.userByName(data.username);
+        if(!mumbleUser) return;
+        mumbleUser.moveToChannel(newChannel);
       });
       broadcastChanges('users');
       broadcastChanges('tallies');

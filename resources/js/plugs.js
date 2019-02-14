@@ -22,14 +22,7 @@ class Plugs
       if($p.length == 0)
       {
         $p = this.$tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo(this.$list);
-        $p.find('a.toggle').click(event =>
-        {
-          $(event.currentTarget).find('.fas')
-            .removeClass('text-success text-danger fa-power-off')
-            .addClass('fa-circle-notch fa-spin');
-          this.socket.emit('admin.plug.toggle', plug.hostname);
-          event.preventDefault();
-        });
+        $p.find('a.toggle').click(this._btnPlugToggle);
       }
 
       $p.find('.name').text(plug.name);
@@ -52,6 +45,17 @@ class Plugs
     this.$list.find('.plug-entry').poof(true);
     this.$list.find('.noresults').toggle(true);
   }
+  _btnPlugToggle = event =>
+  {
+    let $this = $(event.currentTarget);
+    let hostname = $this.closest('.plug-entry').attr('data-hostname');
+    $this.find('.fas')
+      .removeClass('text-success text-danger fa-power-off')
+      .addClass('fa-circle-notch fa-spin');
+    this.socket.emit('admin.plug.toggle', hostname);
+    event.preventDefault();
+  }
+  get $items() { return this.$list.find('.plug-entry') }
 }
 
 export default Plugs;

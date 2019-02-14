@@ -1,20 +1,32 @@
 import $ from 'jquery';
 import poof from './jquery-poof';
+import EditUserModal from './modal-edit-user';
 $.fn.poof = poof;
 import talkingIndicator from './jquery-talkingIndicator';
 $.fn.talkingIndicator = talkingIndicator;
+import EventEmitter from 'events';
 
-class Users
+class Users extends EventEmitter
 {
   constructor(opts)
   {
+    super()
     Object.assign(this, opts);
 
-    if(this.tallies) this.tallies.on('updated', this._updateUserTallies);
+    this.on('tallies', this._updateUserTallies);
 
     this.socket.on('admin.user.disconnect', this._disconnect);
     this.socket.on('admin.users.list', this._list);
     this.$btnPopout.click(this._popout);
+
+    /**
+     * Create the edit user modal instance
+     * @type {EditUserModal}
+     */
+    this.editUserModal = new EditUserModal({
+      $modal: this.$modal,
+      socket: this.socket
+    });
   }
   _updateUserTallies = tallies =>
   {
@@ -77,7 +89,7 @@ class Users
       $u.find('.channelName').text(user.channelName);
       $dropdown.find('.edit-user-modal').data('user', user);
     });
-    if(this.tallies) this._updateUserTallies(this.tallies.getCombined());
+    this.emit('updated');
   }
   _disconnect = username =>
   {
@@ -90,6 +102,7 @@ class Users
     window.open('/users_popout.html', 'users_popout', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
     event.preventDefault();
   }
+  get $items() { return this.$list.find('.user-entry') }
 }
 
 export default Users;

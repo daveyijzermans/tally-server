@@ -60,6 +60,7 @@ class Servers
         .text(server.connected ? 'Connected' : 'Disconnected');
     });
   }
+  get $items() { return this.$list.find('.server-entry') }
 }
 
 export default Servers;

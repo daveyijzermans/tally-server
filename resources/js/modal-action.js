@@ -20,22 +20,22 @@ class ActionModal extends EventEmitter
   _modalShow = event =>
   {
     let rel = $(event.relatedTarget);
-    let cmd = rel.data('command');
-    let param = rel.data('param');
+    this._cmd = rel.data('command');
+    this._param = rel.data('param');
 
-    switch(cmd)
+    switch(this._cmd)
     {
       case 'restart':
         this.$text.text('Are you sure you want to restart the administration server?');
         break;
       case 'reboot':
-        this.$text.text('Are you sure you want to reboot ' + param + '?');
+        this.$text.text('Are you sure you want to reboot ' + this._param + '?');
         break;
       case 'shutdown':
-        this.$text.text('Are you sure you want to shutdown ' + param + '? You will need to use Wake-On-LAN or power cycle to get it back online.');
+        this.$text.text('Are you sure you want to shutdown ' + this._param + '? You will need to use Wake-On-LAN or power cycle to get it back online.');
         break;
       case 'wake':
-        this.$text.text('Are you sure you want to wake-up ' + param + '?');
+        this.$text.text('Are you sure you want to wake-up ' + this._param + '?');
         break;
       case 'rebootUsers':
         this.$text.text('Are you sure you want to reboot all intercom users? Clients will disconnect and will take approximately 30 seconds to get back online.');
@@ -57,12 +57,7 @@ class ActionModal extends EventEmitter
         return false;
     }
 
-    this.$btn.focus().off('click').one('click', () =>
-    {
-      this.emit('command.' + cmd, param);
-      this.socket.emit('admin.' + cmd, param);
-      this.$modal.modal('hide');
-    });
+    this.$btn.focus().off('click').one('click', this._btnConfirmClick);
   }
   _modalShown = event =>
   {
@@ -71,6 +66,12 @@ class ActionModal extends EventEmitter
   _modalHide = event =>
   {
     this.$btn.off('click');
+  }
+  _btnConfirmClick = event =>
+  {
+    this.emit('command.' + cmd, this._param);
+    this.socket.emit('admin.' + cmd, this._param);
+    this.$modal.modal('hide');
   }
 }
 

@@ -15,7 +15,7 @@ class Log
   _log = msg =>
   {
     let $dropdown = this.$list.find('.dropdown-menu')
-      .prepend($('<p class="text-sm"></p>').text(msg));
+      .prepend($('<p class="text-sm log-entry"></p>').text(msg));
     this.$list.find('a').dropdown('update');
     let $badge = this.$list.find('.badge');
     if($dropdown.is(':hidden'))
@@ -38,6 +38,7 @@ class Log
     this.$list.find('.dropdown-menu p:gt(29).read').remove();
     this.$list.find('.dropdown-menu p').addClass('read');
   }
+  get $items() { return this.$list.find('.log-entry') }
 }
 
 export default Log;

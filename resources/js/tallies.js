@@ -11,10 +11,6 @@ class Tallies extends EventEmitter
 
     this.socket.on('admin.status.tallies', this._list);
   }
-  getCombined = () =>
-  {
-    return this._tallies._combined;
-  }
   _list = data =>
   {
     if(JSON.stringify(data) === JSON.stringify(this._tallies))
@@ -44,8 +40,10 @@ class Tallies extends EventEmitter
     let hostsOnline = this.$list.find('.tally-entry').length > 1;
     this.$list.siblings('.noresults').toggle(!hostsOnline);
     this.$list.find('.tally-entry').toggle(hostsOnline);
-    this.emit('updated', this._tallies._combined);
+    this.emit('updated', this._tallies);
   }
+  get combined() { return this._tallies._combined }
+  get $items() { return this.$list.find('.tally-entry') }
 }
 
 export default Tallies;

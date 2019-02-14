@@ -16,8 +16,8 @@ class LoginModal extends EventEmitter
     // Bind handlers to buttons and events
     this.$modal.on('show.bs.modal', this._modalShow);
     this.$modal.on('shown.bs.modal', this._modalShown);
-    this.socket.on('authenticated', this._modalHide);
 
+    this.socket.on('authenticated', this._socketAuthenticated);
     this.socket.on('disconnect', this._socketDisconnect);
   }
   connect = p =>
@@ -46,9 +46,10 @@ class LoginModal extends EventEmitter
     this.$frmLogin.one('submit', this._loginHandler);
     this.$btnLogin.one('click', this._loginHandler);
   }
-  _modalHide = event =>
+  _socketAuthenticated = () =>
   {
     this.emit('authenticated', this.password);
+    this.$modal.modal('hide');
   }
   _socketDisconnect = () =>
   {
@@ -64,6 +65,7 @@ class LoginModal extends EventEmitter
       this.$modal.modal('show');
     }
   }
+  get remember() { return this.$modal.find('#chkRemember').is(':checked'); }
 }
 
 export default LoginModal;
