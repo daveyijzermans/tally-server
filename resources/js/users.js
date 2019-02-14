@@ -1,5 +1,7 @@
 import $ from 'jquery';
-import { animatePuff, talkingIndicator } from './utils';
+import { poof, talkingIndicator } from './utils';
+$.fn.poof = poof;
+$.fn.talkingIndicator = talkingIndicator;
 
 class Users
 {
@@ -56,7 +58,7 @@ class Users
         {
           let to = () =>
           {
-            talkingIndicator($u);
+            $u.talkingIndicator();
             $u.data('talkingTimer', setTimeout(to, 500));
           };
           to();
@@ -79,7 +81,7 @@ class Users
   _disconnect = username =>
   {
     let $user = this.$list.find('[data-username="' + username + '"]');
-    animatePuff($user, true);
+    $user.poof(true);
     this.$list.find('.noresults').toggle(this.$list.find('.user-entry').length == 0);
   }
   _popout = event =>

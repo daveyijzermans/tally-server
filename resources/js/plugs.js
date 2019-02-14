@@ -1,5 +1,6 @@
 import $ from 'jquery';
-import { animatePuff } from './utils';
+import { poof } from './utils';
+$.fn.poof = poof;
 
 class Plugs
 {
@@ -43,12 +44,12 @@ class Plugs
   _disconnect = hostname =>
   {
     let $plug = this.$list.find('[data-hostname="' + hostname + '"]');
-    animatePuff($plug, true);
+    $plug.poof(true);
     this.$list.find('.noresults').toggle(this.$list.find('.plug-entry').length == 0);
   }
   _socketDisconnect = () =>
   {
-    animatePuff(this.$list.find('.plug-entry'), true);
+    this.$list.find('.plug-entry').poof(true);
     this.$list.find('.noresults').toggle(true);
   }
 }

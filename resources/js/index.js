@@ -9,7 +9,8 @@ import LoginModal from './modal-login';
 import ActionModal from './modal-action';
 import EditUserModal from './modal-edit-user';
 import AVSetup from './avsetup';
-import { animatePuff } from './utils';
+import { poof } from './utils';
+$.fn.poof = poof;
 
 let socket = io({
   autoConnect: false
@@ -32,7 +33,7 @@ const loginModal = new LoginModal({
 {
   $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
 
-  animatePuff($('.plug-entry'), true);
+  $('.plug-entry').poof(true);
 });
 
 let storedPassword = Cookies.get('adminPass');

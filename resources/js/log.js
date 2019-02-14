@@ -12,7 +12,7 @@ class Log
     this.$list.on('shown.bs.dropdown', this._dropdownShown);
     this.$list.on('hide.bs.dropdown', this._dropdownHide);
   }
-  _log = (msg) =>
+  _log = msg =>
   {
     let $dropdown = this.$list.find('.dropdown-menu')
       .prepend($('<p class="text-sm"></p>').text(msg));
