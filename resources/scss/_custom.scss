@@ -54,8 +54,16 @@
   width: 16px;
 }
 
-#log p {
-  margin-bottom: 0;
+#log .log-entry {
+  p {
+    font-size: 90%;
+  }
+  span {
+    font-size: 70%
+  }
+  &:not(:last-child) {
+    padding-bottom: 9px;
+  }
 }
 
 .tabs-box {

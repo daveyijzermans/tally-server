@@ -10,6 +10,7 @@ import ActionModal from './modal-action';
 import AVSetup from './avsetup';
 import poof from './jquery-poof';
 $.fn.poof = poof;
+import { toggleFullscreen } from './fullscreen'
 
 /**
  * Create the socket client instance
@@ -130,6 +131,7 @@ const plugs = new Plugs({
  */
 const log = new Log({
   $list: $('#log'),
+  $tpl: $('#tplLog'),
   socket: socket
 });
 
@@ -149,4 +151,11 @@ const actionModal = new ActionModal({
 const avSetup = new AVSetup({
   $sources: $('.avSource'),
   $targets: $('.avTarget')
+});
+
+
+$('#btnFullscreen').click(event =>
+{
+  toggleFullscreen();
+  event.preventDefault();
 });

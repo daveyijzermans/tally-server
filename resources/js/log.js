@@ -18,22 +18,30 @@ class Log
   }
   _log = msg =>
   {
-    this.$dropdown.prepend($('<p class="text-sm log-entry"></p>').text(msg));
+    let $l = this.$tpl.clone().attr('id', '').show().prependTo(this.$dropdown);
+    let date = new Date().toLocaleTimeString('en-US', {
+      hour12: false, 
+      hour: 'numeric', 
+      minute: 'numeric', 
+      second: 'numeric'
+    });
+    $l.find('p').text(msg);
+    $l.find('.text-secondary').text(date);
     this.$list.find('a').dropdown('update');
     if(this.$dropdown.is(':hidden'))
     {
       this._startRing();
       this.$badge.text((parseInt(this.$badge.text(), 10)||0)+1);
     }
-    this.$list.find('.dropdown-menu p:gt(99)').remove();
-    this.$list.find('.dropdown-menu p:gt(29).read').remove();
+    this.$dropdown.find('.log-entry:gt(99)').remove();
+    this.$dropdown.find('.log-entry:gt(16).read').remove();
   }
   _dropdownShow = event =>
   {
     $(event.relatedTarget).dropdown('update');
     this._stopRing();
     this.$badge.text('');
-    this.$list.find('.dropdown-menu p:gt(29).read').remove();
+    this.$dropdown.find('.log-entry:gt(16).read').remove();
   }
   _dropdownShown = event =>
   {
@@ -41,8 +49,8 @@ class Log
   }
   _dropdownHide = event =>
   {
-    this.$list.find('.dropdown-menu p:gt(29).read').remove();
-    this.$list.find('.dropdown-menu p').addClass('read');
+    this.$dropdown.find('.log-entry:gt(16).read').remove();
+    this.$dropdown.find('.log-entry').addClass('read').removeClass('event-column-success');
   }
   _startRing = () =>
   {
@@ -56,7 +64,7 @@ class Log
     if(this._animateTimeout) clearTimeout(this._animateTimeout);
     this.$icon.removeClass('faa-ring');
   }
-  get $items() { return this.$list.find('.log-entry') }
+  get $items() { return this.$dropdown.find('.log-entry') }
 }
 
 export default Log;
