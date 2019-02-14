@@ -69,8 +69,8 @@ class ActionModal extends EventEmitter
   }
   _btnConfirmClick = event =>
   {
-    this.emit('command.' + cmd, this._param);
-    this.socket.emit('admin.' + cmd, this._param);
+    this.emit('command.' + this._cmd, this._param);
+    this.socket.emit('admin.' + this._cmd, this._param);
     this.$modal.modal('hide');
   }
 }
