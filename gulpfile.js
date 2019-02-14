@@ -23,12 +23,7 @@ const webpack = require('webpack'),
  */
 let resources = {
   scss: ['resources/scss/**/*.scss'],
-  js: [
-    'resources/vendor/jquery/dist/jquery.js',
-    'resources/vendor/jquery-md5/jquery.md5.js',
-    'resources/vendor/bootstrap/dist/js/bootstrap.bundle.js',
-    'resources/js/**/*.*'
-  ],
+  js: ['resources/js/**/*.*'],
   fonts: ['resources/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
   images: ['resources/images/**/*.*'],
   html: ['resources/html/*.*'],

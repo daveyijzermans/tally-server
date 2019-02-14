@@ -11,14 +11,23 @@
         <form>
           <div class="form-row">
             <div class="col-md-8 mb-3">
-              <label for="recipient-name" class="col-form-label">Friendly name:</label>
+              <label for="user-name" class="col-form-label">Friendly name:</label>
               <input type="text" class="form-control" id="user-name">
             </div>
             <div class="col-md-4 mb-3">
-              <label for="message-text" class="col-form-label">Camera number:</label>
+              <label for="user-camnumber" class="col-form-label">Camera number:</label>
               <input type="number" class="form-control" id="user-camnumber" min="1" max="99">
               <div class="invalid-feedback">
                 Invalid camera number.
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-8 mb-3">
+              <label for="user-channelname" class="col-form-label">Channel:</label>
+              <input type="text" class="form-control" id="user-channelname">
+              <div class="invalid-feedback">
+                Invalid channel name.
               </div>
             </div>
           </div>

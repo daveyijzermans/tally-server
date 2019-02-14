@@ -528,16 +528,17 @@ io.on('connection', socket => {
       let user = config.getUser(data.username);
       let newName = data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
       let newNumber = parseInt(data.camNumber);
-      let r = {};
+      let newChannel = data.channelName.replace(/[^\w\s]/gi, '').substring(0, 30);
+      let r = { errors: false, camNumber: false, channelName: false };
 
       if (isNaN(newNumber) || newNumber < 1 || newNumber > 99)
       {
-        r.camNumber = false;
+        r.camNumber = true;
         r.errors = true;
       }
-      if (config.cycleChannels.indexOf(channelName) == -1)
+      if (config.cycleChannels.indexOf(newChannel) == -1)
       {
-        r.channelName = false;
+        r.channelName = true;
         r.errors = true;
       }
 
@@ -545,11 +546,15 @@ io.on('connection', socket => {
 
       user.name = newName;
       user.camNumber = newNumber;
-      user.channel = data.channelName;
+      config.getServersByType('mumble').forEach((m) =>
+      {
+        //TODO: better checking
+        m.client.userByName(data.username).moveToChannel(newChannel);
+      });
       broadcastChanges('users');
       broadcastChanges('tallies');
       config.saveUsers();
-      cb(null);
+      cb(r);
     });
 
     /**
