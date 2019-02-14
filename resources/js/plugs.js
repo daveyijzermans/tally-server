@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { poof } from './utils';
+import poof from './jquery-poof';
 $.fn.poof = poof;
 
 class Plugs

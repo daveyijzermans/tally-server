@@ -1,6 +1,7 @@
 import $ from 'jquery';
-import { poof, talkingIndicator } from './utils';
+import poof from './jquery-poof';
 $.fn.poof = poof;
+import talkingIndicator from './jquery-talkingIndicator';
 $.fn.talkingIndicator = talkingIndicator;
 
 class Users

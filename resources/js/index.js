@@ -9,7 +9,7 @@ import LoginModal from './modal-login';
 import ActionModal from './modal-action';
 import EditUserModal from './modal-edit-user';
 import AVSetup from './avsetup';
-import { poof } from './utils';
+import poof from './jquery-poof';
 $.fn.poof = poof;
 
 let socket = io({

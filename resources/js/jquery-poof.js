@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-export const poof = function(removeEl)
+export default function(removeEl)
 {
   this.each(function()
   {
@@ -33,17 +33,5 @@ export const poof = function(removeEl)
       };
       a();
       setTimeout(() => { $puff.remove(); }, frames * frameRate);
-  });
-};
-
-export const talkingIndicator = function()
-{          
-  this.each(function()
-  {
-    let $circle = $('<div class="talking-indicator"></div>')
-      .appendTo(this);
-      
-    setTimeout(() => $circle.addClass('zoom'), 10);
-    setTimeout(() => $circle.remove(), 2010);
   });
 };
