@@ -40,7 +40,7 @@ let authenticated = function(password)
  */
 let loginError = () =>
 {
-  $('#serverStatus').html('<i class="fas fa-times-circle fa-beat"></i> Disconnected');
+  $('#serverStatus').html('<i class="fas fa-times-circle faa-beat"></i> Disconnected');
 }
 
 /**
