@@ -10,7 +10,7 @@ config.servers = require('./servers.json').map(a =>
   a.client = null;
   if(!a.wol) a.wol = false;
   return a;
-});
+})
 config.users = require('./users.json').map(a =>
 {
   a.channelName = '';

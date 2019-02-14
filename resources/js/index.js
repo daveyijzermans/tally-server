@@ -1,8 +1,5 @@
 import $ from 'jquery';
 import Cookies from 'js-cookie';
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/ui/widgets/droppable';
-import 'bootstrap';
 import Log from './log';
 import Servers from './servers';
 import Users from './users';
@@ -11,24 +8,17 @@ import Plugs from './plugs';
 import LoginModal from './modal-login';
 import ActionModal from './modal-action';
 import EditUserModal from './modal-edit-user';
+import AVSetup from './avsetup';
 import { animatePuff } from './utils';
 
 let socket = io({
   autoConnect: false
 });
 
-const $avSources = $('.avSource'),
-      $avTargets = $('.avTarget')
-
-
-
-
-
-
 const loginModal = new LoginModal({
   $modal: $('#loginModal'),
   socket: socket
-}).on('authenticated', (password) =>
+}).on('authenticated', password =>
 {
   socket.emit('admin.update');
   
@@ -61,6 +51,7 @@ const tallies = new Tallies({
 
 const users = new Users({
   $list: $('#users'),
+  $btnPopout: $('#usersPopout'),
   $tpl: $('#tplUser'),
   socket: socket,
   tallies: tallies
@@ -86,27 +77,14 @@ const log = new Log({
 const actionModal = new ActionModal({
   $modal: $('#actionModal'),
   socket: socket
-});
+}).on('command.logout', () => Cookies.remove('adminPass'));
 
 const editUserModal = new EditUserModal({
   $modal: $('#editUserModal'),
   socket: socket
 });
 
-
-
-
-
-$avSources.draggable({
-  cursor: 'move',
-  revert: true
+const avSetup = new AVSetup({
+  $sources: $('.avSource'),
+  $targets: $('.avTarget')
 });
-$avTargets.droppable({
-  drop: function(event, ui)
-  {
-    let $target = $(this);
-    let $source = ui.draggable;
-    console.log($source, $target);
-  }
-});
-
