@@ -55,9 +55,13 @@ class Log
   _startRing = () =>
   {
       this._stopRing();
-      this.$icon.addClass('faa-ring');
-      if(this._animateTimeout) clearTimeout(this._animateTimeout);
-      this._animateTimeout = setTimeout(this._stopRing, 2000);
+      // Give the DOM a bit of time to update
+      setTimeout(() =>
+      {
+        this.$icon.addClass('faa-ring');
+        if(this._animateTimeout) clearTimeout(this._animateTimeout);
+        this._animateTimeout = setTimeout(this._stopRing, 2000);
+      }, 10);
   }
   _stopRing = () =>
   {
