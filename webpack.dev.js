@@ -2,7 +2,7 @@ module.exports = {
 	mode: 'development',
 	devtool: 'source-map',
 	output: {
-		filename: 'app.js'
+		filename: 'index.js'
 	},
 	module: {
 		rules: [

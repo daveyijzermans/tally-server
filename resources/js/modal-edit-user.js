@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import 'bootstrap';
 
-let config = require('../../config.json');
+let config = require('../../config/config.json');
 
 class EditUserModal
 {

@@ -69,4 +69,4 @@ config.json
 *.sublime-project
 *.sublime-workspace
 
-www/
+dist/

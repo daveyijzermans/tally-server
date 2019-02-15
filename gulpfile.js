@@ -1,13 +1,15 @@
-const webpack = require('webpack'),
+const gulp = require('gulp'),
+      argv = require('yargs').argv,
+
+      // Scripts
+      webpack = require('webpack'),
       webpackGulp = require('webpack-stream'),
-      gulp = require('gulp'),
-      browserSync = require("browser-sync"),
+      babel = require('gulp-babel'),
       rigger = require('gulp-rigger'),
       plumber = require('gulp-plumber'),
       notifier = require('node-notifier'),
-      argv = require('yargs').argv,
       sourcemaps = require('gulp-sourcemaps'),
-      Forever = require('forever-monitor').Monitor
+      browserSync = require("browser-sync"),
 
       // Styles
       sass = require('gulp-sass'),
@@ -15,7 +17,13 @@ const webpack = require('webpack'),
       autoprefixer = require('autoprefixer'),
       cssnano = require('cssnano'),
       customProperties = require('postcss-custom-properties'),
-      flexboxFix = require('postcss-flexbugs-fixes');
+      flexboxFix = require('postcss-flexbugs-fixes'),
+
+      // Server
+      Monitor = require('forever-monitor').Monitor,
+      forever = new Monitor('dist/index.js')
+        .on('restart', (child) => console.error('Forever restarting script for ' + child.times + ' time'))
+        .on('exit:code', (code) => console.error('Forever detected script exited with code ' + code));
 
 /**
  * Paths to source files
@@ -28,7 +36,8 @@ let resources = {
   images: ['resources/images/**/*.*'],
   html: ['resources/html/*.*'],
   htmlIncludes: ['resources/html/includes/*.html'],
-  client: ['resources/client/**/*.*']
+  client: ['resources/client/**/*.*'],
+  server: ['src/**/*.*']
 };
 
 /**
@@ -62,7 +71,7 @@ let scss = () =>
       return gulp.src(resources.scss)
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss(plugins))
-        .pipe(gulp.dest('www/assets/css'))
+        .pipe(gulp.dest('dist/www/assets/css'))
         .pipe(browserSync.reload({stream: true}));
     };
 
@@ -71,7 +80,7 @@ let scss = () =>
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss(plugins))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('www/assets/css'))
+    .pipe(gulp.dest('dist/www/assets/css'))
     .pipe(browserSync.reload({stream: true}));
 };
 
@@ -104,43 +113,43 @@ let js = done =>
       };
       console.log(stats.toString(webpackStatsConfig));
     }))
-    .pipe(gulp.dest('www/assets/js'))
+    .pipe(gulp.dest('dist/www/assets/js'))
     .pipe(browserSync.reload({stream: true}));
 };
 
 /*
 * Fonts task
 *
-* Description: just moving to /www folder.
+* Description: just moving to /dist/www folder.
 */
 let fonts = () =>
 {
   return gulp.src(resources.fonts)
-    .pipe(gulp.dest('www/assets/fonts'))
+    .pipe(gulp.dest('dist/www/assets/fonts'))
     .pipe(browserSync.reload({stream: true}));
 };
 
 /*
 * Images task
 *
-* Description: just moving to /www folder.
+* Description: just moving to /dist/www folder.
 */
 let images = () =>
 {
   return gulp.src(resources.images)
-    .pipe(gulp.dest('www/assets/images'))
+    .pipe(gulp.dest('dist/www/assets/images'))
     .pipe(browserSync.reload({stream: true}));
 };
 
 /*
 * Client task
 *
-* Description: just moving to /www folder.
+* Description: just moving to /dist/www folder.
 */
 let client = () =>
 {
   return gulp.src(resources.client)
-    .pipe(gulp.dest('www/client'));
+    .pipe(gulp.dest('dist/www/client'));
 };
 
 /*
@@ -150,8 +159,20 @@ let html = () =>
 {
   return gulp.src(resources.html)
     .pipe(rigger())
-    .pipe(gulp.dest('www'))
+    .pipe(gulp.dest('dist/www'))
     .pipe(browserSync.reload({stream: true}));
+};
+
+/**
+ * Browser sync task
+ */
+let browser = () =>
+{
+  browserSync.init(null, {
+    proxy: "http://localhost",
+        files: ["dist/www/**/*.*"],
+        port: 3000,
+  });
 };
 
 /*
@@ -166,37 +187,46 @@ let watch = () =>
   gulp.watch(resources.html, html);
   gulp.watch(resources.client, client);
   gulp.watch(resources.htmlIncludes, html);
+  gulp.watch(resources.server, gulp.series(server, restart));
+};
+
+/*
+* Server build task
+*/
+let server = done =>
+{
+  return gulp.src(resources.server)
+    .pipe(babel())
+    .pipe(gulp.dest('dist'));
 };
 
 /**
- * Start app server task
+ * Start server task
  */
-let forever = cb =>
+let start = done =>
 {
-  let child = new Forever('index.js').on('restart', () =>
-  {
-      console.error('Forever restarting script for ' + child.times + ' time');
-  }).on('exit:code', (code) =>
-  {
-      console.error('Forever detected script exited with code ' + code);
-  }).start();
+  forever.start();
+  done();
 };
 
 /**
- * Browser sync task
+ * Restart server task
  */
-let browser = () =>
+let restart = done =>
 {
-  browserSync.init(null, {
-    proxy: "http://localhost",
-        files: ["www/**/*.*"],
-        port: 3000,
-  });
+  forever.restart();
+  done();
 };
+
+/**
+ * Build all
+ */
+let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), server);
 
 /*
 * Start server task
 */
-exports.build = gulp.parallel(scss, js, fonts, images, html, client);
-exports.dev = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), gulp.parallel(forever, browser, watch));
-exports.default = forever;
+exports.build = build;
+exports.server = server;
+exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
+exports.default = gulp.series(build, start);

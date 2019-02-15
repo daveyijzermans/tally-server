@@ -1,7 +1,7 @@
 module.exports = {
 	mode: 'production',
 	output: {
-		filename: 'app.js'
+		filename: 'index.js'
 	},
 	module: {
 		rules: [
