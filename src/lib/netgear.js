@@ -21,7 +21,7 @@ class Netgear extends Server
       this.client.write('admin\r\npassword\r\nenable\r\n\r\nreload\r\nyy');
     }
     this.emit('connection', this.connected);
-    this.client.end();
+    this.client.end() && this.client.destroy();
   }
   _check = () =>
   {

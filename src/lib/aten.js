@@ -20,6 +20,7 @@ class Aten extends Server
   }
   _connected = () =>
   {
+    this.client.setTimeout(0);
     this.readline = readline.createInterface({
       input: this.client
     });

@@ -196,7 +196,9 @@ let watch = () =>
 let server = done =>
 {
   return gulp.src(resources.server)
+    .pipe(sourcemaps.init())
     .pipe(babel())
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist'));
 };
 
