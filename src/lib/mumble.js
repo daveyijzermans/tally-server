@@ -53,6 +53,7 @@ class Mumble extends Server
     this.emit('connection', this.connected);
 
     this.client.on('user-connect', this._userMoved);
+    this.client.on('user-disconnect', this._userDisconnect);
     this.client.on('user-move', this._userMoved);
     this.client.on('voice-start', this._onVoice);
     this.client.on('voice-end', this._onVoice);
@@ -68,6 +69,10 @@ class Mumble extends Server
       r[u.name] = u.channel.name;
     });
     return r;
+  }
+  _userDisconnect = (u) =>
+  {
+    this.emit('user-moved', u.name, '');
   }
   _userMoved = (u) =>
   {
