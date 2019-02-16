@@ -216,9 +216,11 @@ io.on('connection', socket => {
     socket.on('admin.set.user', (data, cb) =>
     {
       let user = User.getByUsername(data.username);
-      let newName = data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
+      let newName = !data.name ? '' :
+                    data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
       let newNumber = parseInt(data.camNumber);
-      let newChannel = data.channelName.replace(/[^\w\s]/gi, '').substring(0, 30);
+      let newChannel = !data.channelName ? '' :
+                       data.channelName.replace(/[^\w\s]/gi, '').substring(0, 30);
       let r = { errors: false, camNumber: false, channelName: false };
 
       if (isNaN(newNumber) || newNumber < 1 || newNumber > 99)
