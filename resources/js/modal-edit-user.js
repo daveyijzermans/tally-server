@@ -16,7 +16,7 @@ class EditUserModal
       .on('shown.bs.modal', this._modalShown)
       .on('hide.bs.modal', this._modalHide);
 
-    //TODOP let channels = Config.cycleableChannels;
+    //TODO let channels = Config.cycleableChannels;
     let channels = ['Cameras','program1','program2','both'];
     channels.forEach(name =>
     {

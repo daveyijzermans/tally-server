@@ -13,13 +13,6 @@ const config = new Config({
   users: path.resolve(__dirname, '../config/users.json')
 }).on('saved', () => logger('Users.json file has been saved!'));
 
-import User from './lib/user';
-
-config.users.map((u) =>
-{
-  return new User(u);
-});
-
 /**
  * Kick-off server connections
  */
@@ -30,6 +23,7 @@ import Vmix from './lib/vmix';
 import Aten from './lib/aten';
 import Atem from './lib/atem';
 import Netgear from './lib/netgear';
+import User from './lib/user';
 
 const defaultHandlers = (server) =>
 {
@@ -170,8 +164,11 @@ io.on('connection', socket => {
     return socket.disconnect(); //disallow username 'users'
   }
 
-  if(username && username.indexOf('user') == 0)
+  if(username)
   {
+    if (!config.getUser(username))
+      return socket.disconnect(); //user not in config
+
     socket.join('users');
     broadcastChanges('users');
     let room = socket.join(username);
@@ -228,7 +225,7 @@ io.on('connection', socket => {
         r.camNumber = true;
         r.errors = true;
       }
-      if (Config.cycleableChannels.indexOf(newChannel) == -1) //TODO
+      if (Config.cycleableChannels.indexOf(newChannel) == -1)
       {
         r.channelName = true;
         r.errors = true;

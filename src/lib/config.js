@@ -8,6 +8,7 @@ class Config extends EventEmitter
   constructor(opts)
   {
     super();
+    //TODO add special character filter/escaping
     this.admin = require(opts.admin);
     this.servers = require(opts.servers);
     this.users = require(opts.users);
@@ -31,6 +32,16 @@ class Config extends EventEmitter
       if (err) return console.error(err);
       this.emit('saved');
     });
+  }
+  getUser = (username) =>
+  {
+    if(typeof username == 'undefined') return false;
+    let match = this.users.filter((a) => a.username == username);
+    let opts = match.length == 1 ? match[0] : false;
+    if(!opts) return false;
+    let user = User.getByUsername(username)
+    if(!user) return new User(opts);
+    return user;
   }
   static get cycleableChannels()
   {
