@@ -1,5 +1,6 @@
 const gulp = require('gulp'),
       argv = require('yargs').argv,
+      jsdoc = require('gulp-jsdoc3')
 
       // Scripts
       webpack = require('webpack'),
@@ -232,6 +233,12 @@ process.once('SIGINT', () =>
   forever.stop();
 });
 
+let doc = done =>
+{
+  return gulp.src(['README.md'].concat(resources.js, resources.server), {read: false})
+    .pipe(jsdoc(require('./jsdoc.json')));
+}
+
 /**
  * Build all
  */
@@ -241,5 +248,6 @@ let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), se
 * Start server task
 */
 exports.build = build;
+exports.doc = doc;
 exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
 exports.default = gulp.series(build, start);

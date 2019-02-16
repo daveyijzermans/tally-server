@@ -1,7 +1,17 @@
 import $ from 'jquery';
 
+/**
+ * Class for servers UI.
+ *
+ * @class      Servers
+ */
 class Servers
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     Object.assign(this, opts);
@@ -9,6 +19,12 @@ class Servers
 
     this.socket.on('admin.status.servers', this._list);
   }
+  /**
+   * Executed when the server emits a list. Loop over them and add or update the
+   * list elements to match
+   *
+   * @param      {Array.Object}  data   Array of servers
+   */
   _list = data =>
   {
     if(JSON.stringify(data) === JSON.stringify(this._servers))
@@ -60,6 +76,11 @@ class Servers
         .text(server.connected ? 'Connected' : 'Disconnected');
     });
   }
+  /**
+   * All items in the list
+   *
+   * @return     {jQuery}
+   */
   get $items() { return this.$list.find('.server-entry') }
 }
 

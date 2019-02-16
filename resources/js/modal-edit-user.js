@@ -1,8 +1,18 @@
 import $ from 'jquery';
 import 'bootstrap';
 
+/**
+ * Class for the edit user modal.
+ *
+ * @class      EditUserModal
+ */
 class EditUserModal
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     Object.assign(this, opts);
@@ -25,6 +35,11 @@ class EditUserModal
         .appendTo(this.$channelName);
     });
   }
+  /**
+   * Executed when the modal will be shown.
+   *
+   * @param      {Object}   event   The event
+   */
   _modalShow = event =>
   {
     let rel = $(event.relatedTarget);
@@ -36,16 +51,31 @@ class EditUserModal
     this.$btn.off('click');
     this.$btn.on('click', this._btnEditClick);
   }
+  /**
+   * Executed when the modal is shown.
+   *
+   * @param      {Object}   event   The event
+   */
   _modalShown = event =>
   {
     this.$modal.find('#user-name').focus();
   }
+  /**
+   * Executed when the modal will be hidden.
+   *
+   * @param      {Object}   event   The event
+   */
   _modalHide = event =>
   {
     this.$camNumber.removeClass('is-invalid');
     this.$channelName.removeClass('is-invalid');
     this.$btn.off('click');
   }
+  /**
+   * Handle the edit-button click.
+   *
+   * @param      {Object}  event   The event
+   */
   _btnEditClick = event =>
   {
     let newData = {username: this._user.username};
@@ -55,6 +85,11 @@ class EditUserModal
 
     this.socket.emit('admin.set.user', newData, this._userSetCallback);
   }
+  /**
+   * Callback function for editing user
+   *
+   * @param      {Object}  result  The result of the edit operation
+   */
   _userSetCallback = result =>
   {
     if (result.errors == true)

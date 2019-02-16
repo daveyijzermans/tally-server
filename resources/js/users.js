@@ -6,8 +6,18 @@ import talkingIndicator from './jquery-talkingIndicator';
 $.fn.talkingIndicator = talkingIndicator;
 import EventEmitter from 'events';
 
+/**
+ * Class for users UI.
+ *
+ * @class      Users
+ */
 class Users extends EventEmitter
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super()
@@ -20,14 +30,19 @@ class Users extends EventEmitter
     this.$btnPopout.click(this._popout);
 
     /**
-     * Create the edit user modal instance
-     * @type {EditUserModal}
+     * Edit user modal instance
+     * @type       {EditUserModal}
      */
     this.editUserModal = new EditUserModal({
       $modal: this.$modal,
       socket: this.socket
     });
   }
+  /**
+   * Executed when tally information is updated, primarily by the Tallies class
+   *
+   * @param      {string}  tallies  The combined tally information
+   */
   _updateUserTallies = tallies =>
   {
     this.$list.find('.user-entry').each((i, el) =>
@@ -41,6 +56,12 @@ class Users extends EventEmitter
         .toggleClass('avatar-secondary', val == '0');
     });
   }
+  /**
+   * Executed when the server emits a list. Loop over them and add or update the
+   * list elements to match
+   *
+   * @param      {Array.Object}  users   Array of users
+   */
   _list = users =>
   {
     this.$list.find('.noresults').toggle(users.length == 0);
@@ -90,17 +111,32 @@ class Users extends EventEmitter
     });
     this.emit('updated');
   }
+  /**
+   * Executed when a user disconnects. Remove the entry from the UI.
+   *
+   * @param      {string}  username  The username
+   */
   _disconnect = username =>
   {
     let $user = this.$list.find('[data-username="' + username + '"]');
     $user.poof(true);
     this.$list.find('.noresults').toggle(this.$list.find('.user-entry').length == 0);
   }
+  /**
+   * Open the intercom box in a seperate window
+   *
+   * @param      {Object}  event   The event
+   */
   _popout = event =>
   {
     window.open('/users_popout.html', 'users_popout', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
     event.preventDefault();
   }
+  /**
+   * All items in the list
+   *
+   * @return     {jQuery}
+   */
   get $items() { return this.$list.find('.user-entry') }
 }
 

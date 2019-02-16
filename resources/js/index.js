@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Cookies from 'js-cookie';
+
 import Log from './log';
 import Servers from './servers';
 import Users from './users';
@@ -13,9 +14,9 @@ $.fn.poof = poof;
 import { toggleFullscreen } from './fullscreen'
 
 /**
- * Create the socket client instance
- * This will be resused indefinitely
- * @type {Object}
+ * Create the socket client instance This will be resused indefinitely
+ *
+ * @type       {Object}
  */
 let socket = io({
   autoConnect: false
@@ -23,7 +24,8 @@ let socket = io({
 
 /**
  * Executed every time the socket authenticates correctly
- * @param  {string} password MD5 hashed password that was used for logging in
+ *
+ * @param      {string}  password  MD5 hashed password
  */
 let authenticated = function(password)
 {
@@ -36,8 +38,7 @@ let authenticated = function(password)
 }
 
 /**
- * Executed every time the socket disconnects or
- * authentication is incorrect
+ * Executed every time the socket disconnects or authentication is incorrect
  */
 let loginError = () =>
 {
@@ -46,7 +47,8 @@ let loginError = () =>
 
 /**
  * Create the login modal instance
- * @type {LoginModal}
+ *
+ * @type       {LoginModal}
  */
 const loginModal = new LoginModal({
   $modal: $('#loginModal'),
@@ -55,12 +57,13 @@ const loginModal = new LoginModal({
   .on('error', loginError);
 
 /**
- * Get stored password from cookie and attempt a login
- * if it exists. Else show the login modal
+ * Get stored password from cookie and attempt a login if it exists. Else show
+ * the login modal
  */
 /**
  * Password cookie value
- * @type {string}
+ *
+ * @type       {string}
  */
 let storedPassword = Cookies.get('adminPass');
 if(storedPassword)
@@ -72,7 +75,8 @@ if(storedPassword)
 
 /**
  * Executed when tally info is updated
- * @param  {Object} tallies Tally information
+ *
+ * @param      {Object}  tallies  Tally information
  */
 let talliesUpdated = (tallies) => 
 {
@@ -81,7 +85,8 @@ let talliesUpdated = (tallies) =>
 
 /**
  * Create tallies class instance
- * @type {Tallies}
+ *
+ * @type       {Tallies}
  */
 const tallies = new Tallies({
   $list: $('#tallies'),
@@ -99,7 +104,8 @@ let usersUpdated = () =>
 
 /**
  * Create users class instance
- * @type {Users}
+ *
+ * @type       {Users}
  */
 const users = new Users({
   $list: $('#users'),
@@ -111,7 +117,8 @@ const users = new Users({
 
 /**
  * Create servers class instance
- * @type {Servers}
+ *
+ * @type       {Servers}
  */
 const servers = new Servers({
   $list: $('#servers'),
@@ -121,7 +128,8 @@ const servers = new Servers({
 
 /**
  * Create smartplugs class instance
- * @type {Plugs}
+ *
+ * @type       {Plugs}
  */
 const plugs = new Plugs({
   $list: $('#plugs'),
@@ -131,7 +139,8 @@ const plugs = new Plugs({
 
 /**
  * Create logging class instance
- * @type {Log}
+ *
+ * @type       {Log}
  */
 const log = new Log({
   $list: $('#log'),
@@ -141,7 +150,8 @@ const log = new Log({
 
 /**
  * Create the action modal instance
- * @type {ActionModal}
+ *
+ * @type       {ActionModal}
  */
 const actionModal = new ActionModal({
   $modal: $('#actionModal'),
@@ -150,7 +160,8 @@ const actionModal = new ActionModal({
 
 /**
  * Create the AV setup instance
- * @type {AVSetup}
+ *
+ * @type       {AVSetup}
  */
 const avSetup = new AVSetup({
   $sources: $('.avSource'),

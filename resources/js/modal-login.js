@@ -3,8 +3,18 @@ import 'bootstrap';
 import md5 from 'js-md5';
 import EventEmitter from 'events';
 
+/**
+ * Class for login modal.
+ *
+ * @class      LoginModal
+ */
 class LoginModal extends EventEmitter
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super();
@@ -20,6 +30,11 @@ class LoginModal extends EventEmitter
     this.socket.on('authenticated', this._socketAuthenticated);
     this.socket.on('disconnect', this._socketDisconnect);
   }
+  /**
+   * Connect to the socket
+   *
+   * @param      {string}  p       MD5 hashed password
+   */
   connect = p =>
   {
     this.password = p;
@@ -28,7 +43,11 @@ class LoginModal extends EventEmitter
     };
     this.socket.connect();
   }
-  // Button event handlers
+  /**
+   * Button event handlers
+   *
+   * @param      {Object}  event   The event
+   */
   _loginHandler = event =>
   {
     this.$frmLogin.off('submit');
@@ -36,21 +55,39 @@ class LoginModal extends EventEmitter
     this.connect(md5(this.$txtPassword.val()));
     event.preventDefault();
   }
+  /**
+   * Executed when the modal will be shown.
+   *
+   * @param      {Object}   event   The event
+   */
   _modalShow = event =>
   {
     this.$txtPassword.removeClass('is-invalid');
   }
+  /**
+   * Executed when the modal is shown.
+   *
+   * @param      {Object}   event   The event
+   */
   _modalShown = event =>
   {
     this.$txtPassword.focus().select();
     this.$frmLogin.one('submit', this._loginHandler);
     this.$btnLogin.one('click', this._loginHandler);
   }
+  /**
+   * Executed when the socket is authenticated. Emits an event and hides the
+   * modal.
+   */
   _socketAuthenticated = () =>
   {
     this.emit('authenticated', this.password);
     this.$modal.modal('hide');
   }
+  /**
+   * Executed when the socket is disconnected. Emits an error event and reopens
+   * the login modal.
+   */
   _socketDisconnect = () =>
   {
     this.emit('error', new Error('Could not connect to socket'));
@@ -65,6 +102,11 @@ class LoginModal extends EventEmitter
       this.$modal.modal('show');
     }
   }
+  /**
+   * Whether the remember checkbox is checked.
+   *
+   * @type     {boolean}
+   */
   get remember() { return this.$modal.find('#chkRemember').is(':checked'); }
 }
 

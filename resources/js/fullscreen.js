@@ -1,6 +1,7 @@
 /**
  * Toggle fullscreen mode
- * @param  {Object} node 
+ *
+ * @param      {Object}  node    The node
  */
 export const toggleFullscreen = (node) =>
 {
@@ -12,27 +13,28 @@ export const toggleFullscreen = (node) =>
 	                  document.fullscreen || false;
 
 	if (isEnabled)
-		return exitFullscreen(node);
+		exitFullscreen(node);
 	else
-		return enterFullscreen(node);
+		enterFullscreen(node);
 }
 
 /**
  * Enter fullscreen mode
- * @param  {Object} node 
+ *
+ * @param      {Object}  node    The node
  */
 export const enterFullscreen = (node) =>
 {
 	node = node || document.documentElement;
 	if (node.requestFullscreen)
 	{
-		return node.requestFullscreen();
+		node.requestFullscreen();
 	} else if (node.mozRequestFullScreen) {
-		return node.mozRequestFullScreen();
+		node.mozRequestFullScreen();
 	} else if (node.webkitRequestFullscreen) {
-		return node.webkitRequestFullscreen();
+		node.webkitRequestFullscreen();
 	} else if (node.msRequestFullscreen) {
-		return node.msRequestFullscreen();
+		node.msRequestFullscreen();
 	}
 }
 
@@ -43,12 +45,12 @@ export const exitFullscreen = () =>
 {
 	if (document.exitFullscreen)
 	{
-		return document.exitFullscreen();
+		document.exitFullscreen();
 	} else if (document.mozCancelFullScreen) { /* Firefox */
-		return document.mozCancelFullScreen();
+		document.mozCancelFullScreen();
 	} else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-		return document.webkitExitFullscreen();
+		document.webkitExitFullscreen();
 	} else if (document.msExitFullscreen) { /* IE/Edge */
-		return document.msExitFullscreen();
+		document.msExitFullscreen();
 	}
 }

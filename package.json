@@ -51,6 +51,7 @@
     "forever-monitor": "^1.7.1",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
+    "gulp-jsdoc3": "^2.0.0",
     "gulp-plumber": "^1.2.0",
     "gulp-postcss": "^8.0.0",
     "gulp-rigger": "^0.5.8",

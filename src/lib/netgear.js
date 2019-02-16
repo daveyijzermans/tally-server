@@ -1,8 +1,19 @@
 import Server from './server';
 import { Socket } from 'net';
 
+/**
+ * Class for connecting to Netgear switch.
+ *
+ * @class      Netgear
+ * @extends    Server
+ */
 class Netgear extends Server
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super(opts);
@@ -41,7 +52,8 @@ class Netgear extends Server
   }
   /**
    * Executed when server connection is closed
-   * @param  {undefined|boolean} error
+   *
+   * @param      {undefined|boolean}  error   The error
    */
   _closed = (error) =>
   {

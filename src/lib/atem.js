@@ -1,8 +1,19 @@
 import Server from './server';
 import API from 'atem';
 
+/**
+ * Class for connecting to Atem switchers.
+ *
+ * @class      Atem
+ * @extends    Server
+ */
 class Atem extends Server
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super(opts);
@@ -16,6 +27,8 @@ class Atem extends Server
   }
   /**
    * Executed when server is connected
+   *
+   * @param      {boolean}  state   The connection state
    */
   _connected = (state) =>
   {
@@ -37,8 +50,9 @@ class Atem extends Server
   }
   /**
    * Tally callback handler
-   * @param  {number} n     Camera number
-   * @param  {Object} state Object containing state information
+   *
+   * @param      {number}  n       Camera number
+   * @param      {Object}  state   Object containing state information
    */
   _handleTally = (n, state) =>
   {

@@ -3,8 +3,18 @@ import 'bootstrap';
 import Cookies from 'js-cookie';
 import EventEmitter from 'events';
 
+/**
+ * Class for action modal.
+ *
+ * @class      ActionModal
+ */
 class ActionModal extends EventEmitter
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super();
@@ -17,6 +27,12 @@ class ActionModal extends EventEmitter
       .on('shown.bs.modal', this._modalShown)
       .on('hide.bs.modal', this._modalHide);
   }
+  /**
+   * Executed when the modal will be shown.
+   *
+   * @param      {Object}   event   The event
+   * @return     {boolean|undefined}
+   */
   _modalShow = event =>
   {
     let rel = $(event.relatedTarget);
@@ -59,14 +75,29 @@ class ActionModal extends EventEmitter
 
     this.$btn.focus().off('click').one('click', this._btnConfirmClick);
   }
+  /**
+   * Executes when the modal is shown.
+   *
+   * @param      {Object}  event   The event
+   */
   _modalShown = event =>
   {
     this.$btn.focus();
   }
+  /**
+   * Executes when the modal will be hidden.
+   *
+   * @param      {Object}  event   The event
+   */
   _modalHide = event =>
   {
     this.$btn.off('click');
   }
+  /**
+   * Handle the confirm-button click.
+   *
+   * @param      {Object}  event   The event
+   */
   _btnConfirmClick = event =>
   {
     this.emit('command.' + this._cmd, this._param);

@@ -1,12 +1,21 @@
 import EventEmitter from 'events';
 
+/**
+ * Base class for servers.
+ *
+ * @class      Server
+ */
 class Server extends EventEmitter
 {
+  /**
+   * Collection of all server instances
+   */
   static _instances = [];
   /**
    * Retrieve servers with certain type from list
-   * @param {string} type Which type to retrieve
-   * @return {Array} Array of servers with given type
+   *
+   * @param      {string}  type    Which type to retrieve
+   * @return     {Array}   Array of servers with given type
    */
   static getByType = (type) =>
   {
@@ -15,8 +24,9 @@ class Server extends EventEmitter
   }
   /**
    * Retrieve server by name
-   * @param {string} name
-   * @return {Object}
+   *
+   * @param      {string}  name    The name
+   * @return     {Object}  The server.
    */
   static getByName = (name) =>
   {
@@ -26,7 +36,7 @@ class Server extends EventEmitter
   }
   /**
    * Tally information for all hosts by key
-   * @type {Object}
+   * @type       {Object}
    */
   static get tallies()
   {
@@ -37,8 +47,8 @@ class Server extends EventEmitter
     }, {});
   }
   /**
-   * Get the available channels for all Mumble servers
-   * @type {Array}
+   * The available channels for all Mumble servers
+   * @type       {Array}
    */
   static get cycleableChannels()
   {
@@ -47,6 +57,11 @@ class Server extends EventEmitter
       return m.cycleChannels ? a.concat(m.cycleChannels) : a;
     }, []);
   }
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super();

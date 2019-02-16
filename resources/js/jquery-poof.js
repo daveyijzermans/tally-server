@@ -1,5 +1,11 @@
 import $ from 'jquery';
 
+/**
+ * Animate a puff of smoke effect on an element and optionally remove the
+ * element afterwards.
+ *
+ * @param      {boolean}  removeEl  Whether to remove the element
+ */
 export default function(removeEl)
 {
   this.each(function()

@@ -2,13 +2,19 @@ import Server from './server';
 import API from 'mumble';
 import fs from 'fs';
 
+/**
+ * Class for connecting to Mumble servers.
+ *
+ * @class      Mumble
+ * @extends    Server
+ */
 class Mumble extends Server
 {
   /**
    * Cycle a specific user to the next channel set in opts.cycleChannels
-   * @param  {Object} mumble   Mumble client
-   * @param  {string} username
-   * @return {boolean}         Whether the move was executed
+   *
+   * @param      {string}   username  The username
+   * @return     {boolean}  Whether the move was executed
    */
   static cycleUser = (username) =>
   {
@@ -31,6 +37,11 @@ class Mumble extends Server
         this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
     });
   }
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super(opts);
@@ -69,7 +80,8 @@ class Mumble extends Server
   }
   /**
    * Get channels that users are currently in
-   * @return {Object} Key: username, value: channel name
+   *
+   * @return     {Object}  Keys are usernames, values are channel name
    */
   _getChannelForAllUsers = () =>
   {
@@ -82,7 +94,8 @@ class Mumble extends Server
   }
   /**
    * Executed when user is disconnected
-   * @param  {Mumble\User} u User object from mumble API
+   *
+   * @param      {Object}  u       User object from mumble API
    */
   _userDisconnect = (u) =>
   {
@@ -90,16 +103,17 @@ class Mumble extends Server
   }
   /**
    * Executed when user is moved
-   * @param  {Mumble\User} u User object from mumble API
+   *
+   * @param      {Object}  u       User object from mumble API
    */
   _userMoved = (u) =>
   {
     this.emit('user-moved', u.name, u.channel.name);
   }
   /**
-   * Executed when voice data is received.
-   * Indicates if a user is talking
-   * @param  {Object} data User voice data
+   * Executed when voice data is received. Indicates if a user is talking.
+   *
+   * @param      {Object}  data    User voice data
    */
   _onVoice = (data) =>
   {
@@ -119,7 +133,8 @@ class Mumble extends Server
   }
   /**
    * Executed when server connection is closed
-   * @param  {undefined|boolean} error
+   *
+   * @param      {undefined|boolean}  error   The error
    */
   _closed = (error) =>
   {

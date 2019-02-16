@@ -2,8 +2,18 @@ import $ from 'jquery';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 
+/**
+ * Class for modeling the AV setup box
+ *
+ * @class      AVSetup
+ */
 class AVSetup
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     Object.assign(this, opts);

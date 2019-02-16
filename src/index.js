@@ -1,8 +1,8 @@
 /**
- * Logger function. Will relay log to console.log
- * and will use the first parameter as a string
- * to log to connected admin clients.
- * @param  {string} msg First parameter
+ * Logger function. Will relay log to console.log and will use the first
+ * parameter as a string to log to connected admin clients.
+ *
+ * @param      {string}  msg     First parameter
  */
 const logger = function(msg)
 {
@@ -19,7 +19,8 @@ import path from 'path'
 
 /**
  * Main config object
- * @type Config
+ *
+ * @type       {Config}
  */
 const config = new Config({
   admin: path.resolve(__dirname, '../config/admin.json'),
@@ -41,8 +42,9 @@ import User from './lib/user';
 
 /**
  * Bind some standard behavior to all servers
- * @param  {Server} server 
- * @return {Server}        
+ *
+ * @param      {Server}  server  The server
+ * @return     {Server}  The server
  */
 const defaultHandlers = (server) =>
 {
@@ -131,15 +133,17 @@ config.servers.forEach((opts) =>
 /**
  * SMART PLUGS
  */
-import { Client } from 'tplink-smarthome-api';
+import { Client as TPLinkClient } from 'tplink-smarthome-api';
 /**
  * TPLink Kasa API
- * @type {tplink-smarthome-api\Client}
+ *
+ * @type       {TPLinkClient}
  */
-const tplink = new Client();
+const tplink = new TPLinkClient();
 /**
  * Collection of all Plug objects
- * @type {Array}
+ *
+ * @type       {Array}
  */
 const plugs = [];
 tplink.startDiscovery().on('plug-new', (device) =>
@@ -148,9 +152,9 @@ tplink.startDiscovery().on('plug-new', (device) =>
   plugs.push(device);
 
   /**
-   * Poll the smart plug. If we get a response, call broadcastChanges
-   * to send the new states to clients. If we get an error, assume the
-   * device is dead and will be found again later by auto-discovery.
+   * Poll the smart plug. If we get a response, call broadcastChanges to send
+   * the new states to clients. If we get an error, assume the device is dead
+   * and will be found again later by auto-discovery.
    */
   let poll = () =>
   {
@@ -191,13 +195,13 @@ io.on('connection', socket => {
   let username = socket.handshake.query.username;
   if(username == 's')
   {
-    return socket.disconnect(); //disallow username 'users'
+    return socket.disconnect(); // disallow username 'users'
   }
 
   if(username)
   {
     if (!config.getUser(username))
-      return socket.disconnect(); //user not in config
+      return socket.disconnect(); // user not in config
 
     socket.join('users');
     broadcastChanges('users');
@@ -384,11 +388,12 @@ io.on('connection', socket => {
 });
 
 /**
- * Process an object with tally states from multiple hosts
- * and combine them into one. Program states (1) take precedence over preview (2)
- * states and lastly comes the stand-by (0) state.
- * @param  {Object}
- * @return {Array}
+ * Process an object with tally states from multiple hosts and combine them into
+ * one. Program states (1) take precedence over preview (2) states and lastly
+ * comes the stand-by (0) state.
+ *
+ * @param      {Object}  t       Tally information from all hosts
+ * @return     {Array}   Array of tally information, combined by importance
  */
 const combineTallies = t =>
 {
@@ -406,7 +411,8 @@ const combineTallies = t =>
 
 /**
  * Send update notifications to admin sockets
- * @param  {string|undefined} What to update
+ *
+ * @param      {string|undefined}  s       What to update
  */
 const broadcastChanges = (s) =>
 {

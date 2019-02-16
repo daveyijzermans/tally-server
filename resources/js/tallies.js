@@ -1,8 +1,18 @@
 import $ from 'jquery';
 import EventEmitter from 'events';
 
+/**
+ * Class for tallies UI.
+ *
+ * @class      Tallies
+ */
 class Tallies extends EventEmitter
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super();
@@ -11,6 +21,12 @@ class Tallies extends EventEmitter
 
     this.socket.on('admin.status.tallies', this._list);
   }
+/**
+   * Executed when the server emits a list. Loop over them and add or update the
+   * list elements to match
+   *
+   * @param      {Array.Object}  data   Array of tally information
+   */
   _list = data =>
   {
     if(JSON.stringify(data) === JSON.stringify(this._tallies))
@@ -42,7 +58,17 @@ class Tallies extends EventEmitter
     this.$list.find('.tally-entry').toggle(hostsOnline);
     this.emit('updated', this._tallies);
   }
+  /**
+   * Array of combined tally states. Used by the Users class.
+   *
+   * @return     {Array}
+   */
   get combined() { return this._tallies._combined }
+  /**
+   * All items in the list
+   *
+   * @return     {jQuery}
+   */
   get $items() { return this.$list.find('.tally-entry') }
 }
 

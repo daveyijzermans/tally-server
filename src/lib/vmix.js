@@ -2,8 +2,19 @@ import Server from './server';
 import { Socket } from 'net';
 import readline from 'readline';
 
+/**
+ * Class for connecting to vMix API via TCP.
+ *
+ * @class      Vmix
+ * @extends    Server
+ */
 class Vmix extends Server
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super(opts);
@@ -12,7 +23,8 @@ class Vmix extends Server
   }
   /**
    * Parse lines that come from the Aten matrix
-   * @param  {string} line 
+   *
+   * @param      {string}  line    The line
    */
   _line = line =>
   {
@@ -56,7 +68,8 @@ class Vmix extends Server
   }
   /**
    * Executed when server connection is closed
-   * @param  {undefined|boolean} error
+   *
+   * @param      {undefined|boolean}  error   The error
    */
   _closed = (error) =>
   {

@@ -1,5 +1,8 @@
 import $ from 'jquery';
 
+/**
+ * Animate a growing ring around an element
+ */
 export default function()
 {          
   this.each(function()

@@ -1,8 +1,18 @@
 import $ from 'jquery';
 import 'bootstrap';
 
+/**
+ * Class for updating the log in the navbar
+ *
+ * @class      Log
+ */
 class Log
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     Object.assign(this, opts);
@@ -16,6 +26,11 @@ class Log
     this.$list.on('shown.bs.dropdown', this._dropdownShown);
     this.$list.on('hide.bs.dropdown', this._dropdownHide);
   }
+  /**
+   * Add a log message to the log list
+   *
+   * @param      {string}  msg     The message
+   */
   _log = msg =>
   {
     let $l = this.$tpl.clone().attr('id', '').show().prependTo(this.$dropdown);
@@ -36,6 +51,11 @@ class Log
     this.$dropdown.find('.log-entry:gt(99)').remove();
     this.$dropdown.find('.log-entry:gt(16).read').remove();
   }
+  /**
+   * Executed when the dropdown will be shown.
+   *
+   * @param      {Object}  event   The event
+   */
   _dropdownShow = event =>
   {
     $(event.relatedTarget).dropdown('update');
@@ -43,15 +63,28 @@ class Log
     this.$badge.text('');
     this.$dropdown.find('.log-entry:gt(16).read').remove();
   }
+  /**
+   * Executed when the dropdown is shown.
+   *
+   * @param      {Object}  event   The event
+   */
   _dropdownShown = event =>
   {
     $(event.relatedTarget).dropdown('update');
   }
+  /**
+   * Executes when the dropdown will be hidden.
+   *
+   * @param      {Object}  event   The event
+   */
   _dropdownHide = event =>
   {
     this.$dropdown.find('.log-entry:gt(16).read').remove();
     this.$dropdown.find('.log-entry').addClass('read').removeClass('event-column-success');
   }
+  /**
+   * Starts a ring animation on the bell icon.
+   */
   _startRing = () =>
   {
       this._stopRing();
@@ -63,11 +96,19 @@ class Log
         this._animateTimeout = setTimeout(this._stopRing, 2000);
       }, 10);
   }
+  /**
+   * Stop the ring animation on the bell icon.
+   */
   _stopRing = () =>
   {
     if(this._animateTimeout) clearTimeout(this._animateTimeout);
     this.$icon.removeClass('faa-ring');
   }
+  /**
+   * Get all log entries in the list
+   *
+   * @type       {jQuery}
+   */
   get $items() { return this.$dropdown.find('.log-entry') }
 }
 

@@ -2,8 +2,18 @@ import $ from 'jquery';
 import poof from './jquery-poof';
 $.fn.poof = poof;
 
+/**
+ * Class for the smart-plugs UI.
+ *
+ * @class      Plugs
+ */
 class Plugs
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     Object.assign(this, opts);
@@ -12,6 +22,12 @@ class Plugs
     this.socket.on('admin.plugs.disconnect', this._disconnect);
     this.socket.on('disconnect', this._socketDisconnect);
   }
+  /**
+   * Executed when the server emits a list. Loop over them and add or update the
+   * list elements to match
+   *
+   * @param      {Array.Object}  plugs   Array of plugs
+   */
   _list = plugs =>
   {
     this.$list.find('.noresults').toggle(plugs.length == 0);
@@ -34,17 +50,30 @@ class Plugs
         .toggleClass('text-danger', plug.on == false);
     });
   }
+  /**
+   * Executed when a plug disconnects. Remove the entry from the UI.
+   *
+   * @param      {string}  hostname  The hostname
+   */
   _disconnect = hostname =>
   {
     let $plug = this.$list.find('[data-hostname="' + hostname + '"]');
     $plug.poof(true);
     this.$list.find('.noresults').toggle(this.$list.find('.plug-entry').length == 0);
   }
+  /**
+   * Executed when the socket is disconnected. Cleanup the entries from the UI.
+   */
   _socketDisconnect = () =>
   {
     this.$list.find('.plug-entry').poof(true);
     this.$list.find('.noresults').toggle(true);
   }
+  /**
+   * Handle toggle buttons
+   *
+   * @param      {Object}  event   The event
+   */
   _btnPlugToggle = event =>
   {
     let $this = $(event.currentTarget);
@@ -55,6 +84,11 @@ class Plugs
     this.socket.emit('admin.plug.toggle', hostname);
     event.preventDefault();
   }
+  /**
+   * All items in the list
+   *
+   * @return     {jQuery}
+   */
   get $items() { return this.$list.find('.plug-entry') }
 }
 

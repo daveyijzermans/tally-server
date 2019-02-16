@@ -3,8 +3,18 @@ import Server from './server';
 import fs from 'fs';
 import EventEmitter from 'events';
 
+/**
+ * Class for retrieving and saving configuration.
+ *
+ * @class      Config
+ */
 class Config extends EventEmitter
 {
+  /**
+   * Constructs the object.
+   *
+   * @param      {Object}  opts    The options
+   */
   constructor(opts)
   {
     super();
@@ -35,8 +45,9 @@ class Config extends EventEmitter
   }
   /**
    * Get user configuration from JSON file
-   * @param  {string} username
-   * @return {User|boolean}
+   *
+   * @param      {string}        username  The username
+   * @return     {User|boolean}  The user.
    */
   getUser = (username) =>
   {
