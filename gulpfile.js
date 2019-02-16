@@ -227,6 +227,5 @@ let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), se
 * Start server task
 */
 exports.build = build;
-exports.server = server;
 exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
 exports.default = gulp.series(build, start);

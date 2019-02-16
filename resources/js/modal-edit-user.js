@@ -1,8 +1,6 @@
 import $ from 'jquery';
 import 'bootstrap';
 
-let config = require('../../config/config.json');
-
 class EditUserModal
 {
   constructor(opts)
@@ -18,7 +16,9 @@ class EditUserModal
       .on('shown.bs.modal', this._modalShown)
       .on('hide.bs.modal', this._modalHide);
 
-    config.cycleChannels.forEach(name =>
+    //TODOP let channels = Config.cycleableChannels;
+    let channels = ['Cameras','program1','program2','both'];
+    channels.forEach(name =>
     {
       $('<option></option')
         .text(name)

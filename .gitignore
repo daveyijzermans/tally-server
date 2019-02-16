@@ -65,6 +65,7 @@ cert.pem
 key.pem
 servers.json
 users.json
+admin.json
 config.json
 *.sublime-project
 *.sublime-workspace

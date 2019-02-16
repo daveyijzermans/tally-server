@@ -29,7 +29,7 @@ class Tallies extends EventEmitter
       let $indicators = $t.find('.tally-indicators');
       for (let i = 0; i < max; i++)
       {
-        let state = typeof result == 'string' ? states[result[i]] : states[0];
+        let state = typeof result[i] == 'number' ? states[result[i]] : states[0];
         let $s = $('<span class="badge badge-pill"></span>')
           .text(i + 1)
           .addClass(state)

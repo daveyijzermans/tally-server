@@ -30,12 +30,11 @@ class Users extends EventEmitter
   }
   _updateUserTallies = tallies =>
   {
-    let t = tallies.split('');
     this.$list.find('.user-entry').each((i, el) =>
     {
       let $el = $(el);
       let n = $el.attr('data-camnumber');
-      let val = t[n - 1];
+      let val = tallies[n - 1];
       $el.find('.avatar')
         .toggleClass('avatar-danger', val == '1')
         .toggleClass('avatar-success', val == '2')
