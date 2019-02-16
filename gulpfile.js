@@ -227,6 +227,11 @@ let restart = done =>
   done();
 };
 
+process.once('SIGINT', () =>
+{
+  forever.stop();
+});
+
 /**
  * Build all
  */
