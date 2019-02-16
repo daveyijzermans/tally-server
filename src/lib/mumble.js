@@ -52,6 +52,7 @@ class Mumble extends Server
     }
     this.emit('connection', this.connected);
 
+    this.client.on('user-connect', this._userMoved);
     this.client.on('user-move', this._userMoved);
     this.client.on('voice-start', this._onVoice);
     this.client.on('voice-end', this._onVoice);
