@@ -1,5 +1,4 @@
 {
-  "cycleChannels": ["Root","Engineering","Cameras","Production"],
   "adminPass": "md5password",
   "winUserPass": "windowsuser%password"
 }

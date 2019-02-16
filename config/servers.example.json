@@ -4,7 +4,10 @@
     "hostname": "localhost",
     "name": "Local Mumble server",
     "username": "Tallybot",
-    "password": "serverpassword"
+    "password": "serverpassword",
+    "key": "./config/key.pem",
+    "cert": "./config/cert.pem",
+    "cycleChannels": ["Root","Cameras","Engineering","Production"]
   },
   {
     "type": "vmix",
