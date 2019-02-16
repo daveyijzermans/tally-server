@@ -8,6 +8,9 @@ class Netgear extends Server
     super(opts);
     this._check();
   }
+  /**
+   * Executed when server is connected
+   */
   _connected = () =>
   {
     if(!this.connected)
@@ -23,6 +26,9 @@ class Netgear extends Server
     this.emit('connection', this.connected);
     this.client.end() && this.client.destroy();
   }
+  /**
+   * Setup a new connection to the server and connect
+   */
   _check = () =>
   {
     this.client = new Socket();
@@ -33,6 +39,10 @@ class Netgear extends Server
     this.client.on('timeout', () => this.client.end() && this.client.destroy());
     this.client.connect(60000, this.hostname);
   }
+  /**
+   * Executed when server connection is closed
+   * @param  {undefined|boolean} error
+   */
   _closed = (error) =>
   {
     if(error && this.connected)

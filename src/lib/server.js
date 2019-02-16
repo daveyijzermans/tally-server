@@ -24,6 +24,10 @@ class Server extends EventEmitter
     let result = Server._instances.filter((a) => a.name == name);
     return result.length == 1 ? result[0] : false;
   }
+  /**
+   * Tally information for all hosts by key
+   * @type {Object}
+   */
   static get tallies()
   {
     return Server._instances.reduce((a, s) =>
@@ -31,6 +35,17 @@ class Server extends EventEmitter
       if(s.tallies && s.tallies.length > 0) a[s.name] = s.tallies;
       return a;
     }, {});
+  }
+  /**
+   * Get the available channels for all Mumble servers
+   * @type {Array}
+   */
+  static get cycleableChannels()
+  {
+    return Server.getByType('mumble').reduce((a, m) =>
+    {
+      return m.cycleChannels ? a.concat(m.cycleChannels) : a;
+    }, []);
   }
   constructor(opts)
   {

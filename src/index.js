@@ -1,12 +1,26 @@
+/**
+ * Logger function. Will relay log to console.log
+ * and will use the first parameter as a string
+ * to log to connected admin clients.
+ * @param  {string} msg First parameter
+ */
 const logger = function(msg)
 {
   console.log.apply(console, arguments);
   io.to('admins').emit('admin.log', msg);
 };
 
+/**
+ * CONFIGURATION
+ */
+
 import Config from './lib/config'
 import path from 'path'
 
+/**
+ * Main config object
+ * @type Config
+ */
 const config = new Config({
   admin: path.resolve(__dirname, '../config/admin.json'),
   servers: path.resolve(__dirname, '../config/servers.json'),
@@ -14,7 +28,7 @@ const config = new Config({
 }).on('saved', () => logger('Users.json file has been saved!'));
 
 /**
- * Kick-off server connections
+ * SERVER CONNECTIONS
  */
 
 import Server from './lib/server';
@@ -25,6 +39,11 @@ import Atem from './lib/atem';
 import Netgear from './lib/netgear';
 import User from './lib/user';
 
+/**
+ * Bind some standard behavior to all servers
+ * @param  {Server} server 
+ * @return {Server}        
+ */
 const defaultHandlers = (server) =>
 {
   return server.on('connection', (c) =>
@@ -42,6 +61,9 @@ const defaultHandlers = (server) =>
   });
 }
 
+/**
+ * Kick-off server connections
+ */
 config.servers.forEach((opts) =>
 {
   if(opts.type == 'mumble')
@@ -107,11 +129,18 @@ config.servers.forEach((opts) =>
 });
 
 /**
- * Connect to smart plugs
+ * SMART PLUGS
  */
-
 import { Client } from 'tplink-smarthome-api';
+/**
+ * TPLink Kasa API
+ * @type {tplink-smarthome-api\Client}
+ */
 const tplink = new Client();
+/**
+ * Collection of all Plug objects
+ * @type {Array}
+ */
 const plugs = [];
 tplink.startDiscovery().on('plug-new', (device) =>
 {
@@ -140,8 +169,9 @@ tplink.startDiscovery().on('plug-new', (device) =>
 });
 
 /**
- * Socket.io server
+ * SOCKET.IO
  */
+
 import express from 'express';
 import { Server as HttpServer } from 'http';
 import SocketIO from 'socket.io';
@@ -225,7 +255,7 @@ io.on('connection', socket => {
         r.camNumber = true;
         r.errors = true;
       }
-      if (Config.cycleableChannels.indexOf(newChannel) == -1)
+      if (Mumble.cycleableChannels.indexOf(newChannel) == -1)
       {
         r.channelName = true;
         r.errors = true;

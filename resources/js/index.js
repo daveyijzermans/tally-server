@@ -58,6 +58,10 @@ const loginModal = new LoginModal({
  * Get stored password from cookie and attempt a login
  * if it exists. Else show the login modal
  */
+/**
+ * Password cookie value
+ * @type {string}
+ */
 let storedPassword = Cookies.get('adminPass');
 if(storedPassword)
 {
@@ -153,7 +157,9 @@ const avSetup = new AVSetup({
   $targets: $('.avTarget')
 });
 
-
+/**
+ * Fullscreen button handler
+ */
 $('#btnFullscreen').click(event =>
 {
   toggleFullscreen();

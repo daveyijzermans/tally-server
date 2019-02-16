@@ -36,6 +36,9 @@ class Mumble extends Server
     super(opts);
     this._check();
   }
+  /**
+   * Executed when server is connected
+   */
   _connected = (err, client) =>
   {
     if(err) return this._closed(err);
@@ -43,6 +46,9 @@ class Mumble extends Server
     this.client.authenticate(this.username);
     this.client.on('initialized', this._initialized);
   }
+  /**
+   * Executed when mumble is authenticated
+   */
   _initialized = () =>
   {
     if(!this.connected)
@@ -61,6 +67,10 @@ class Mumble extends Server
 
     this.emit('user-channels', this._getChannelForAllUsers())
   }
+  /**
+   * Get channels that users are currently in
+   * @return {Object} Key: username, value: channel name
+   */
   _getChannelForAllUsers = () =>
   {
     let r = {};
@@ -70,18 +80,34 @@ class Mumble extends Server
     });
     return r;
   }
+  /**
+   * Executed when user is disconnected
+   * @param  {Mumble\User} u User object from mumble API
+   */
   _userDisconnect = (u) =>
   {
     this.emit('user-moved', u.name, '');
   }
+  /**
+   * Executed when user is moved
+   * @param  {Mumble\User} u User object from mumble API
+   */
   _userMoved = (u) =>
   {
     this.emit('user-moved', u.name, u.channel.name);
   }
+  /**
+   * Executed when voice data is received.
+   * Indicates if a user is talking
+   * @param  {Object} data User voice data
+   */
   _onVoice = (data) =>
   {
     this.emit('user-talk', data.name, data.talking);
   }
+  /**
+   * Setup a new connection to the server and connect
+   */
   _check = () =>
   {
     this.client = null;
@@ -91,6 +117,10 @@ class Mumble extends Server
     };
     API.connect('mumble://' + this.hostname, opts, this._connected);
   }
+  /**
+   * Executed when server connection is closed
+   * @param  {undefined|boolean} error
+   */
   _closed = (error) =>
   {
     if(this.connected)

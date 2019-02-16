@@ -10,6 +10,10 @@ class Vmix extends Server
     this.tallies = [];
     this._check();
   }
+  /**
+   * Parse lines that come from the Aten matrix
+   * @param  {string} line 
+   */
   _line = line =>
   {
     if(line.indexOf('TALLY OK ') == 0)
@@ -18,6 +22,9 @@ class Vmix extends Server
       this.emit('tallies', this.tallies);
     }
   }
+  /**
+   * Executed when server is connected
+   */
   _connected = () =>
   {
     if(!this.connected)
@@ -35,6 +42,9 @@ class Vmix extends Server
 
     this.client.write('SUBSCRIBE TALLY\r\n');
   }
+  /**
+   * Setup a new connection to the server and connect
+   */
   _check = () =>
   {
     this.client = new Socket();
@@ -44,6 +54,10 @@ class Vmix extends Server
     this.client.on('timeout', () => this.client.end() && this.client.destroy());
     this.client.connect(8099, this.hostname, this._connected);
   }
+  /**
+   * Executed when server connection is closed
+   * @param  {undefined|boolean} error
+   */
   _closed = (error) =>
   {
     if(this.connected)

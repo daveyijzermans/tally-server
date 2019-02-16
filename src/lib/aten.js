@@ -9,6 +9,10 @@ class Aten extends Server
     super(opts);
     this._check();
   }
+  /**
+   * Parse lines that come from the Aten matrix
+   * @param  {string} line 
+   */
   _line = line =>
   {
     if(line.indexOf('Connection to VM0808HA is established') == 0)
@@ -18,6 +22,9 @@ class Aten extends Server
       this.emit('connection', this.connected);
     }
   }
+  /**
+   * Executed when server is connected
+   */
   _connected = () =>
   {
     this.client.setTimeout(0);
@@ -28,6 +35,9 @@ class Aten extends Server
 
     this.client.write(this.username + '\r\n' + this.password + '\r\n');
   }
+  /**
+   * Setup a new connection to the server and connect
+   */
   _check = () =>
   {
     this.client = new Socket();
@@ -37,6 +47,10 @@ class Aten extends Server
     this.client.on('timeout', () => this.client.end() && this.client.destroy());
     this.client.connect(23, this.hostname, this._connected);
   }
+  /**
+   * Executed when server connection is closed
+   * @param  {undefined|boolean} error
+   */
   _closed = (error) =>
   {
     if(this.connected)

@@ -1,6 +1,5 @@
 /**
  * Toggle fullscreen mode
- * 
  * @param  {Object} node 
  */
 export const toggleFullscreen = (node) =>
@@ -13,14 +12,13 @@ export const toggleFullscreen = (node) =>
 	                  document.fullscreen || false;
 
 	if (isEnabled)
-		exitFullscreen(node);
+		return exitFullscreen(node);
 	else
-		enterFullscreen(node);
+		return enterFullscreen(node);
 }
 
 /**
  * Enter fullscreen mode
- * 
  * @param  {Object} node 
  */
 export const enterFullscreen = (node) =>
@@ -28,13 +26,13 @@ export const enterFullscreen = (node) =>
 	node = node || document.documentElement;
 	if (node.requestFullscreen)
 	{
-		node.requestFullscreen();
+		return node.requestFullscreen();
 	} else if (node.mozRequestFullScreen) {
-		node.mozRequestFullScreen();
+		return node.mozRequestFullScreen();
 	} else if (node.webkitRequestFullscreen) {
-		node.webkitRequestFullscreen();
+		return node.webkitRequestFullscreen();
 	} else if (node.msRequestFullscreen) {
-		node.msRequestFullscreen();
+		return node.msRequestFullscreen();
 	}
 }
 
@@ -45,12 +43,12 @@ export const exitFullscreen = () =>
 {
 	if (document.exitFullscreen)
 	{
-		document.exitFullscreen();
+		return document.exitFullscreen();
 	} else if (document.mozCancelFullScreen) { /* Firefox */
-		document.mozCancelFullScreen();
+		return document.mozCancelFullScreen();
 	} else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-		document.webkitExitFullscreen();
+		return document.webkitExitFullscreen();
 	} else if (document.msExitFullscreen) { /* IE/Edge */
-		document.msExitFullscreen();
+		return document.msExitFullscreen();
 	}
 }
