@@ -58,22 +58,23 @@ let webpackStatsConfig = {
 let scss = () =>
 {
   let plugins = [
-        autoprefixer({browsers: ['last 8 versions'], cascade: false}),
+    autoprefixer({browsers: ['last 8 versions'], cascade: false}),
     customProperties({
       preserve: false
     }),
     flexboxFix()
-    ];
+  ];
 
-    if (argv.prod) {
-      plugins.push(cssnano());
+  if(argv.prod)
+  {
+    plugins.push(cssnano());
 
-      return gulp.src(resources.scss)
-        .pipe(sass().on('error', sass.logError))
-        .pipe(postcss(plugins))
-        .pipe(gulp.dest('dist/www/assets/css'))
-        .pipe(browserSync.reload({stream: true}));
-    };
+    return gulp.src(resources.scss)
+      .pipe(sass().on('error', sass.logError))
+      .pipe(postcss(plugins))
+      .pipe(gulp.dest('dist/www/assets/css'))
+      .pipe(browserSync.reload({stream: true}));
+  };
 
   return gulp.src(resources.scss)
     .pipe(sourcemaps.init())
@@ -195,6 +196,12 @@ let watch = () =>
 */
 let server = done =>
 {
+  if(argv.prod)
+  {
+    return gulp.src(resources.server)
+      .pipe(babel())
+      .pipe(gulp.dest('dist'));
+  }
   return gulp.src(resources.server)
     .pipe(sourcemaps.init())
     .pipe(babel())
