@@ -38,7 +38,8 @@ let resources = {
   html: ['resources/html/*.*'],
   htmlIncludes: ['resources/html/includes/*.html'],
   client: ['resources/client/**/*.*'],
-  server: ['src/**/*.*']
+  server: ['src/**/*.*'],
+  docs: ['README.md', 'resources/js/**/*.*', 'src/**/*.*']
 };
 
 /**
@@ -190,6 +191,15 @@ let watch = () =>
   gulp.watch(resources.client, client);
   gulp.watch(resources.htmlIncludes, html);
   gulp.watch(resources.server, gulp.series(server, restart));
+  gulp.watch(resources.docs, docs);
+};
+
+/*
+* Watch docs task
+*/
+let watchDocs = () =>
+{
+  gulp.watch(resources.docs, docs);
 };
 
 /*
@@ -233,9 +243,9 @@ process.once('SIGINT', () =>
   forever.stop();
 });
 
-let doc = done =>
+let docs = done =>
 {
-  return gulp.src(['README.md'].concat(resources.js, resources.server), {read: false})
+  return gulp.src(resources.docs, {read: false})
     .pipe(jsdoc(require('./jsdoc.json')));
 }
 
@@ -248,6 +258,6 @@ let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), se
 * Start server task
 */
 exports.build = build;
-exports.doc = doc;
+exports.watchDocs = watchDocs;
 exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
 exports.default = gulp.series(build, start);

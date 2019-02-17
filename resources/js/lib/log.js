@@ -4,7 +4,7 @@ import 'bootstrap';
 /**
  * Class for updating the log in the navbar
  *
- * @class      Log
+ * @memberof   Frontend.UI
  */
 class Log
 {

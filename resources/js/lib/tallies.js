@@ -4,7 +4,8 @@ import EventEmitter from 'events';
 /**
  * Class for tallies UI.
  *
- * @class      Tallies
+ * @extends    EventEmitter
+ * @memberof   Frontend.UI
  */
 class Tallies extends EventEmitter
 {
@@ -26,6 +27,7 @@ class Tallies extends EventEmitter
    * list elements to match
    *
    * @param      {Array.Object}  data   Array of tally information
+   * @fires      Frontend.UI.Tallies#event:updated
    */
   _list = data =>
   {
@@ -56,6 +58,12 @@ class Tallies extends EventEmitter
     let hostsOnline = this.$list.find('.tally-entry').length > 1;
     this.$list.siblings('.noresults').toggle(!hostsOnline);
     this.$list.find('.tally-entry').toggle(hostsOnline);
+    /**
+     * Snowball event.
+     *
+     * @event      Frontend.UI.Tallies#event:updated
+     * @param      {Array.Object}  tallies  Array of tally information
+     */
     this.emit('updated', this._tallies);
   }
   /**

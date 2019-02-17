@@ -6,7 +6,8 @@ import EventEmitter from 'events';
 /**
  * Class for action modal.
  *
- * @class      ActionModal
+ * @extends    EventEmitter
+ * @memberof   Frontend.UI
  */
 class ActionModal extends EventEmitter
 {
@@ -97,9 +98,16 @@ class ActionModal extends EventEmitter
    * Handle the confirm-button click.
    *
    * @param      {Object}  event   The event
+   * @fires      Frontend.UI.ActionModal#event:"command.*"
    */
   _btnConfirmClick = event =>
   {
+    /**
+     * Snowball event.
+     *
+     * @event      Frontend.UI.ActionModal#event:"command.*"
+     * @param      {mixed}  param  Parameter to pass to the server
+     */
     this.emit('command.' + this._cmd, this._param);
     this.socket.emit('admin.' + this._cmd, this._param);
     this.$modal.modal('hide');

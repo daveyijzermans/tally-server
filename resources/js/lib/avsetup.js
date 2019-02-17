@@ -5,7 +5,7 @@ import 'jquery-ui/ui/widgets/droppable';
 /**
  * Class for modeling the AV setup box
  *
- * @class      AVSetup
+ * @memberof   Frontend.UI
  */
 class AVSetup
 {

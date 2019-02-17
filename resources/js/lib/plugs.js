@@ -5,7 +5,7 @@ $.fn.poof = poof;
 /**
  * Class for the smart-plugs UI.
  *
- * @class      Plugs
+ * @memberof   Frontend.UI
  */
 class Plugs
 {

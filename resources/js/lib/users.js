@@ -9,7 +9,8 @@ import EventEmitter from 'events';
 /**
  * Class for users UI.
  *
- * @class      Users
+ * @extends    EventEmitter
+ * @memberof   Frontend.UI
  */
 class Users extends EventEmitter
 {
@@ -23,6 +24,12 @@ class Users extends EventEmitter
     super()
     Object.assign(this, opts);
 
+    /**
+     * Snowball event.
+     * 
+     * @event      Frontend.UI.Users#event:tallies
+     * @param      {Array.number} tallies The combined tally information
+     */
     this.on('tallies', this._updateUserTallies);
 
     this.socket.on('admin.user.disconnect', this._disconnect);
@@ -31,7 +38,7 @@ class Users extends EventEmitter
 
     /**
      * Edit user modal instance
-     * @type       {EditUserModal}
+     * @type       {Frontend.UI.EditUserModal}
      */
     this.editUserModal = new EditUserModal({
       $modal: this.$modal,
@@ -41,7 +48,7 @@ class Users extends EventEmitter
   /**
    * Executed when tally information is updated, primarily by the Tallies class
    *
-   * @param      {string}  tallies  The combined tally information
+   * @param      {Array.number}  tallies  The combined tally information
    */
   _updateUserTallies = tallies =>
   {
@@ -61,6 +68,7 @@ class Users extends EventEmitter
    * list elements to match
    *
    * @param      {Array.Object}  users   Array of users
+   * @fires      Frontend.UI.Users#event:updated
    */
   _list = users =>
   {
@@ -109,6 +117,11 @@ class Users extends EventEmitter
       $u.find('.channelName').text(user.channelName);
       $dropdown.find('.edit-user-modal').data('user', user);
     });
+    /**
+     * Snowball event.
+     *
+     * @event      Frontend.UI.Users#event:updated
+     */
     this.emit('updated');
   }
   /**

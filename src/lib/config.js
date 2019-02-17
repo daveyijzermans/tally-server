@@ -6,7 +6,7 @@ import EventEmitter from 'events';
 /**
  * Class for retrieving and saving configuration.
  *
- * @class      Config
+ * @memberof   Backend
  */
 class Config extends EventEmitter
 {
@@ -26,6 +26,8 @@ class Config extends EventEmitter
   }
   /**
    * Save user data back to JSON file
+   * 
+   * @fires      Backend.Config#event:saved
    */
   saveUsers = () =>
   {
@@ -40,6 +42,11 @@ class Config extends EventEmitter
     let json = JSON.stringify(save);
     fs.writeFile(this.paths.users, json, 'utf8', (err) => {
       if (err) return console.error(err);
+      /**
+       * Snowball event.
+       * 
+       * @event      Backend.Config#event:saved
+       */
       this.emit('saved');
     });
   }

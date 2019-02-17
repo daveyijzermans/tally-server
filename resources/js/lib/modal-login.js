@@ -6,7 +6,8 @@ import EventEmitter from 'events';
 /**
  * Class for login modal.
  *
- * @class      LoginModal
+ * @extends    EventEmitter
+ * @memberof   Frontend.UI
  */
 class LoginModal extends EventEmitter
 {
@@ -78,18 +79,35 @@ class LoginModal extends EventEmitter
   /**
    * Executed when the socket is authenticated. Emits an event and hides the
    * modal.
+   *
+   * @fires      Frontend.UI.LoginModal#event:authenticated
    */
   _socketAuthenticated = () =>
   {
+    /**
+     * Snowball event.
+     *
+     * @event      Frontend.UI.LoginModal#event:authenticated
+     * @param      {string}  password  Hashed password that was authenticated
+     *                                 with
+     */
     this.emit('authenticated', this.password);
     this.$modal.modal('hide');
   }
   /**
    * Executed when the socket is disconnected. Emits an error event and reopens
    * the login modal.
+   *
+   * @fires      Frontend.UI.LoginModal#event:error
    */
   _socketDisconnect = () =>
   {
+    /**
+     * Snowball event.
+     *
+     * @event      Frontend.UI.LoginModal#event:error
+     * @param      {Error}  error   Error object
+     */
     this.emit('error', new Error('Could not connect to socket'));
 
     this.$txtPassword.addClass('is-invalid');

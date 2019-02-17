@@ -5,8 +5,8 @@ import readline from 'readline';
 /**
  * Class for connecting to vMix API via TCP.
  *
- * @class      Vmix
- * @extends    Server
+ * @extends    Backend.Server
+ * @memberof   Backend
  */
 class Vmix extends Server
 {
@@ -25,25 +25,46 @@ class Vmix extends Server
    * Parse lines that come from the Aten matrix
    *
    * @param      {string}  line    The line
+   * @fires      Backend.Vmix#event:tallies
    */
   _line = line =>
   {
     if(line.indexOf('TALLY OK ') == 0)
     {
       this.tallies = line.substring(9).split('').map((a) => { return parseInt(a) });
+      /**
+       * Snowball event.
+       *
+       * @event      Backend.Vmix#event:tallies
+       * @param      {Array.number}  tallies  Tally information
+       */
       this.emit('tallies', this.tallies);
     }
   }
   /**
    * Executed when server is connected
+   *
+   * @fires      Backend.Vmix#event:connected
+   * @fires      Backend.Vmix#event:connection
    */
   _connected = () =>
   {
     if(!this.connected)
     {
       this.connected = true;
+      /**
+       * Snowball event.
+       *
+       * @event      Backend.Vmix#event:connected
+       */
       this.emit('connected');
     }
+    /**
+     * Snowball event.
+     *
+     * @event      Backend.Vmix#event:connection
+     * @param      {boolean}  connected  Whether the server is connected
+     */
     this.emit('connection', this.connected);
 
     this.client.setTimeout(0);
@@ -70,6 +91,8 @@ class Vmix extends Server
    * Executed when server connection is closed
    *
    * @param      {undefined|boolean}  error   The error
+   * @fires      Backend.Vmix#event:disconnected
+   * @fires      Backend.Vmix#event:connection
    */
   _closed = (error) =>
   {
@@ -77,6 +100,11 @@ class Vmix extends Server
     {
       this.connected = false;
       this.tallies = [];
+      /**
+       * Snowball event.
+       *
+       * @event      Backend.Vmix#event:disconnected
+       */
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);

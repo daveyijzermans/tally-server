@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
 /**
- * Animate a growing ring around an element
+ * Animate a growing ring around an element.
  */
 export default function()
 {          

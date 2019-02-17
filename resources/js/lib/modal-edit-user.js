@@ -4,7 +4,7 @@ import 'bootstrap';
 /**
  * Class for the edit user modal.
  *
- * @class      EditUserModal
+ * @memberof   Frontend.UI
  */
 class EditUserModal
 {

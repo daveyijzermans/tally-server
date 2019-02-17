@@ -3,12 +3,14 @@ import EventEmitter from 'events';
 /**
  * Base class for servers.
  *
- * @class      Server
+ * @memberof   Backend
  */
 class Server extends EventEmitter
 {
   /**
    * Collection of all server instances
+   *
+   * @type       {Array.<Backend.Server>}
    */
   static _instances = [];
   /**
@@ -66,9 +68,28 @@ class Server extends EventEmitter
   {
     super();
     Object.assign(this, opts);
+    /**
+     * Server connection status
+     * 
+     * @type       {boolean}
+     */
     this.connected = false;
+    /**
+     * Server client interaction object
+     * 
+     * @type       {mixed}
+     */
     this.client = null;
-    if(!this.wol) this.wol = false;
+    if(!this.wol)
+    {
+      /**
+       * MAC address to send WOL packets to. If WOL is not supported it is set
+       * to false
+       *
+       * @type       {string|boolean}
+       */
+      this.wol = false;
+    }
     Server._instances.push(this);
   }
 }

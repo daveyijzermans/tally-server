@@ -3,7 +3,7 @@ import $ from 'jquery';
 /**
  * Class for servers UI.
  *
- * @class      Servers
+ * @memberof   Frontend.UI
  */
 class Servers
 {

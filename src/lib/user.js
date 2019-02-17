@@ -3,7 +3,8 @@ import EventEmitter from 'events';
 /**
  * Class for modeling connected users.
  *
- * @class      User
+ * @extends    Backend.Server
+ * @memberof   Backend
  */
 class User extends EventEmitter
 {
@@ -33,9 +34,24 @@ class User extends EventEmitter
   {
     super();
     Object.assign(this, opts);
+    /**
+     * The channel that this user is currently in.
+     *
+     * @type       {string}
+     */
     this.channelName = '';
-    this.status = null;
-    this.talking = null;
+    /**
+     * The tally status this user currently has.
+     *
+     * @type       {number}
+     */
+    this.status = 0;
+    /**
+     * Whether the user is currently talking.
+     *
+     * @type       {boolean}
+     */
+    this.talking = false;
     User._instances.push(this);
   }
 }
