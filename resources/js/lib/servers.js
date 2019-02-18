@@ -14,10 +14,15 @@ class Servers
    */
   constructor(opts)
   {
-    Object.assign(this, opts);
+
+    this.$list = opts.$list;
+
+    this.$tpl = opts.$tpl;
+
     this._servers = null;
 
-    this.socket.on('admin.status.servers', this._list);
+    this.socket = opts.socket
+      .on('admin.status.servers', this._list);
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the

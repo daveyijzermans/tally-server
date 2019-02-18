@@ -3,7 +3,6 @@ import EventEmitter from 'events';
 /**
  * Class for modeling connected users.
  *
- * @extends    Backend.Server
  * @memberof   Backend
  */
 class User extends EventEmitter
@@ -33,7 +32,25 @@ class User extends EventEmitter
   constructor(opts)
   {
     super();
-    Object.assign(this, opts);
+    /**
+     * Username this user is known by on the intercom/client application
+     * 
+     * @type       {String}
+     */
+    this.username = opts.username;
+    /**
+     * Display name of the user in the administrator interface.
+     * 
+     * @type       {String}
+     */
+    this.name = opts.name;
+    /**
+     * Camera number of this user. Note this camera number is shared across all
+     * connected servers providing tally information.
+     *
+     * @type       {String}
+     */
+    this.camNumber = opts.camNumber;
     /**
      * The channel that this user is currently in.
      *

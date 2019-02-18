@@ -15,16 +15,40 @@ class Log
    */
   constructor(opts)
   {
-    Object.assign(this, opts);
-    this.$dropdown = this.$list.find('.dropdown-menu');
-    this.$icon = this.$list.find('.fa-bell');
-    this.$badge = this.$list.find('.badge');
-    this._animateTimeout = null;
 
-    this.socket.on('admin.log', this._log);
-    this.$list.on('show.bs.dropdown', this._dropdownShow);
-    this.$list.on('shown.bs.dropdown', this._dropdownShown);
-    this.$list.on('hide.bs.dropdown', this._dropdownHide);
+    this.$list = opts.$list
+      .on('show.bs.dropdown', this._dropdownShow)
+      .on('shown.bs.dropdown', this._dropdownShown)
+      .on('hide.bs.dropdown', this._dropdownHide);
+
+    this.$tpl = opts.$tpl;
+
+    this.socket = opts.socket
+      .on('admin.log', this._log);
+    /**
+     * Dropdown menu
+     * 
+     * @type       {jQuery}
+     */
+    this.$dropdown = this.$list.find('.dropdown-menu');
+    /**
+     * Log bell icon in navbar
+     * 
+     * @type       {jQuery}
+     */
+    this.$icon = this.$list.find('.fa-bell');
+    /**
+     * Badge in bell icon
+     * 
+     * @type       {jQuery}
+     */
+    this.$badge = this.$list.find('.badge');
+    /**
+     * Timer id for the bell animation
+     * 
+     * @type       {null|number}
+     */
+    this._animateTimeout = null;
   }
   /**
    * Add a log message to the log list

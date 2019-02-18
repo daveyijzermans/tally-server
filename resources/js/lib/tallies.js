@@ -17,10 +17,15 @@ class Tallies extends EventEmitter
   constructor(opts)
   {
     super();
-    Object.assign(this, opts);
+
+    this.$list = opts.$list;
+
+    this.$tpl = opts.$tpl;
+    
     this._tallies = null;
 
-    this.socket.on('admin.status.tallies', this._list);
+    this.socket = opts.socket
+      .on('admin.status.tallies', this._list);
   }
 /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -34,7 +39,7 @@ class Tallies extends EventEmitter
     if(JSON.stringify(data) === JSON.stringify(this._tallies))
       return false;
     this._tallies = data;
-    let max = this._tallies._combined.length;
+    let max = this.combined.length;
     let states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
     this.$list.empty();
@@ -59,7 +64,7 @@ class Tallies extends EventEmitter
     this.$list.siblings('.noresults').toggle(!hostsOnline);
     this.$list.find('.tally-entry').toggle(hostsOnline);
     /**
-     * Snowball event.
+     * Let listeners know that tally information was updated.
      *
      * @event      Frontend.UI.Tallies#event:updated
      * @param      {Array.Object}  tallies  Array of tally information

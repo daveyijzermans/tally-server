@@ -14,7 +14,7 @@ class Mumble extends Server
    * Cycle a specific user to the next channel set in opts.cycleChannels
    *
    * @param      {string}   username  The username
-   * @fires      Backend.Mumble#event:log
+   * @fires      Backend.Server#event:log
    * @return     {boolean}  Whether the move was executed
    */
   static cycleUser = (username) =>
@@ -32,12 +32,6 @@ class Mumble extends Server
         // Figure out the next channel, or reset to the 0th one.
         index = index + 1 >= mumble.cycleChannels.length ? 0 : index + 1;
         let newChannel = mumble.client.channelByName(mumble.cycleChannels[index]);
-        /**
-         * Snowball event.
-         *
-         * @event      Backend.Mumble#event:log
-         * @param      {string}  msg     Log message
-         */
         this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
         user.moveToChannel(newChannel);
       } else
@@ -52,6 +46,36 @@ class Mumble extends Server
   constructor(opts)
   {
     super(opts);
+    /**
+     * Username used to connect to this server
+     * 
+     * @type       {String}
+     */
+    this.username = opts.username;
+    /**
+     * Password used to connect to this server
+     * 
+     * @type       {String}
+     */
+    this.password = opts.password;
+    /**
+     * Path to key file
+     * 
+     * @type       {String}
+     */
+    this.key = opts.key;
+    /**
+     * Path to certificate file
+     * 
+     * @type       {String}
+     */
+    this.cert = opts.cert;
+    /**
+     * Array of channels users are allowed to enter.
+     * 
+     * @type       {Array.String}
+     */
+    this.cycleChannels = opts.cycleChannels;
     this._check();
   }
   /**
@@ -67,28 +91,17 @@ class Mumble extends Server
   /**
    * Executed when mumble is authenticated
    * 
-   * @fires      Backend.Mumble#event:connected
-   * @fires      Backend.Mumble#event:connection
-   * @fires      Backend.Mumble#event:user-channels
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:connection
+   * @fires      Backend.Server#event:user-channels
    */
   _initialized = () =>
   {
     if(!this.connected)
     {
       this.connected = true;
-      /**
-       * Snowball event.
-       *
-       * @event      Backend.Mumble#event:connected
-       */
       this.emit('connected');
     }
-    /**
-     * Snowball event.
-     *
-     * @event      Backend.Mumble#event:connection
-     * @param      {boolean}  connected  Whether the server is connected
-     */
     this.emit('connection', this.connected);
 
     this.client.on('user-connect', this._userMoved);
@@ -99,7 +112,8 @@ class Mumble extends Server
     this.client.on('disconnected', this._closed);
 
     /**
-     * Snowball event.
+     * Let listeners know of the channels on the Mumble server. Will be fired on
+     * server connection.
      *
      * @event      Backend.Mumble#event:user-channels
      * @param      {Object}  channels  Keys are usernames, values are channel
@@ -130,14 +144,15 @@ class Mumble extends Server
   _userMoved = (u) =>
   {
     /**
-     * Snowball event.
+     * Let listers know that a user was moved to a different channel in this
+     * server.
      *
-     * @event      Backend.Mumble#event:user-moved
+     * @event      Backend.Mumble#event:user-move
      * @param      {string}  username     The username of the user that was
      *                                    moved
      * @param      {string}  channelName  The channel that the user was moved to
      */
-    this.emit('user-moved', u.name, u.channel.name);
+    this.emit('user-move', u.name, u.channel.name);
   }
   /**
    * Executed when user is disconnected
@@ -147,7 +162,7 @@ class Mumble extends Server
    */
   _userDisconnect = (u) =>
   {
-    this.emit('user-moved', u.name, '');
+    this.emit('user-move', u.name, '');
   }
   /**
    * Executed when voice data is received. Indicates if a user is talking.
@@ -158,7 +173,7 @@ class Mumble extends Server
   _onVoice = (data) =>
   {
     /**
-     * Snowball event.
+     * Let listeners know a users talk state has changed.
      *
      * @event      Backend.Mumble#event:user-talk
      * @param      {string}   username  The username of the user that is now
@@ -183,8 +198,8 @@ class Mumble extends Server
    * Executed when server connection is closed
    *
    * @param      {undefined|boolean}  error   The error
-   * @fires      Backend.Mumble#event:disconnected
-   * @fires      Backend.Mumble#event:connection
+   * @fires      Backend.Server#event:disconnected
+   * @fires      Backend.Server#event:connection
    */
   _closed = (error) =>
   {
@@ -192,11 +207,6 @@ class Mumble extends Server
     {
       this.client = null;
       this.connected = false;
-      /**
-       * Snowball event.
-       *
-       * @event      Backend.Mumble#event:disconnected
-       */
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);

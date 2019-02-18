@@ -16,11 +16,15 @@ class Plugs
    */
   constructor(opts)
   {
-    Object.assign(this, opts);
 
-    this.socket.on('admin.plugs.list', this._list);
-    this.socket.on('admin.plugs.disconnect', this._disconnect);
-    this.socket.on('disconnect', this._socketDisconnect);
+    this.$list = opts.$list;
+
+    this.$tpl = opts.$tpl;
+    
+    this.socket = opts.socket
+      .on('admin.plugs.list', this._list)
+      .on('admin.plugs.disconnect', this._disconnect)
+      .on('disconnect', this._socketDisconnect);
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the

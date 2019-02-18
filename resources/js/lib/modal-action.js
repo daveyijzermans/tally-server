@@ -19,11 +19,14 @@ class ActionModal extends EventEmitter
   constructor(opts)
   {
     super();
-    Object.assign(this, opts);
+
+    this.socket = opts.socket;
+
     this.$btn = this.$modal.find('.btn-danger');
+
     this.$text = this.$modal.find('.modal-body');
 
-    this.$modal
+    this.$modal = opts.$modal
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown)
       .on('hide.bs.modal', this._modalHide);
@@ -103,10 +106,10 @@ class ActionModal extends EventEmitter
   _btnConfirmClick = event =>
   {
     /**
-     * Snowball event.
+     * Let listeners know we want to execute a server side command.
      *
      * @event      Frontend.UI.ActionModal#event:"command.*"
-     * @param      {mixed}  param  Parameter to pass to the server
+     * @param      {mixed}  param   Parameter to pass to the server
      */
     this.emit('command.' + this._cmd, this._param);
     this.socket.emit('admin.' + this._cmd, this._param);

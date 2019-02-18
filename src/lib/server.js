@@ -67,7 +67,24 @@ class Server extends EventEmitter
   constructor(opts)
   {
     super();
-    Object.assign(this, opts);
+    /**
+     * Server type
+     * 
+     * @type       {String}
+     */
+    this.type = opts.type;
+    /**
+     * Server hostname or IP address
+     * 
+     * @type       {String}
+     */
+    this.hostname = opts.hostname;
+    /**
+     * Server display name
+     * 
+     * @type       {String}
+     */
+    this.name = opts.name;
     /**
      * Server connection status
      * 
@@ -93,5 +110,36 @@ class Server extends EventEmitter
     Server._instances.push(this);
   }
 }
+
+/**
+ * Let listeners know the connection state of this server.
+ *
+ * @event      Backend.Server#event:connection
+ * @param      {boolean}  connected  Whether the server is connected
+ */
+/**
+ * Let listeners know the server is connected. Only fired when server was
+ * previously disconnected.
+ *
+ * @event      Backend.Server#event:connected
+ */
+/**
+ * Let listeners know the server is disconnected. Only fired when server was
+ * previously connected.
+ *
+ * @event      Backend.Server#event:disconnected
+ */
+/**
+ * Let listeners know that tally information was updated.
+ *
+ * @event      Backend.Server#event:tallies
+ * @param      {Array.number}  tallies  Tally information
+ */
+/**
+ * Let listeners know of a log message.
+ *
+ * @event      Backend.Server#event:log
+ * @param      {string}  msg     Log message
+ */
 
 export default Server;

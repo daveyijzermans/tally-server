@@ -15,13 +15,13 @@ class EditUserModal
    */
   constructor(opts)
   {
-    Object.assign(this, opts);
+    this.socket = opts.socket;
     this.$btn = this.$modal.find('.btn-primary');
     this.$name = this.$modal.find('#user-name');
     this.$camNumber = this.$modal.find('#user-camnumber');
     this.$channelName = this.$modal.find('#user-channelname');
 
-    this.$modal
+    this.$modal = opts.$modal
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown)
       .on('hide.bs.modal', this._modalHide);

@@ -16,12 +16,13 @@ class AVSetup
    */
   constructor(opts)
   {
-    Object.assign(this, opts);
-    this.$sources.draggable({
+    
+    this.$sources = opts.$sources.draggable({
       cursor: 'move',
       revert: true
     });
-    this.$targets.droppable({
+
+    this.$targets = opts.$targets.droppable({
       drop: (event, ui) =>
       {
         let $target = $(event.target);

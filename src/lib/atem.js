@@ -17,10 +17,17 @@ class Atem extends Server
   constructor(opts)
   {
     super(opts);
+    /**
+     * Tally information
+     * 
+     * @type       {Array.number}
+     */
     this.tallies = [];
-
-    this.client = new API(this.hostname);
-    this.client.on('connectionStateChange', this._connected)
+    /**
+     * Client API used for communicating to this server
+     */
+    this.client = new API(this.hostname)
+      .on('connectionStateChange', this._connected)
       .on('sourceTally', this._handleTally)
       .on('inputTally', this._handleTally) //TODO: check if this works
       .on('error', err => console.error);
@@ -29,9 +36,9 @@ class Atem extends Server
    * Executed when server is connected
    *
    * @param      {boolean}  state   The connection state
-   * @fires      Backend.Atem#event:connected
-   * @fires      Backend.Atem#event:disconnected
-   * @fires      Backend.Atem#event:connection
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:disconnected
+   * @fires      Backend.Server#event:connection
    */
   _connected = (state) =>
   {
@@ -41,30 +48,14 @@ class Atem extends Server
     if(!this.connected && state.description == 'connected')
     {
       this.connected = true;
-      /**
-       * Snowball event.
-       *
-       * @event      Backend.Atem#event:connected
-       */
       this.emit('connected');
     }
     if(this.connected && state.description != 'connected')
     {
       this.connected = false;
       this.tallies = [];
-      /**
-       * Snowball event.
-       *
-       * @event      Backend.Atem#event:disconnected
-       */
       this.emit('disconnected');
     }
-    /**
-     * Snowball event.
-     *
-     * @event      Backend.Atem#event:connection
-     * @param      {boolean}  connected  Whether the server is connected
-     */
     this.emit('connection', this.connected);
   }
   /**
@@ -72,7 +63,7 @@ class Atem extends Server
    *
    * @param      {number}  n       Camera number
    * @param      {Object}  state   Object containing state information
-   * @fires      Backend.Atem#event:tallies
+   * @fires      Backend.Server#event:tallies
    */
   _handleTally = (n, state) =>
   {
@@ -80,12 +71,6 @@ class Atem extends Server
     {
       let newState = state.program == true ? 1 : state.preview == true ? 2 : 0;
       this.tallies[n-1] = newState;
-      /**
-       * Snowball event.
-       *
-       * @event      Backend.Atem#event:tallies
-       * @param      {Array.number}  tallies  Tally information
-       */
       this.emit('tallies', this.tallies);
     }
   }

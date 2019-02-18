@@ -19,17 +19,18 @@ class LoginModal extends EventEmitter
   constructor(opts)
   {
     super();
-    Object.assign(this, opts);
     this.$txtPassword = this.$modal.find('#txtPassword');
     this.$frmLogin = this.$modal.find('form');
     this.$btnLogin = this.$modal.find('#btnLogin');
 
-    // Bind handlers to buttons and events
-    this.$modal.on('show.bs.modal', this._modalShow);
-    this.$modal.on('shown.bs.modal', this._modalShown);
+    
+    this.$modal = opts.$modal
+      .on('show.bs.modal', this._modalShow)
+      .on('shown.bs.modal', this._modalShown);
 
-    this.socket.on('authenticated', this._socketAuthenticated);
-    this.socket.on('disconnect', this._socketDisconnect);
+    this.socket = opts.socket
+      .on('authenticated', this._socketAuthenticated)
+      .on('disconnect', this._socketDisconnect);
   }
   /**
    * Connect to the socket
@@ -85,7 +86,7 @@ class LoginModal extends EventEmitter
   _socketAuthenticated = () =>
   {
     /**
-     * Snowball event.
+     * Let listeners know we succesfully authenticated with the server.
      *
      * @event      Frontend.UI.LoginModal#event:authenticated
      * @param      {string}  password  Hashed password that was authenticated
@@ -103,7 +104,8 @@ class LoginModal extends EventEmitter
   _socketDisconnect = () =>
   {
     /**
-     * Snowball event.
+     * Let listeners know there was an error with connecting or authenticating
+     * with the server.
      *
      * @event      Frontend.UI.LoginModal#event:error
      * @param      {Error}  error   Error object

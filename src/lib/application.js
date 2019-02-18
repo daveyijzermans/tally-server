@@ -14,14 +14,22 @@ import { Server as HttpServer } from 'http';
 import SocketIO from 'socket.io';
 import { exec } from 'child_process';
 import wol from 'wol';
+import EventEmitter from 'events';
 
 /**
  * Server application
  *
- * @memberof      Backend
+ * @extends    EventEmitter
+ * @memberof   Backend
  */
-class Application
+class Application extends EventEmitter
 {
+  /**
+   * Static instance of this class.
+   *
+   * @type     Backend.Application
+   */
+  static _instance;
   /**
    * Process an object with tally states from multiple hosts and combine them into
    * one. Program states (1) take precedence over preview (2) states and lastly
@@ -61,115 +69,74 @@ class Application
     this._io.to('admins').emit('admin.log', msg);
   };
   /**
-   * Constructs the object.
+   * Constructs the object or returns the instance if it already exists.
+   *
+   * @param      {Object}  opts    The options
    */
   constructor(opts) 
   {
+    super();
+    if(Application._instance) return Application._instance;
+    Application._instance = this;
     /**
      * Configuration instance
      *
      * @type       {Backend.Config}
      */
     this.config = new Config(opts.configPaths)
-      .on('saved', () => this.logger('Users.json file has been saved!'));
+      .on('saved.users', () => this.logger('Users.json file has been saved!'));
 
     /**
      * Kick-off server connections
      */
-    this.config.servers.forEach((opts) =>
-    {
-      if(opts.type == 'mumble')
-      {
-        let server = this._defaultServerHandlers(new Mumble(opts))
-          .on('user-channels', (channels) =>
-          {
-            Object.keys(channels).forEach((username) =>
-            {
-              let user = User.getByUsername(username);
-              if(user) user.channelName = channels[username];
-            })
-            this.broadcastChanges('users');
-          })
-          .on('user-moved', (username, channelName) =>
-          {
-            let user = User.getByUsername(username);
-            if(user) user.channelName = channelName;
-            this.broadcastChanges('users');
-          })
-          .on('user-talk', (username, status) =>
-          {
-            if(username.indexOf('user') == 0)
-            {
-              let user = User.getByUsername(username);
-              if(user.talking != status)
-              {
-                user.talking = status;
-                this.broadcastChanges('users');
-              }
-            }
-          });
-      }
-      if(opts.type == 'vmix')
-      {
-        let server = this._defaultServerHandlers(new Vmix(opts))
-          .on('disconnected', () =>
-          {
-            this.broadcastChanges('tallies');
-          })
-          .on('tallies', (tallies) =>
-          {
-            this.broadcastChanges('tallies');
-          });
-      }
-      if(opts.type == 'aten')
-      {
-        let server = this._defaultServerHandlers(new Aten(opts))
-      }
-      if(opts.type == 'atem')
-      {
-        let server = this._defaultServerHandlers(new Atem(opts))
-          .on('tallies', (tallies) =>
-          {
-            this.broadcastChanges('tallies');
-          });
-      }
-      if(opts.type == 'netgear')
-      {
-        let server = this._defaultServerHandlers(new Netgear(opts));
-      }
-    });
+    this.config.getServerConfigByType('mumble', this._createMumble);
+    this.config.getServerConfigByType('vmix', this._createVmix);
+    this.config.getServerConfigByType('aten', this._createAten);
+    this.config.getServerConfigByType('atem', this._createAtem);
+    this.config.getServerConfigByType('netgear', this._createNetgear);
+
     /**
      * TPLink Kasa API
      *
      * @type       {TPLinkClient}
      */
-    this.tplink = new TPLinkClient();
-    this.tplink.startDiscovery()
-      .on('plug-new', (device) =>
-      {
-        this.logger('Found smartplug ' + device.alias + ' on the network!');
-        let index = this._plugs.push(device) - 1;
+    this.tplink = new TPLinkClient()
+      .startDiscovery()
+      .on('plug-new', this._smartPlugHandler);
 
-        /**
-         * Poll the smart plug. If we get a response, call broadcastChanges to send
-         * the new states to clients. If we get an error, assume the device is dead
-         * and will be found again later by auto-discovery.
-         */
-        let poll = () =>
-        {
-          device.getSysInfo().then(obj =>
-          {
-            this.broadcastChanges('plugs');
-            setTimeout(poll, 5000);
-          }).catch(error =>
-          {
-            this.logger('No connection to smartplug ' + device.alias + ' or an error occured.');
-            delete this._plugs[index];
-            this._io.to('admins').emit('admin.plugs.disconnect', device.host)
-          });
-        }
-        poll();
-      });
+    /**
+     * Broadcast server status to admin clients
+     *
+     * @event      Backend.Application#event:"broadcast.servers"
+     */
+    this.on('broadcast.servers', this._broadcastServers);
+    /**
+     * Broadcast tally status to admins and users connected to the socket
+     *
+     * @event      Backend.Application#event:"broadcast.tallies"
+     */
+    this.on('broadcast.tallies', this._broadcastTallies);
+    /**
+     * Broadcast user status to admin clients
+     *
+     * @event      Backend.Application#event:"broadcast.users"
+     */
+    this.on('broadcast.users', this._broadcastUsers);
+    /**
+     * Broadcast smartplug status to admin clients
+     *
+     * @event      Backend.Application#event:"broadcast.plugs"
+     */
+    this.on('broadcast.plugs', this._broadcastPlugs);
+    /**
+     * Broadcast all component statuses to admin clients and users
+     *
+     * @event      Backend.Application#event:broadcast
+     */
+    this.on('broadcast', this._broadcastServers);
+    this.on('broadcast', this._broadcastTallies);
+    this.on('broadcast', this._broadcastUsers);
+    this.on('broadcast', this._broadcastPlugs);
 
     /**
      * Socket.IO
@@ -213,7 +180,7 @@ class Application
         return socket.disconnect(); // user not in config
 
       socket.join('users');
-      this.broadcastChanges('users');
+      this.emit('broadcast.users');
       let room = socket.join(username);
 
       this.logger(username + ' has connected!');
@@ -285,8 +252,8 @@ class Application
           if(!mumbleUser) return;
           mumbleUser.moveToChannel(newChannel);
         });
-        this.broadcastChanges('users');
-        this.broadcastChanges('tallies');
+        this.emit('broadcast.users');
+        this.emit('broadcast.tallies');
         this.config.saveUsers();
         cb(r);
       });
@@ -309,7 +276,7 @@ class Application
       /**
        * Broadcast all settings
        */
-      socket.on('admin.update', () => this.broadcastChanges());
+      socket.on('admin.update', () => this.emit('broadcast'));
       /**
        * Restart the server by exiting the process and letting
        * forever start it again.
@@ -396,112 +363,149 @@ class Application
     }
   }
   /**
-   * Send update notifications to admin sockets
+   * Executed when a new smartplug is found
    *
-   * @param      {string|undefined}  s       What to update
+   * @param      {Object}  device  The device
    */
-  broadcastChanges = (s) =>
+  _smartPlugHandler = (device) =>
   {
-    /**
-     * Broadcast server updates
-     */
-    if(s == 'servers' || !s)
-    {
-      let result = Server._instances.map(s =>
-      {
-        return {
-          type: s.type,
-          hostname: s.hostname,
-          name: s.name,
-          wol: s.wol,
-          connected: s.connected
-        };
-      });
-      this._io.to('admins').emit('admin.status.servers', result);
-    }
-    /**
-     * Broadcast tally updates
-     */
-    if(s == 'tallies' || !s)
-    {
-      let result = {};
-      let allTallies = Server.tallies;
-      // Make a duplicate and sort by server name
-      Object.keys(allTallies).sort().forEach(key => result[key] = allTallies[key]);
-      // Append the combined (calculated) tally state at the end with a special key '_combined'
-      result._combined = Application._combineTallies(allTallies)
-      this._io.to('admins').emit('admin.status.tallies', result);
+    this.logger('Found smartplug ' + device.alias + ' on the network!');
+    let index = this._plugs.push(device) - 1;
 
-      /**
-       * Compare connected users' old tally state and only emit
-       * an event when it has changed.
-       */
-      User._instances.forEach(user =>
+    /**
+     * Poll the smart plug. If we get a response, call broadcastChanges to send
+     * the new states to clients. If we get an error, assume the device is dead
+     * and will be found again later by auto-discovery.
+     */
+    const poll = () =>
+    {
+      device.getSysInfo().then(obj =>
       {
-        let oldStatus = user.status;
-        let newStatus = result._combined[user.camNumber - 1];
-        if(newStatus != oldStatus)
-        {
-          user.status = newStatus;
-          this._io.to(user.username).emit('status', user);
-        }
+        this.emit('broadcast.plugs');
+        setTimeout(poll, 5000);
+      }).catch(error =>
+      {
+        this.logger('No connection to smartplug ' + device.alias + ' or an error occured.');
+        delete this._plugs[index];
+        this._io.to('admins').emit('admin.plugs.disconnect', device.host)
       });
     }
-    /**
-     * Broadcast user updates
-     */
-    if(s == 'users' || !s)
+    poll();
+  }
+  /**
+   * Broadcast server updates
+   *
+   * @listens Backend.Application#event:"broadcast.servers"
+   * @listens Backend.Application#event:broadcast
+   */
+  _broadcastServers = () =>
+  {
+    let result = Server._instances.map(s =>
     {
-      this._io.in('users').clients((error, users) =>
-      {
-        let result = [];
-        users.forEach((id) =>
-        {
-          let socket = this._io.sockets.connected[id];
-          let username = socket.handshake.query.username;
-          let user = User.getByUsername(username);
-          // Users only appear if they exists in the users.json file
-          if(user) result.push(user);
-        });
-        // Sort users by username
-        result.sort((a, b) =>
-        {
-          let textA = a.username.toUpperCase();
-          let textB = b.username.toUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-        });
-        this._io.to('admins').emit('admin.users.list', result);
-      });
-    }
+      return {
+        type: s.type,
+        hostname: s.hostname,
+        name: s.name,
+        wol: s.wol,
+        connected: s.connected
+      };
+    });
+    this._io.to('admins').emit('admin.status.servers', result);
+  }
+  /**
+   * Broadcast tally updates
+   * 
+   * @listens Backend.Application#event:"broadcast.tallies"
+   * @listens Backend.Application#event:broadcast
+   */
+  _broadcastTallies = () =>
+  {
+    let result = {};
+    let allTallies = Server.tallies;
+    // Make a duplicate and sort by server name
+    Object.keys(allTallies).sort().forEach(key => result[key] = allTallies[key]);
+    // Append the combined (calculated) tally state at the end with a special key '_combined'
+    result._combined = Application._combineTallies(allTallies)
+    this._io.to('admins').emit('admin.status.tallies', result);
+
     /**
-     * Broadcast smart plug updates
+     * Compare connected users' old tally state and only emit
+     * an event when it has changed.
      */
-    if(s == 'plugs' || !s)
+    User._instances.forEach(user =>
     {
-      let result = this._plugs.map(p =>
+      let oldStatus = user.status;
+      let newStatus = result._combined[user.camNumber - 1];
+      if(newStatus != oldStatus)
       {
-        return {
-          hostname: p.host,
-          name: p.alias,
-          description: p.description,
-          on: p.relayState
-        };
+        user.status = newStatus;
+        this._io.to(user.username).emit('status', user);
+      }
+    });
+  }
+  /**
+   * Broadcast user updates
+   * 
+   * @listens Backend.Application#event:"broadcast.users"
+   * @listens Backend.Application#event:broadcast
+   */
+  _broadcastUsers = () =>
+  {
+    this._io.in('users').clients((error, users) =>
+    {
+      let result = [];
+      users.forEach((id) =>
+      {
+        let socket = this._io.sockets.connected[id];
+        let username = socket.handshake.query.username;
+        let user = User.getByUsername(username);
+        // Users only appear if they exists in the users.json file
+        if(user) result.push(user);
       });
-      // Sort them by name
+      // Sort users by username
       result.sort((a, b) =>
       {
-        let textA = a.name.toUpperCase();
-        let textB = b.name.toUpperCase();
+        let textA = a.username.toUpperCase();
+        let textB = b.username.toUpperCase();
         return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
       });
-      this._io.to('admins').emit('admin.plugs.list', result);
-    }
+      this._io.to('admins').emit('admin.users.list', result);
+    });
+  }
+  /**
+   * Broadcast smart plug updates
+   * 
+   * @listens Backend.Application#event:"broadcast.plugs"
+   * @listens Backend.Application#event:broadcast
+   */
+  _broadcastPlugs = () =>
+  {
+    let result = this._plugs.map(p =>
+    {
+      return {
+        hostname: p.host,
+        name: p.alias,
+        description: p.description,
+        on: p.relayState
+      };
+    });
+    // Sort them by name
+    result.sort((a, b) =>
+    {
+      let textA = a.name.toUpperCase();
+      let textB = b.name.toUpperCase();
+      return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+    this._io.to('admins').emit('admin.plugs.list', result);
   }
   /**
    * Bind some standard behavior to all servers
    *
    * @param      {Server}  server  The server
    * @return     {Server}  The server
+   * @listens    Backend.Server#event:connection
+   * @listens    Backend.Server#event:connected
+   * @listens    Backend.Server#event:disconnected
    */
   _defaultServerHandlers = (server) =>
   {
@@ -512,12 +516,105 @@ class Application
     .on('connected', () =>
     {
       this.logger('Connected to ' + server.name + '!');
-      this.broadcastChanges('servers');
+      this.emit('broadcast.servers');
     })
     .on('disconnected', () =>
     {
-      this.broadcastChanges('servers');
+      this.emit('broadcast.servers');
     });
+  }
+  /**
+   * Initialize a Mumble server object
+   *
+   * @param      {Object}          opts    The options
+   * @return     {Backend.Mumble}  The server instance that was created
+   */
+  _createMumble = (opts) =>
+  {
+    return this._defaultServerHandlers(new Mumble(opts))
+      .on('user-channels', (channels) =>
+      {
+        Object.keys(channels).forEach((username) =>
+        {
+          let user = User.getByUsername(username);
+          if(user) user.channelName = channels[username];
+        })
+        this.emit('broadcast.users');
+      })
+      .on('user-move', (username, channelName) =>
+      {
+        let user = User.getByUsername(username);
+        if(user) user.channelName = channelName;
+        this.emit('broadcast.users');
+      })
+      .on('user-talk', (username, status) =>
+      {
+        if(username.indexOf('user') == 0)
+        {
+          let user = User.getByUsername(username);
+          if(user.talking != status)
+          {
+            user.talking = status;
+            this.emit('broadcast.users');
+          }
+        }
+      });
+  }
+  /**
+   * Initialize a vMix server object
+   *
+   * @param      {Object}        opts    The options
+   * @return     {Backend.Vmix}  The server instance that was created
+   */
+  _createVmix = (opts) =>
+  {
+    return this._defaultServerHandlers(new Vmix(opts))
+      .on('disconnected', () =>
+      {
+        this.emit('broadcast.tallies');
+      })
+      .on('tallies', (tallies) =>
+      {
+        this.emit('broadcast.tallies');
+      });
+  }
+  /**
+   * Initialize a Aten server object
+   *
+   * @param      {Object}        opts    The options
+   * @return     {Backend.Aten}  The server instance that was created
+   */
+  _createAten = (opts) =>
+  {
+    return this._defaultServerHandlers(new Aten(opts))
+  }
+  /**
+   * Initialize a Atem server object
+   *
+   * @param      {Object}        opts    The options
+   * @return     {Backend.Atem}  The server instance that was created
+   */
+  _createAtem = (opts) =>
+  {
+    return this._defaultServerHandlers(new Atem(opts))
+      .on('disconnected', () =>
+      {
+        this.emit('broadcast.tallies');
+      })
+      .on('tallies', (tallies) =>
+      {
+        this.emit('broadcast.tallies');
+      });
+  }
+  /**
+   * Initialize a Netgear server object
+   *
+   * @param      {Object}           opts    The options
+   * @return     {Backend.Netgear}  The server instance that was created
+   */
+  _createNetgear = (opts) =>
+  {
+    return this._defaultServerHandlers(new Netgear(opts));
   }
 }
 

@@ -19,15 +19,36 @@ class Config extends EventEmitter
   {
     super();
     //TODO add special character filter/escaping
+
+    /**
+     * Data from admin.json file
+     * 
+     * @type       {Object}
+     */
     this.admin = require(opts.admin);
+    /**
+     * Data from servers.json file
+     * 
+     * @type       {Object}
+     */
     this.servers = require(opts.servers);
+    /**
+     * Data from users.json file
+     * 
+     * @type       {Object}
+     */
     this.users = require(opts.users);
+    /**
+     * Paths to the configuration files
+     * 
+     * @type       {Object}
+     */
     this.paths = opts;
   }
   /**
    * Save user data back to JSON file
    * 
-   * @fires      Backend.Config#event:saved
+   * @fires      Backend.Config#event:"saved.users"
    */
   saveUsers = () =>
   {
@@ -43,11 +64,11 @@ class Config extends EventEmitter
     fs.writeFile(this.paths.users, json, 'utf8', (err) => {
       if (err) return console.error(err);
       /**
-       * Snowball event.
+       * Let listeners know the user configuration was saved.
        * 
-       * @event      Backend.Config#event:saved
+       * @event      Backend.Config#event:"saved.users"
        */
-      this.emit('saved');
+      this.emit('saved.users');
     });
   }
   /**
@@ -65,6 +86,20 @@ class Config extends EventEmitter
     let user = User.getByUsername(username)
     if(!user) return new User(opts);
     return user;
+  }
+  /**
+   * Get server configuration from JSON file by type
+   *
+   * @param      {string}        type      The type
+   * @param      {Function}      callback  Callback to execute on the matches
+   * @return     {Array.Object}  Array of config items matching the server type
+   */
+  getServerConfigByType = (type, callback) =>
+  {
+    if(typeof type != 'string') return false;
+    let matches = this.servers.filter((a) => a.type == type);
+    if(typeof callback == 'function') matches.forEach(callback);
+    return matches;
   }
 }
 

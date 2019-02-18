@@ -30,6 +30,7 @@ class Admin
    * Executed every time the socket authenticates correctly
    *
    * @param      {string}  password  MD5 hashed password
+   * @listens    Frontend.UI.LoginModal#event:authenticated
    */
   _authenticated = (password) =>
   {
@@ -42,6 +43,7 @@ class Admin
   }
   /**
    * Executed every time the socket disconnects or authentication is incorrect
+   * @listens    Frontend.UI.LoginModal#event:error
    */
   _loginError = () =>
   {
@@ -51,13 +53,17 @@ class Admin
    * Executed when tally info is updated
    *
    * @param      {Object}  tallies  Tally information
+   * @listens    Frontend.UI.Tallies#event:updated
+   * @fires      Frontend.UI.Users#event:tallies
    */
   _talliesUpdated = (tallies) => 
   {
-    this.users.emit('tallies', this.tallies._combined);
+    this.users.emit('tallies', this.tallies.combined);
   }
   /**
    * Executed when user info is updated
+   * @listens    Frontend.UI.Users#event:updated
+   * @fires      Frontend.UI.Users#event:tallies
    */
   _usersUpdated = () => 
   {
@@ -68,7 +74,8 @@ class Admin
    */
   constructor()
   {
-    if(Administrator._instance) return Administrator._instance;
+    if(Admin._instance) return Admin._instance;
+    Admin._instance = this;
 
     /**
      * Socket.io client. This will be resused indefinitely
@@ -160,7 +167,7 @@ class Admin
 
     this.tallies.on('updated', this._talliesUpdated);
     this.loginModal.on('authenticated', this._authenticated)
-              .on('error', this._loginError);
+                   .on('error', this._loginError);
     this.users.on('updated', this._usersUpdated);
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
 

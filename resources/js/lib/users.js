@@ -21,20 +21,28 @@ class Users extends EventEmitter
    */
   constructor(opts)
   {
-    super()
-    Object.assign(this, opts);
+    super();
+
+    this.$list = opts.$list;
+
+    this.$tpl = opts.$tpl;
+
+    this.$modal = opts.$modal;
+
+    this.socket = opts.socket
+      .on('admin.user.disconnect', this._disconnect)
+      .on('admin.users.list', this._list);
+
+    this.$btnPopout = opts.$btnPopout
+      .click(this._popout);
 
     /**
-     * Snowball event.
+     * Update users' tally information when it it received.
      * 
      * @event      Frontend.UI.Users#event:tallies
      * @param      {Array.number} tallies The combined tally information
      */
     this.on('tallies', this._updateUserTallies);
-
-    this.socket.on('admin.user.disconnect', this._disconnect);
-    this.socket.on('admin.users.list', this._list);
-    this.$btnPopout.click(this._popout);
 
     /**
      * Edit user modal instance
@@ -118,7 +126,7 @@ class Users extends EventEmitter
       $dropdown.find('.edit-user-modal').data('user', user);
     });
     /**
-     * Snowball event.
+     * Let listeners know that user information was updated.
      *
      * @event      Frontend.UI.Users#event:updated
      */
