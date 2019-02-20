@@ -175,7 +175,7 @@ class Admin
     this.users.on('updated', this._usersUpdated);
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
 
-    /**
+    /*
      * Get stored password from cookie and attempt a login if it exists. Else show
      * the login modal
      */
@@ -187,9 +187,7 @@ class Admin
       this.loginModal.$modal.modal();
     }
 
-    /**
-     * Fullscreen button handler
-     */
+    /* Fullscreen button handler */
     $('#btnFullscreen').click(event =>
     {
       toggleFullscreen();

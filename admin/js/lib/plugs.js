@@ -45,7 +45,11 @@ class Plugs
    *
    * @method     Frontend.UI.Plugs#_list
    *
-   * @param      {Object[]}  plugs   Array of plugs
+   * @param      {Object[]}  plugs              Array of smartplug information
+   * @param      {string}    plugs.hostname     The hostname
+   * @param      {string}    plugs.name         The name
+   * @param      {string}    plugs.description  The description
+   * @param      {boolean}   plugs.on           Whether the plug is powered on
    */
   _list = plugs =>
   {

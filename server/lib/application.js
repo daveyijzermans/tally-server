@@ -11,7 +11,13 @@ import { Client as TPLinkClient } from 'tplink-smarthome-api';
 
 import express from 'express';
 import { Server as HttpServer } from 'http';
-import SocketIO from 'socket.io';
+/**
+ * Socket.IO server
+ *
+ * @class      Socket
+ * @see         {@link https://socket.io/docs/server-api/ Socket.IO server API}
+ */
+import Socket from 'socket.io';
 import { exec } from 'child_process';
 import wol from 'wol';
 import EventEmitter from 'events';
@@ -35,12 +41,18 @@ class Application extends EventEmitter
    * parameter as a string to log to connected admin clients.
    *
    * @method     Backend.Application#logger
-   *
+   * 
    * @param      {string}  msg     First parameter
    */
   logger = function(msg)
   {
     console.log.apply(console, arguments);
+    /**
+     * Send a log message to admin clients
+     *
+     * @event      Socket#event:"admin.log"
+     * @param      {string}  msg     The message.
+     */
     this._io.to('admins').emit('admin.log', msg);
   };
   /**
@@ -57,11 +69,12 @@ class Application extends EventEmitter
      * Configuration instance
      *
      * @type       {Backend.Config}
+     * @listens    Backend.Config#event:"saved.users"
      */
     this.config = new Config(opts.configPaths)
       .on('saved.users', () => this.logger('Users.json file has been saved!'));
 
-    /**
+    /*
      * Kick-off server connections
      */
     this.config.getServerConfigByType('mumble', this._createMumble);
@@ -113,9 +126,7 @@ class Application extends EventEmitter
     this.on('broadcast', this._broadcastUsers);
     this.on('broadcast', this._broadcastPlugs);
 
-    /**
-     * Socket.IO
-     */
+    /* Socket.IO */
     /**
      * Express application
      */
@@ -126,14 +137,18 @@ class Application extends EventEmitter
     this._server = HttpServer(this._app);
     /**
      * Socket.IO server
+     * 
+     * @type {Socket}
      */
-    this._io = SocketIO(this._server);
+    this._io = Socket(this._server);
 
     this._server.listen(80);
     this._app.use(express.static('dist/www'));
 
     /**
      * User joins socket server
+     * 
+     * @event      Socket#event:connection
      */
     this._io.on('connection', this._onSocketConnection);
   }
@@ -143,6 +158,7 @@ class Application extends EventEmitter
    * @method     Backend.Application#_onSocketConnection
    *
    * @param      {Object}  socket  The socket
+   * @listens    Socket#event:connection
    */
   _onSocketConnection = socket => {
     let username = socket.handshake.query.username;
@@ -162,9 +178,7 @@ class Application extends EventEmitter
 
       this.logger(username + ' has connected!');
 
-      /**
-       * User-only commands
-       */
+      /* User-only commands */
       socket.on('request', () =>
       {
         this.logger(username + ' sent an update request.');
@@ -177,6 +191,9 @@ class Application extends EventEmitter
       socket.on('disconnect', () =>
       {
         this.logger(username + ' has disconnected.');
+        /**
+         * Emitted when user disconnects
+         */
         this._io.to('admins').emit('admin.user.disconnect', username)
       });
     }
@@ -190,10 +207,7 @@ class Application extends EventEmitter
       socket.join('admins').emit('authenticated');
       this.logger('An admin has connected!');
 
-      /**
-       * Admin-only commands
-       */
-
+      /* Admin-only commands */
       /**
        * Set new data on a user and save the config file
        */
@@ -378,6 +392,7 @@ class Application extends EventEmitter
    *
    * @listens Backend.Application#event:"broadcast.servers"
    * @listens Backend.Application#event:broadcast
+   * @fires      Socket#event:"admin.status.servers"
    */
   _broadcastServers = () =>
   {
@@ -391,6 +406,17 @@ class Application extends EventEmitter
         connected: s.connected
       };
     });
+    /**
+     * Broadcast an array on server information
+     *
+     * @event      Socket#event:"admin.status.servers"
+     * @param      {Object[]}        result            Array of servers.
+     * @param      {string}          result.type       The server type
+     * @param      {string}          result.hostname   The server hostname
+     * @param      {string}          result.name       The server display name
+     * @param      {string|boolean}  result.wol        WOL address
+     * @param      {boolean}         result.connected  Connection status
+     */
     this._io.to('admins').emit('admin.status.servers', result);
   }
   /**
@@ -400,6 +426,8 @@ class Application extends EventEmitter
    * 
    * @listens Backend.Application#event:"broadcast.tallies"
    * @listens Backend.Application#event:broadcast
+   * @fires   Socket#event:"admin.status.tallies"
+   * @fires   Socket#event:status
    */
   _broadcastTallies = () =>
   {
@@ -408,10 +436,17 @@ class Application extends EventEmitter
     // Make a duplicate and sort by server name
     Object.keys(allTallies).sort().forEach(key => result[key] = allTallies[key]);
     // Append the combined (calculated) tally state at the end with a special key '_combined'
-    result._combined = Application._combineTallies(allTallies)
+    result._combined = Application._combineTallies(allTallies);
+    /**
+     * Broadcast tally information
+     *
+     * @event      Socket#event:"admin.status.tallies"
+     * @param      {Object.<string, number[]>}  result  Array of tally
+     *                                                  information
+     */
     this._io.to('admins').emit('admin.status.tallies', result);
 
-    /**
+    /*
      * Compare connected users' old tally state and only emit
      * an event when it has changed.
      */
@@ -422,6 +457,12 @@ class Application extends EventEmitter
       if(newStatus != oldStatus)
       {
         user.status = newStatus;
+        /**
+         * Send updated user details to affected users
+         *
+         * @event      Socket#event:status
+         * @param      {Backend.User}  user    User object
+         */
         this._io.to(user.username).emit('status', user);
       }
     });
@@ -433,6 +474,7 @@ class Application extends EventEmitter
    * 
    * @listens Backend.Application#event:"broadcast.users"
    * @listens Backend.Application#event:broadcast
+   * @fires   Socket#event:"admin.users.list"
    */
   _broadcastUsers = () =>
   {
@@ -454,6 +496,12 @@ class Application extends EventEmitter
         let textB = b.username.toUpperCase();
         return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
       });
+      /**
+       * Broadcast users data to admins
+       * 
+       * @event Socket#event:"admin.users.list"
+       * @param      {Backend.User[]} result Array of users
+       */
       this._io.to('admins').emit('admin.users.list', result);
     });
   }
@@ -483,6 +531,18 @@ class Application extends EventEmitter
       let textB = b.name.toUpperCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
+    /**
+     * Broadcast smartplug status to admins
+     *
+     * @event      Socket#event:"admin.plugs.list"
+     * @param      {Object[]}  result              Array of smartplug
+     *                                             information
+     * @param      {string}    result.hostname     The hostname
+     * @param      {string}    result.name         The name
+     * @param      {string}    result.description  The description
+     * @param      {boolean}   result.on           Whether the plug is powered
+     *                                             on
+     */
     this._io.to('admins').emit('admin.plugs.list', result);
   }
   /**
@@ -566,6 +626,8 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Vmix}  The server instance that was created
+   * @listens    Backend.Server#event:disconnected
+   * @listens    Backend.Server#event:tallies
    */
   _createVmix = (opts) =>
   {
@@ -598,6 +660,8 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Atem}  The server instance that was created
+   * @listens    Backend.Server#event:disconnected
+   * @listens    Backend.Server#event:tallies
    */
   _createAtem = (opts) =>
   {

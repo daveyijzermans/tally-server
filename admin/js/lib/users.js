@@ -58,6 +58,7 @@ class Users extends EventEmitter
       .click(this._popout);
     /**
      * Edit user modal instance
+     * 
      * @type       {Frontend.UI.EditUserModal}
      */
     this.editUserModal = new EditUserModal({
