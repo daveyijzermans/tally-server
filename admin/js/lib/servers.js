@@ -48,11 +48,11 @@ class Servers
    * @method     Frontend.UI.Servers#_list
    *
    * @param      {Object[]}  data    Array of servers
-   * @param      {string}          data[].type       The server type
-   * @param      {string}          data[].hostname   The server hostname
-   * @param      {string}          data[].name       The server display name
-   * @param      {string|boolean}  data[].wol        WOL address
-   * @param      {boolean}         data[].connected  Connection status
+   * @param      {string}          data.type       The server type
+   * @param      {string}          data.hostname   The server hostname
+   * @param      {string}          data.name       The server display name
+   * @param      {string|boolean}  data.wol        WOL address
+   * @param      {boolean}         data.connected  Connection status
    */
   _list = data =>
   {

@@ -65,12 +65,12 @@ class Atem extends Server
    *
    * @method     Backend.Atem#_handleTally
    *
-   * @param      {number}   n              Camera number
-   * @param      {Object}   state          Object containing state information
-   * @property   {boolean}  state.program  Indicates whether the source is in
-   *                                       program or not
-   * @property   {boolean}  state.preview  Indicates whether the source is in
-   *                                       preview or not
+   * @param      {number}  n       Camera number
+   * @param      {Object}  state   Object containing state information
+   * @param      {boolean}  state.program  Indicates whether the source is in program
+   *                                       or not
+   * @param      {boolean}  state.preview  Indicates whether the source is in preview
+   *                                       or not
    * @fires      Backend.Server#event:tallies
    */
   _handleTally = (n, state) =>

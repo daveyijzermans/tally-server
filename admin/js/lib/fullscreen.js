@@ -1,3 +1,5 @@
+/** @module */
+
 /**
  * Toggle fullscreen mode
  *
