@@ -18,12 +18,6 @@ class Atem extends Server
   {
     super(opts);
     /**
-     * Tally information
-     * 
-     * @type       {number[]}
-     */
-    this.tallies = [];
-    /**
      * Client API used for communicating to this server
      */
     this.client = new API(this.hostname)
@@ -31,6 +25,12 @@ class Atem extends Server
       .on('sourceTally', this._handleTally)
       .on('inputTally', this._handleTally) //TODO: check if this works
       .on('error', err => console.error);
+    /**
+     * Tally information
+     * 
+     * @type       {number[]}
+     */
+    this.tallies = [];
   }
   /**
    * Executed when server is connected

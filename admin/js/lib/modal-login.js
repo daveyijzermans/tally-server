@@ -20,23 +20,13 @@ class LoginModal extends EventEmitter
   {
     super();
     /**
-     * Password field
+     * Reference to Socket.IO client
      * 
-     * @type       {jQuery}
+     * @type       {Object}
      */
-    this.$txtPassword = this.$modal.find('#txtPassword');
-    /**
-     * Login form
-     * 
-     * @type       {jQuery}
-     */
-    this.$frmLogin = this.$modal.find('form');
-    /**
-     * Login button
-     * 
-     * @type       {jQuery}
-     */
-    this.$btnLogin = this.$modal.find('#btnLogin');
+    this.socket = opts.socket
+      .on('authenticated', this._socketAuthenticated)
+      .on('disconnect', this._socketDisconnect);
     /**
      * jQuery object of the modal container
      * 
@@ -46,13 +36,23 @@ class LoginModal extends EventEmitter
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown);
     /**
-     * Reference to Socket.IO client
+     * Login button
      * 
-     * @type       {Object}
+     * @type       {jQuery}
      */
-    this.socket = opts.socket
-      .on('authenticated', this._socketAuthenticated)
-      .on('disconnect', this._socketDisconnect);
+    this.$btnLogin = this.$modal.find('#btnLogin');
+    /**
+     * Login form
+     * 
+     * @type       {jQuery}
+     */
+    this.$frmLogin = this.$modal.find('form');
+    /**
+     * Password field
+     * 
+     * @type       {jQuery}
+     */
+    this.$txtPassword = this.$modal.find('#txtPassword');
   }
   /**
    * Connect to the socket

@@ -31,15 +31,15 @@ const gulp = require('gulp'),
  * @type {Object}
  */
 let resources = {
-  scss: ['resources/scss/**/*.scss'],
-  js: ['resources/js/**/*.*'],
-  fonts: ['resources/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
-  images: ['resources/images/**/*.*'],
-  html: ['resources/html/*.*'],
-  htmlIncludes: ['resources/html/includes/*.html'],
-  client: ['resources/client/**/*.*'],
-  server: ['src/**/*.*'],
-  docs: ['README.md', 'resources/js/**/*.*', 'src/**/*.*']
+  scss: ['admin/scss/**/*.scss'],
+  js: ['admin/js/**/*.*'],
+  fonts: ['admin/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
+  images: ['admin/images/**/*.*'],
+  html: ['admin/html/*.*'],
+  htmlIncludes: ['admin/html/includes/*.html'],
+  client: ['client/**/*.*'],
+  server: ['server/**/*.*'],
+  docs: ['README.md', 'admin/js/**/*.*', 'server/**/*.*']
 };
 
 /**
@@ -94,7 +94,7 @@ let scss = () =>
 */
 let js = done =>
 {
-  return gulp.src('resources/js/index.js')
+  return gulp.src('admin/js/index.js')
     .pipe(plumber({
       errorHandler: error =>
       {

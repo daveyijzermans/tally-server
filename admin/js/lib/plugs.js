@@ -17,6 +17,15 @@ class Plugs
   constructor(opts)
   {
     /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
+    this.socket = opts.socket
+      .on('admin.plugs.list', this._list)
+      .on('admin.plugs.disconnect', this._disconnect)
+      .on('disconnect', this._socketDisconnect);
+    /**
      * Main container for this UI element
      * 
      * @type       {jQuery}
@@ -29,15 +38,6 @@ class Plugs
      * @type       {jQuery}
      */
     this.$tpl = opts.$tpl;
-    /**
-     * Reference to Socket.IO client
-     * 
-     * @type       {Object}
-     */
-    this.socket = opts.socket
-      .on('admin.plugs.list', this._list)
-      .on('admin.plugs.disconnect', this._disconnect)
-      .on('disconnect', this._socketDisconnect);
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the

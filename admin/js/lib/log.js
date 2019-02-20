@@ -16,6 +16,13 @@ class Log
   constructor(opts)
   {
     /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
+    this.socket = opts.socket
+      .on('admin.log', this._log);
+    /**
      * Main container for this UI element
      * 
      * @type       {jQuery}
@@ -31,13 +38,6 @@ class Log
      * @type       {jQuery}
      */
     this.$tpl = opts.$tpl;
-    /**
-     * Reference to Socket.IO client
-     * 
-     * @type       {Object}
-     */
-    this.socket = opts.socket
-      .on('admin.log', this._log);
     /**
      * Dropdown menu
      * 

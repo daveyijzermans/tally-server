@@ -1,5 +1,7 @@
 import EventEmitter from 'events';
 
+const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
+
 /**
  * Base class for servers.
  *
@@ -68,16 +70,14 @@ class Server extends EventEmitter
      * @type       {mixed}
      */
     this.client = null;
-    if(!this.wol)
-    {
-      /**
-       * MAC address to send WOL packets to. If WOL is not supported it is set
-       * to false
-       *
-       * @type       {string|boolean}
-       */
-      this.wol = false;
-    }
+    /**
+     * MAC address to send WOL packets to. If WOL is not supported it is set
+     * to false
+     *
+     * @type       {string|boolean}
+     */
+    this.wol = regexMac.test(opts.wol) ? opts.wol : false;
+
     Server._instances.push(this);
   }
 }

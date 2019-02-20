@@ -15,6 +15,13 @@ class Servers
   constructor(opts)
   {
     /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
+    this.socket = opts.socket
+      .on('admin.status.servers', this._list);
+    /**
      * Main container for this UI element
      * 
      * @type       {jQuery}
@@ -33,13 +40,6 @@ class Servers
      * @type       {Object[]}
      */
     this._servers = null;
-    /**
-     * Reference to Socket.IO client
-     * 
-     * @type       {Object}
-     */
-    this.socket = opts.socket
-      .on('admin.status.servers', this._list);
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the

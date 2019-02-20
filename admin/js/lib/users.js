@@ -23,6 +23,20 @@ class Users extends EventEmitter
   {
     super();
     /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
+    this.socket = opts.socket
+      .on('admin.user.disconnect', this._disconnect)
+      .on('admin.users.list', this._list);
+    /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
+    this.$modal = opts.$modal;
+    /**
      * Main container for this UI element
      * 
      * @type       {jQuery}
@@ -36,35 +50,12 @@ class Users extends EventEmitter
      */
     this.$tpl = opts.$tpl;
     /**
-     * jQuery object of the modal container
-     * 
-     * @type       {jQuery}
-     */
-    this.$modal = opts.$modal;
-    /**
-     * Reference to Socket.IO client
-     * 
-     * @type       {Object}
-     */
-    this.socket = opts.socket
-      .on('admin.user.disconnect', this._disconnect)
-      .on('admin.users.list', this._list);
-    /**
      * User popout button
      * 
      * @type       {jQuery}
      */
     this.$btnPopout = opts.$btnPopout
       .click(this._popout);
-
-    /**
-     * Update users' tally information when it it received.
-     *
-     * @event      Frontend.UI.Users#event:tallies
-     * @param      {number[]}  tallies  The combined tally information
-     */
-    this.on('tallies', this._updateUserTallies);
-
     /**
      * Edit user modal instance
      * @type       {Frontend.UI.EditUserModal}
@@ -73,6 +64,14 @@ class Users extends EventEmitter
       $modal: this.$modal,
       socket: this.socket
     });
+
+    /**
+     * Update users' tally information when it it received.
+     *
+     * @event      Frontend.UI.Users#event:tallies
+     * @param      {number[]}  tallies  The combined tally information
+     */
+    this.on('tallies', this._updateUserTallies);
   }
   /**
    * Executed when tally information is updated, primarily by the Tallies class

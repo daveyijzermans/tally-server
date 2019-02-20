@@ -18,6 +18,13 @@ class Tallies extends EventEmitter
   {
     super();
     /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
+    this.socket = opts.socket
+      .on('admin.status.tallies', this._list);
+    /**
      * Main container for this UI element
      * 
      * @type       {jQuery}
@@ -36,13 +43,6 @@ class Tallies extends EventEmitter
      * @type       {Object.<string, number[]>}
      */
     this._tallies = null;
-    /**
-     * Reference to Socket.IO client
-     * 
-     * @type       {Object}
-     */
-    this.socket = opts.socket
-      .on('admin.status.tallies', this._list);
   }
 /**
    * Executed when the server emits a list. Loop over them and add or update the

@@ -26,6 +26,15 @@ class ActionModal extends EventEmitter
      */
     this.socket = opts.socket;
     /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
+    this.$modal = opts.$modal
+      .on('show.bs.modal', this._modalShow)
+      .on('shown.bs.modal', this._modalShown)
+      .on('hide.bs.modal', this._modalHide);
+    /**
      * Main action button element of this modal
      * 
      * @type       {jQuery}
@@ -37,15 +46,6 @@ class ActionModal extends EventEmitter
      * @type       {jQuery}
      */
     this.$text = this.$modal.find('.modal-body');
-    /**
-     * jQuery object of the modal container
-     * 
-     * @type       {jQuery}
-     */
-    this.$modal = opts.$modal
-      .on('show.bs.modal', this._modalShow)
-      .on('shown.bs.modal', this._modalShown)
-      .on('hide.bs.modal', this._modalHide);
   }
   /**
    * Executed when the modal will be shown.

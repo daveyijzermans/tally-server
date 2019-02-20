@@ -22,6 +22,15 @@ class EditUserModal
      */
     this.socket = opts.socket;
     /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
+    this.$modal = opts.$modal
+      .on('show.bs.modal', this._modalShow)
+      .on('shown.bs.modal', this._modalShown)
+      .on('hide.bs.modal', this._modalHide);
+    /**
      * Main action button element of this modal
      * 
      * @type       {jQuery}
@@ -45,15 +54,6 @@ class EditUserModal
      * @type       {jQuery}
      */
     this.$channelName = this.$modal.find('#user-channelname');
-    /**
-     * jQuery object of the modal container
-     * 
-     * @type       {jQuery}
-     */
-    this.$modal = opts.$modal
-      .on('show.bs.modal', this._modalShow)
-      .on('shown.bs.modal', this._modalShown)
-      .on('hide.bs.modal', this._modalHide);
 
     //TODO let channels = Config.cycleableChannels;
     let channels = ['Cameras','program1','program2','both'];
