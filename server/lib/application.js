@@ -525,25 +525,33 @@ class Application extends EventEmitter
     return this._defaultServerHandlers(new Mumble(opts))
       .on('user-channels', (channels) =>
       {
+        let b = false;
         Object.keys(channels).forEach((username) =>
         {
           let user = User.getByUsername(username);
-          if(user) user.channelName = channels[username];
+          if(user)
+          {
+            user.channelName = channels[username];
+            b = true;
+          }
         })
-        this.emit('broadcast.users');
+        if(b) this.emit('broadcast.users');
       })
       .on('user-move', (username, channelName) =>
       {
         let user = User.getByUsername(username);
-        if(user) user.channelName = channelName;
-        this.emit('broadcast.users');
+        if(user)
+        {
+          user.channelName = channelName;
+          this.emit('broadcast.users');
+        }
       })
       .on('user-talk', (username, status) =>
       {
         if(username.indexOf('user') == 0)
         {
           let user = User.getByUsername(username);
-          if(user.talking != status)
+          if(user && user.talking != status)
           {
             user.talking = status;
             this.emit('broadcast.users');
