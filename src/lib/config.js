@@ -47,6 +47,8 @@ class Config extends EventEmitter
   }
   /**
    * Save user data back to JSON file
+   *
+   * @method     Backend.Config#saveUsers
    * 
    * @fires      Backend.Config#event:"saved.users"
    */
@@ -74,6 +76,8 @@ class Config extends EventEmitter
   /**
    * Get user configuration from JSON file
    *
+   * @method     Backend.Config#getUser
+   *
    * @param      {string}        username  The username
    * @return     {User|boolean}  The user.
    */
@@ -89,6 +93,8 @@ class Config extends EventEmitter
   }
   /**
    * Get server configuration from JSON file by type
+   *
+   * @method     Backend.Config#getServerConfigByType
    *
    * @param      {string}        type      The type
    * @param      {Function}      callback  Callback to execute on the matches

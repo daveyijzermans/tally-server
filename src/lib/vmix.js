@@ -21,13 +21,15 @@ class Vmix extends Server
     /**
      * Tally information
      * 
-     * @type       {Array.number}
+     * @type       {number[]}
      */
     this.tallies = [];
     this._check();
   }
   /**
    * Parse lines that come from the Aten matrix
+   *
+   * @method     Backend.Vmix#_line
    *
    * @param      {string}  line    The line
    * @fires      Backend.Server#event:tallies
@@ -42,6 +44,8 @@ class Vmix extends Server
   }
   /**
    * Executed when server is connected
+   *
+   * @method     Backend.Vmix#_connected
    *
    * @fires      Backend.Server#event:connected
    * @fires      Backend.Server#event:connection
@@ -65,6 +69,8 @@ class Vmix extends Server
   }
   /**
    * Setup a new connection to the server and connect
+   *
+   * @method     Backend.Vmix#_check
    */
   _check = () =>
   {
@@ -77,6 +83,8 @@ class Vmix extends Server
   }
   /**
    * Executed when server connection is closed
+   *
+   * @method     Backend.Vmix#_closed
    *
    * @param      {undefined|boolean}  error   The error
    * @fires      Backend.Server#event:disconnected

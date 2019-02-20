@@ -8,23 +8,6 @@ import EventEmitter from 'events';
 class User extends EventEmitter
 {
   /**
-   * Collection of User object instances
-   * @type       {Array}
-   */
-  static _instances = [];
-  /**
-   * Get a user instance by username
-   *
-   * @param      {string}        username  The username
-   * @return     {User|boolean}  The user.
-   */
-  static getByUsername = (username) =>
-  {
-    if(typeof username != 'string') return false;
-    let result = User._instances.filter((a) => a.username == username);
-    return result.length == 1 ? result[0] : false;
-  }
-  /**
    * Constructs the object.
    *
    * @param      {Object}  opts    The options
@@ -35,20 +18,20 @@ class User extends EventEmitter
     /**
      * Username this user is known by on the intercom/client application
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.username = opts.username;
     /**
      * Display name of the user in the administrator interface.
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.name = opts.name;
     /**
      * Camera number of this user. Note this camera number is shared across all
      * connected servers providing tally information.
      *
-     * @type       {String}
+     * @type       {string}
      */
     this.camNumber = opts.camNumber;
     /**
@@ -71,6 +54,24 @@ class User extends EventEmitter
     this.talking = false;
     User._instances.push(this);
   }
+}
+
+/**
+ * Collection of User object instances
+ * @type       {Backend.User[]}
+ */
+User._instances = [];
+/**
+ * Get a user instance by username
+ *
+ * @param      {string}        username  The username
+ * @return     {Backend.User|boolean}  The user or false if it wasn't found.
+ */
+User.getByUsername = (username) =>
+{
+  if(typeof username != 'string') return false;
+  let result = User._instances.filter((a) => a.username == username);
+  return result.length == 1 ? result[0] : false;
 }
 
 export default User;

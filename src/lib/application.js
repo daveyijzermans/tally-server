@@ -25,41 +25,16 @@ import EventEmitter from 'events';
 class Application extends EventEmitter
 {
   /**
-   * Static instance of this class.
-   *
-   * @type     Backend.Application
-   */
-  static _instance;
-  /**
-   * Process an object with tally states from multiple hosts and combine them into
-   * one. Program states (1) take precedence over preview (2) states and lastly
-   * comes the stand-by (0) state.
-   *
-   * @param      {Object}  t       Tally information from all hosts
-   * @return     {Array}   Array of tally information, combined by importance
-   */
-  static _combineTallies = t =>
-  {
-    let all = Object.values(t);
-    let max = Math.max(...(all.map(el => el != null && el.length)));
-    let result = [];
-    for (let i = 0; i < max; i++)
-    {
-      let map = all.map(el => el ? parseInt(el[i]) || 0 : 0);
-      let status = map.indexOf(1) != -1 ? 1 : Math.max(...map);
-      result.push(status);
-    }
-    return result;
-  }
-  /**
    * Collection of all Plug objects
    *
-   * @type       {Array}
+   * @type       {Object[]}
    */
   _plugs = []
   /**
    * Logger function. Will relay log to console.log and will use the first
    * parameter as a string to log to connected admin clients.
+   *
+   * @method     Backend.Application#logger
    *
    * @param      {string}  msg     First parameter
    */
@@ -164,6 +139,8 @@ class Application extends EventEmitter
   }
   /**
    * Executed when a client connects to socket.io
+   *
+   * @method     Backend.Application#_onSocketConnection
    *
    * @param      {Object}  socket  The socket
    */
@@ -365,6 +342,8 @@ class Application extends EventEmitter
   /**
    * Executed when a new smartplug is found
    *
+   * @method     Backend.Application#_smartPlugHandler
+   *
    * @param      {Object}  device  The device
    */
   _smartPlugHandler = (device) =>
@@ -395,6 +374,8 @@ class Application extends EventEmitter
   /**
    * Broadcast server updates
    *
+   * @method     Backend.Application#_broadcastServers
+   *
    * @listens Backend.Application#event:"broadcast.servers"
    * @listens Backend.Application#event:broadcast
    */
@@ -414,6 +395,8 @@ class Application extends EventEmitter
   }
   /**
    * Broadcast tally updates
+   *
+   * @method     Backend.Application#_broadcastTallies
    * 
    * @listens Backend.Application#event:"broadcast.tallies"
    * @listens Backend.Application#event:broadcast
@@ -445,6 +428,8 @@ class Application extends EventEmitter
   }
   /**
    * Broadcast user updates
+   *
+   * @method     Backend.Application#_broadcastUsers
    * 
    * @listens Backend.Application#event:"broadcast.users"
    * @listens Backend.Application#event:broadcast
@@ -474,6 +459,8 @@ class Application extends EventEmitter
   }
   /**
    * Broadcast smart plug updates
+   *
+   * @method     Backend.Application#_broadcastPlugs
    * 
    * @listens Backend.Application#event:"broadcast.plugs"
    * @listens Backend.Application#event:broadcast
@@ -501,6 +488,8 @@ class Application extends EventEmitter
   /**
    * Bind some standard behavior to all servers
    *
+   * @method     Backend.Application#_defaultServerHandlers
+   *
    * @param      {Server}  server  The server
    * @return     {Server}  The server
    * @listens    Backend.Server#event:connection
@@ -525,6 +514,8 @@ class Application extends EventEmitter
   }
   /**
    * Initialize a Mumble server object
+   *
+   * @method     Backend.Application#_createMumble
    *
    * @param      {Object}          opts    The options
    * @return     {Backend.Mumble}  The server instance that was created
@@ -563,6 +554,8 @@ class Application extends EventEmitter
   /**
    * Initialize a vMix server object
    *
+   * @method     Backend.Application#_createVmix
+   *
    * @param      {Object}        opts    The options
    * @return     {Backend.Vmix}  The server instance that was created
    */
@@ -581,6 +574,8 @@ class Application extends EventEmitter
   /**
    * Initialize a Aten server object
    *
+   * @method     Backend.Application#_createAten
+   *
    * @param      {Object}        opts    The options
    * @return     {Backend.Aten}  The server instance that was created
    */
@@ -590,6 +585,8 @@ class Application extends EventEmitter
   }
   /**
    * Initialize a Atem server object
+   *
+   * @method     Backend.Application#_createAtem
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Atem}  The server instance that was created
@@ -609,6 +606,8 @@ class Application extends EventEmitter
   /**
    * Initialize a Netgear server object
    *
+   * @method     Backend.Application#_createNetgear
+   *
    * @param      {Object}           opts    The options
    * @return     {Backend.Netgear}  The server instance that was created
    */
@@ -616,6 +615,33 @@ class Application extends EventEmitter
   {
     return this._defaultServerHandlers(new Netgear(opts));
   }
+}
+/**
+ * Static instance of this class.
+ *
+ * @type     {Backend.Application}
+ */
+Application._instance;
+/**
+ * Process an object with tally states from multiple hosts and combine them into
+ * one. Program states (1) take precedence over preview (2) states and lastly
+ * comes the stand-by (0) state.
+ *
+ * @param      {Object.<string, number[]>}  t       Tally information from all hosts
+ * @return     {number[]}   Array of tally information, combined by importance
+ */
+Application._combineTallies = t =>
+{
+  let all = Object.values(t);
+  let max = Math.max(...(all.map(el => el != null && el.length)));
+  let result = [];
+  for (let i = 0; i < max; i++)
+  {
+    let map = all.map(el => el ? parseInt(el[i]) || 0 : 0);
+    let status = map.indexOf(1) != -1 ? 1 : Math.max(...map);
+    result.push(status);
+  }
+  return result;
 }
 
 export default Application;

@@ -14,13 +14,30 @@ class Servers
    */
   constructor(opts)
   {
-
+    /**
+     * Main container for this UI element
+     * 
+     * @type       {jQuery}
+     */
     this.$list = opts.$list;
-
+    /**
+     * Template for an entry for this UI element. Will be cloned to make a new
+     * entry and appended to $list
+     *
+     * @type       {jQuery}
+     */
     this.$tpl = opts.$tpl;
-
+    /**
+     * Cached array of server objects sent by server
+     *
+     * @type       {Object[]}
+     */
     this._servers = null;
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket
       .on('admin.status.servers', this._list);
   }
@@ -28,7 +45,14 @@ class Servers
    * Executed when the server emits a list. Loop over them and add or update the
    * list elements to match
    *
-   * @param      {Array.Object}  data   Array of servers
+   * @method     Frontend.UI.Servers#_list
+   *
+   * @param      {Object[]}  data    Array of servers
+   * @param      {string}          data[].type       The server type
+   * @param      {string}          data[].hostname   The server hostname
+   * @param      {string}          data[].name       The server display name
+   * @param      {string|boolean}  data[].wol        WOL address
+   * @param      {boolean}         data[].connected  Connection status
    */
   _list = data =>
   {

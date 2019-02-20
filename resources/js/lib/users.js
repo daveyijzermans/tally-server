@@ -22,25 +22,46 @@ class Users extends EventEmitter
   constructor(opts)
   {
     super();
-
+    /**
+     * Main container for this UI element
+     * 
+     * @type       {jQuery}
+     */
     this.$list = opts.$list;
-
+    /**
+     * Template for an entry for this UI element. Will be cloned to make a new
+     * entry and appended to $list
+     *
+     * @type       {jQuery}
+     */
     this.$tpl = opts.$tpl;
-
+    /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
     this.$modal = opts.$modal;
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket
       .on('admin.user.disconnect', this._disconnect)
       .on('admin.users.list', this._list);
-
+    /**
+     * User popout button
+     * 
+     * @type       {jQuery}
+     */
     this.$btnPopout = opts.$btnPopout
       .click(this._popout);
 
     /**
      * Update users' tally information when it it received.
-     * 
+     *
      * @event      Frontend.UI.Users#event:tallies
-     * @param      {Array.number} tallies The combined tally information
+     * @param      {number[]}  tallies  The combined tally information
      */
     this.on('tallies', this._updateUserTallies);
 
@@ -56,7 +77,9 @@ class Users extends EventEmitter
   /**
    * Executed when tally information is updated, primarily by the Tallies class
    *
-   * @param      {Array.number}  tallies  The combined tally information
+   * @method     Frontend.UI.Users#_updateUserTallies
+   *
+   * @param      {number[]}  tallies  The combined tally information
    */
   _updateUserTallies = tallies =>
   {
@@ -75,7 +98,9 @@ class Users extends EventEmitter
    * Executed when the server emits a list. Loop over them and add or update the
    * list elements to match
    *
-   * @param      {Array.Object}  users   Array of users
+   * @method     Frontend.UI.Users#_list
+   *
+   * @param      {Backend.User[]}  users   Array of users
    * @fires      Frontend.UI.Users#event:updated
    */
   _list = users =>
@@ -135,6 +160,8 @@ class Users extends EventEmitter
   /**
    * Executed when a user disconnects. Remove the entry from the UI.
    *
+   * @method     Frontend.UI.Users#_disconnect
+   *
    * @param      {string}  username  The username
    */
   _disconnect = username =>
@@ -147,6 +174,8 @@ class Users extends EventEmitter
    * Open the intercom box in a seperate window
    *
    * @param      {Object}  event   The event
+   *
+   * @method     Frontend.UI.Users#_popout
    */
   _popout = event =>
   {

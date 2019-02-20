@@ -15,14 +15,27 @@ class Log
    */
   constructor(opts)
   {
-
+    /**
+     * Main container for this UI element
+     * 
+     * @type       {jQuery}
+     */
     this.$list = opts.$list
       .on('show.bs.dropdown', this._dropdownShow)
       .on('shown.bs.dropdown', this._dropdownShown)
       .on('hide.bs.dropdown', this._dropdownHide);
-
+    /**
+     * Template for an entry for this UI element. Will be cloned to make a new
+     * entry and appended to $list
+     *
+     * @type       {jQuery}
+     */
     this.$tpl = opts.$tpl;
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket
       .on('admin.log', this._log);
     /**
@@ -53,6 +66,8 @@ class Log
   /**
    * Add a log message to the log list
    *
+   * @method     Frontend.UI.Log#_log
+   *
    * @param      {string}  msg     The message
    */
   _log = msg =>
@@ -78,6 +93,8 @@ class Log
   /**
    * Executed when the dropdown will be shown.
    *
+   * @method     Frontend.UI.Log#_dropdownShow
+   *
    * @param      {Object}  event   The event
    */
   _dropdownShow = event =>
@@ -90,6 +107,8 @@ class Log
   /**
    * Executed when the dropdown is shown.
    *
+   * @method     Frontend.UI.Log#_dropdownShown
+   *
    * @param      {Object}  event   The event
    */
   _dropdownShown = event =>
@@ -98,6 +117,8 @@ class Log
   }
   /**
    * Executes when the dropdown will be hidden.
+   *
+   * @method     Frontend.UI.Log#_dropdownHide
    *
    * @param      {Object}  event   The event
    */
@@ -108,6 +129,8 @@ class Log
   }
   /**
    * Starts a ring animation on the bell icon.
+   *
+   * @method     Frontend.UI.Log#_startRing
    */
   _startRing = () =>
   {
@@ -122,6 +145,8 @@ class Log
   }
   /**
    * Stop the ring animation on the bell icon.
+   *
+   * @method     Frontend.UI.Log#_stopRing
    */
   _stopRing = () =>
   {

@@ -21,6 +21,11 @@ class Netgear extends Server
     super(opts);
     this._check();
   }
+  /**
+   * Executed when server is connected
+   *
+   * @method     Backend.Netgear#_connected
+   */
   _connected = () =>
   {
     if(!this.connected)
@@ -38,6 +43,8 @@ class Netgear extends Server
   }
   /**
    * Setup a new connection to the server and connect
+   *
+   * @method     Backend.Netgear#_check
    */
   _check = () =>
   {
@@ -51,6 +58,8 @@ class Netgear extends Server
   }
   /**
    * Executed when server connection is closed
+   *
+   * @method     Backend.Netgear#_closed
    *
    * @param      {undefined|boolean}  error   The error
    * @fires      Backend.Server#event:disconnected

@@ -19,21 +19,45 @@ class LoginModal extends EventEmitter
   constructor(opts)
   {
     super();
+    /**
+     * Password field
+     * 
+     * @type       {jQuery}
+     */
     this.$txtPassword = this.$modal.find('#txtPassword');
+    /**
+     * Login form
+     * 
+     * @type       {jQuery}
+     */
     this.$frmLogin = this.$modal.find('form');
+    /**
+     * Login button
+     * 
+     * @type       {jQuery}
+     */
     this.$btnLogin = this.$modal.find('#btnLogin');
-
-    
+    /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
     this.$modal = opts.$modal
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown);
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket
       .on('authenticated', this._socketAuthenticated)
       .on('disconnect', this._socketDisconnect);
   }
   /**
    * Connect to the socket
+   *
+   * @method     Frontend.UI.LoginModal#connect
    *
    * @param      {string}  p       MD5 hashed password
    */
@@ -48,6 +72,8 @@ class LoginModal extends EventEmitter
   /**
    * Button event handlers
    *
+   * @method     Frontend.UI.LoginModal#_loginHandler
+   *
    * @param      {Object}  event   The event
    */
   _loginHandler = event =>
@@ -60,6 +86,8 @@ class LoginModal extends EventEmitter
   /**
    * Executed when the modal will be shown.
    *
+   * @method     Frontend.UI.LoginModal#_modalShow
+   *
    * @param      {Object}   event   The event
    */
   _modalShow = event =>
@@ -68,6 +96,8 @@ class LoginModal extends EventEmitter
   }
   /**
    * Executed when the modal is shown.
+   *
+   * @method     Frontend.UI.LoginModal#_modalShown
    *
    * @param      {Object}   event   The event
    */
@@ -80,6 +110,8 @@ class LoginModal extends EventEmitter
   /**
    * Executed when the socket is authenticated. Emits an event and hides the
    * modal.
+   *
+   * @method     Frontend.UI.LoginModal#_socketAuthenticated
    *
    * @fires      Frontend.UI.LoginModal#event:authenticated
    */
@@ -98,6 +130,8 @@ class LoginModal extends EventEmitter
   /**
    * Executed when the socket is disconnected. Emits an error event and reopens
    * the login modal.
+   *
+   * @method     Frontend.UI.LoginModal#_socketDisconnected
    *
    * @fires      Frontend.UI.LoginModal#event:error
    */

@@ -19,13 +19,29 @@ class ActionModal extends EventEmitter
   constructor(opts)
   {
     super();
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket;
-
+    /**
+     * Main action button element of this modal
+     * 
+     * @type       {jQuery}
+     */
     this.$btn = this.$modal.find('.btn-danger');
-
+    /**
+     * Description text element of this modal
+     * 
+     * @type       {jQuery}
+     */
     this.$text = this.$modal.find('.modal-body');
-
+    /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
     this.$modal = opts.$modal
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown)
@@ -33,6 +49,8 @@ class ActionModal extends EventEmitter
   }
   /**
    * Executed when the modal will be shown.
+   *
+   * @method     Frontend.UI.ActionModal#_modalShow
    *
    * @param      {Object}   event   The event
    * @return     {boolean|undefined}
@@ -82,6 +100,8 @@ class ActionModal extends EventEmitter
   /**
    * Executes when the modal is shown.
    *
+   * @method     Frontend.UI.ActionModal#_modalShown
+   *
    * @param      {Object}  event   The event
    */
   _modalShown = event =>
@@ -91,6 +111,8 @@ class ActionModal extends EventEmitter
   /**
    * Executes when the modal will be hidden.
    *
+   * @method     Frontend.UI.ActionModal#_modalHide
+   *
    * @param      {Object}  event   The event
    */
   _modalHide = event =>
@@ -99,6 +121,8 @@ class ActionModal extends EventEmitter
   }
   /**
    * Handle the confirm-button click.
+   *
+   * @method     Frontend.UI.ActionModal#_btnConfirmClick
    *
    * @param      {Object}  event   The event
    * @fires      Frontend.UI.ActionModal#event:"command.*"

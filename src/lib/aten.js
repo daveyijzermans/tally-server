@@ -21,19 +21,21 @@ class Aten extends Server
     /**
      * Username used to connect to this server
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.username = opts.username;
     /**
      * Password used to connect to this server
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.password = opts.password;
     this._check();
   }
   /**
    * Parse lines that come from the Aten matrix
+   *
+   * @method     Backend.Aten#_line
    *
    * @param      {string}  line    The line
    * @fires      Backend.Server#event:connected
@@ -50,6 +52,8 @@ class Aten extends Server
   }
   /**
    * Executed when server is connected
+   *
+   * @method     Backend.Aten#_connected
    */
   _connected = () =>
   {
@@ -63,6 +67,8 @@ class Aten extends Server
   }
   /**
    * Setup a new connection to the server and connect
+   *
+   * @method     Backend.Aten#_check
    */
   _check = () =>
   {
@@ -75,6 +81,8 @@ class Aten extends Server
   }
   /**
    * Executed when server connection is closed
+   *
+   * @method     Backend.Aten#_closed
    *
    * @param      {undefined|boolean}  error   The error
    * @fires      Backend.Server#event:disconnected

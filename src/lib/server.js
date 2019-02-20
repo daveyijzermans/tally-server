@@ -8,37 +8,8 @@ import EventEmitter from 'events';
 class Server extends EventEmitter
 {
   /**
-   * Collection of all server instances
-   *
-   * @type       {Array.<Backend.Server>}
-   */
-  static _instances = [];
-  /**
-   * Retrieve servers with certain type from list
-   *
-   * @param      {string}  type    Which type to retrieve
-   * @return     {Array}   Array of servers with given type
-   */
-  static getByType = (type) =>
-  {
-    if(typeof type == 'undefined') return Server._instances;
-    return Server._instances.filter((a) => a.type == type);
-  }
-  /**
-   * Retrieve server by name
-   *
-   * @param      {string}  name    The name
-   * @return     {Object}  The server.
-   */
-  static getByName = (name) =>
-  {
-    if(typeof name == 'undefined') return false;
-    let result = Server._instances.filter((a) => a.name == name);
-    return result.length == 1 ? result[0] : false;
-  }
-  /**
    * Tally information for all hosts by key
-   * @type       {Object}
+   * @type       {Object.<string, string>}
    */
   static get tallies()
   {
@@ -50,7 +21,7 @@ class Server extends EventEmitter
   }
   /**
    * The available channels for all Mumble servers
-   * @type       {Array}
+   * @type       {string[]}
    */
   static get cycleableChannels()
   {
@@ -70,19 +41,19 @@ class Server extends EventEmitter
     /**
      * Server type
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.type = opts.type;
     /**
      * Server hostname or IP address
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.hostname = opts.hostname;
     /**
      * Server display name
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.name = opts.name;
     /**
@@ -110,6 +81,36 @@ class Server extends EventEmitter
     Server._instances.push(this);
   }
 }
+/**
+ * Collection of all server instances
+ *
+ * @type       {Array.<Backend.Server>}
+ */
+Server._instances = [];
+/**
+ * Retrieve servers with certain type from list
+ *
+ * @param      {string}  type    Which type to retrieve
+ * @return     {Backend.Server[]}   Array of servers with given type
+ */
+Server.getByType = (type) =>
+{
+  if(typeof type == 'undefined') return Server._instances;
+  return Server._instances.filter((a) => a.type == type);
+}
+/**
+ * Retrieve server by name
+ *
+ * @param      {string}                  name    Server display name
+ * @return     {boolean|Backend.Server}  The server or false if it was not
+ *                                       found.
+ */
+Server.getByName = (name) =>
+{
+  if(typeof name == 'undefined') return false;
+  let result = Server._instances.filter((a) => a.name == name);
+  return result.length == 1 ? result[0] : false;
+}
 
 /**
  * Let listeners know the connection state of this server.
@@ -133,7 +134,7 @@ class Server extends EventEmitter
  * Let listeners know that tally information was updated.
  *
  * @event      Backend.Server#event:tallies
- * @param      {Array.number}  tallies  Tally information
+ * @param      {number[]}  tallies  Tally information
  */
 /**
  * Let listeners know of a log message.

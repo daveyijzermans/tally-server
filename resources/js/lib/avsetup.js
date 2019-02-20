@@ -16,12 +16,20 @@ class AVSetup
    */
   constructor(opts)
   {
-    
+    /**
+     * jQuery container of all draggable objects
+     * 
+     * @type       {jQuery}
+     */
     this.$sources = opts.$sources.draggable({
       cursor: 'move',
       revert: true
     });
-
+    /**
+     * jQuery container of all droppable objects (targets)
+     * 
+     * @type       {jQuery}
+     */
     this.$targets = opts.$targets.droppable({
       drop: (event, ui) =>
       {

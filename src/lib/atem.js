@@ -20,7 +20,7 @@ class Atem extends Server
     /**
      * Tally information
      * 
-     * @type       {Array.number}
+     * @type       {number[]}
      */
     this.tallies = [];
     /**
@@ -34,6 +34,8 @@ class Atem extends Server
   }
   /**
    * Executed when server is connected
+   *
+   * @method     Backend.Atem#_connected
    *
    * @param      {boolean}  state   The connection state
    * @fires      Backend.Server#event:connected
@@ -61,8 +63,14 @@ class Atem extends Server
   /**
    * Tally callback handler
    *
-   * @param      {number}  n       Camera number
-   * @param      {Object}  state   Object containing state information
+   * @method     Backend.Atem#_handleTally
+   *
+   * @param      {number}   n              Camera number
+   * @param      {Object}   state          Object containing state information
+   * @property   {boolean}  state.program  Indicates whether the source is in
+   *                                       program or not
+   * @property   {boolean}  state.preview  Indicates whether the source is in
+   *                                       preview or not
    * @fires      Backend.Server#event:tallies
    */
   _handleTally = (n, state) =>

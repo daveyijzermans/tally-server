@@ -19,6 +19,7 @@
     ["@babel/proposal-pipeline-operator", { "proposal": "minimal" }],
     "@babel/proposal-throw-expressions",
     "@babel/syntax-dynamic-import",
-    "@babel/syntax-import-meta"
+    "@babel/syntax-import-meta",
+    "@babel/plugin-transform-arrow-functions"
   ]
 }

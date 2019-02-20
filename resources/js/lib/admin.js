@@ -21,14 +21,10 @@ import { toggleFullscreen } from './fullscreen';
 class Admin
 {
   /**
-   * Static instance of this class.
-   *
-   * @type     Frontend.Admin
-   */
-  static _instance;
-  /**
    * Executed every time the socket authenticates correctly
    *
+   * @method     Frontend.Admin#_authenticated
+   * 
    * @param      {string}  password  MD5 hashed password
    * @listens    Frontend.UI.LoginModal#event:authenticated
    */
@@ -43,6 +39,9 @@ class Admin
   }
   /**
    * Executed every time the socket disconnects or authentication is incorrect
+   *
+   * @method     Frontend.Admin#_loginError
+   * 
    * @listens    Frontend.UI.LoginModal#event:error
    */
   _loginError = () =>
@@ -52,7 +51,9 @@ class Admin
   /**
    * Executed when tally info is updated
    *
-   * @param      {Object}  tallies  Tally information
+   * @method     Frontend.Admin#_talliesUpdated
+   *
+   * @param      {Object.<string, number[]>}  tallies  Tally information
    * @listens    Frontend.UI.Tallies#event:updated
    * @fires      Frontend.UI.Users#event:tallies
    */
@@ -62,6 +63,9 @@ class Admin
   }
   /**
    * Executed when user info is updated
+   *
+   * @method     Frontend.Admin#_usersUpdated
+   * 
    * @listens    Frontend.UI.Users#event:updated
    * @fires      Frontend.UI.Users#event:tallies
    */
@@ -193,5 +197,11 @@ class Admin
     });
   }
 }
+/**
+ * Static instance of this class.
+ *
+ * @type     {Frontend.Admin}
+ */
+Admin._instance;
 
 export default Admin;

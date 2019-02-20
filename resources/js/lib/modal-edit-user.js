@@ -15,12 +15,41 @@ class EditUserModal
    */
   constructor(opts)
   {
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket;
+    /**
+     * Main action button element of this modal
+     * 
+     * @type       {jQuery}
+     */
     this.$btn = this.$modal.find('.btn-primary');
+    /**
+     * User name text field
+     * 
+     * @type       {jQuery}
+     */
     this.$name = this.$modal.find('#user-name');
+    /**
+     * Camera number text field
+     * 
+     * @type       {jQuery}
+     */
     this.$camNumber = this.$modal.find('#user-camnumber');
+    /**
+     * Channel name text field
+     * 
+     * @type       {jQuery}
+     */
     this.$channelName = this.$modal.find('#user-channelname');
-
+    /**
+     * jQuery object of the modal container
+     * 
+     * @type       {jQuery}
+     */
     this.$modal = opts.$modal
       .on('show.bs.modal', this._modalShow)
       .on('shown.bs.modal', this._modalShown)
@@ -38,6 +67,8 @@ class EditUserModal
   /**
    * Executed when the modal will be shown.
    *
+   * @method     Frontend.UI.EditUserModal#_modalShow
+   *
    * @param      {Object}   event   The event
    */
   _modalShow = event =>
@@ -54,6 +85,8 @@ class EditUserModal
   /**
    * Executed when the modal is shown.
    *
+   * @method     Frontend.UI.EditUserModal#_modalShown
+   *
    * @param      {Object}   event   The event
    */
   _modalShown = event =>
@@ -62,6 +95,8 @@ class EditUserModal
   }
   /**
    * Executed when the modal will be hidden.
+   *
+   * @method     Frontend.UI.EditUserModal#_modalHide
    *
    * @param      {Object}   event   The event
    */
@@ -73,6 +108,8 @@ class EditUserModal
   }
   /**
    * Handle the edit-button click.
+   *
+   * @method     Frontend.UI.EditUserModal#_btnEditClick
    *
    * @param      {Object}  event   The event
    */
@@ -88,7 +125,14 @@ class EditUserModal
   /**
    * Callback function for editing user
    *
+   * @method     Frontend.UI.EditUserModal#_userSetCallback
+   *
    * @param      {Object}  result  The result of the edit operation
+   * @param      {boolean}  result.errors       Whether there were any errors
+   * @param      {boolean}  result.camNumber    Whether there was an error with the
+   *                                            camera number
+   * @param      {boolean}  result.channelName  Whether there was an error with the
+   *                                            channel name
    */
   _userSetCallback = result =>
   {

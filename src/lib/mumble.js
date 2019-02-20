@@ -11,34 +11,6 @@ import fs from 'fs';
 class Mumble extends Server
 {
   /**
-   * Cycle a specific user to the next channel set in opts.cycleChannels
-   *
-   * @param      {string}   username  The username
-   * @fires      Backend.Server#event:log
-   * @return     {boolean}  Whether the move was executed
-   */
-  static cycleUser = (username) =>
-  {
-    Server.getByType('mumble').forEach((mumble) =>
-    {
-      if(!mumble.client || !mumble.connected) return false;
-      let user = mumble.client.userByName(username);
-      if(!user) return false;
-
-      let curChannel = user.channel.name;
-      let index = mumble.cycleChannels.indexOf(curChannel);
-      if(index != -1)
-      {
-        // Figure out the next channel, or reset to the 0th one.
-        index = index + 1 >= mumble.cycleChannels.length ? 0 : index + 1;
-        let newChannel = mumble.client.channelByName(mumble.cycleChannels[index]);
-        this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
-        user.moveToChannel(newChannel);
-      } else
-        this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
-    });
-  }
-  /**
    * Constructs the object.
    *
    * @param      {Object}  opts    The options
@@ -49,37 +21,39 @@ class Mumble extends Server
     /**
      * Username used to connect to this server
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.username = opts.username;
     /**
      * Password used to connect to this server
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.password = opts.password;
     /**
      * Path to key file
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.key = opts.key;
     /**
      * Path to certificate file
      * 
-     * @type       {String}
+     * @type       {string}
      */
     this.cert = opts.cert;
     /**
      * Array of channels users are allowed to enter.
      * 
-     * @type       {Array.String}
+     * @type       {string[]}
      */
     this.cycleChannels = opts.cycleChannels;
     this._check();
   }
   /**
    * Executed when server is connected
+   *
+   * @method     Backend.Mumble#_connected
    */
   _connected = (err, client) =>
   {
@@ -90,6 +64,8 @@ class Mumble extends Server
   }
   /**
    * Executed when mumble is authenticated
+   *
+   * @method     Backend.Mumble#_initialized
    * 
    * @fires      Backend.Server#event:connected
    * @fires      Backend.Server#event:connection
@@ -116,15 +92,18 @@ class Mumble extends Server
      * server connection.
      *
      * @event      Backend.Mumble#event:user-channels
-     * @param      {Object}  channels  Keys are usernames, values are channel
-     *                                 names
+     * @param      {Object<string, string>}  channels  Keys are usernames,
+     *                                                 values are channel names
      */
     this.emit('user-channels', this._getChannelForAllUsers())
   }
   /**
    * Get channels that users are currently in
    *
-   * @return     {Object}  Keys are usernames, values are channel names
+   * @method     Backend.Mumble#_getChannelForAllUsers
+   *
+   * @return     {Object<string, string>}  channels  Keys are usernames, values
+   *                                       are channel names
    */
   _getChannelForAllUsers = () =>
   {
@@ -137,6 +116,8 @@ class Mumble extends Server
   }
   /**
    * Executed when user is moved
+   *
+   * @method     Backend.Mumble#_userMoved
    *
    * @param      {Object}  u       User object from mumble API
    * @fires      Backend.Mumble#event:user-move
@@ -157,6 +138,8 @@ class Mumble extends Server
   /**
    * Executed when user is disconnected
    *
+   * @method     Backend.Mumble#_userDisconnect
+   *
    * @param      {Object}  u       User object from mumble API
    * @fires      Backend.Mumble#event:user-move
    */
@@ -166,6 +149,8 @@ class Mumble extends Server
   }
   /**
    * Executed when voice data is received. Indicates if a user is talking.
+   *
+   * @method     Backend.Mumble#_onVoice
    *
    * @param      {Object}  data    User voice data
    * @fires      Backend.Mumble#event:user-talk
@@ -184,6 +169,8 @@ class Mumble extends Server
   }
   /**
    * Setup a new connection to the server and connect
+   *
+   * @method     Backend.Mumble#_check
    */
   _check = () =>
   {
@@ -196,6 +183,8 @@ class Mumble extends Server
   }
   /**
    * Executed when server connection is closed
+   *
+   * @method     Backend.Mumble#_closed
    *
    * @param      {undefined|boolean}  error   The error
    * @fires      Backend.Server#event:disconnected
@@ -212,6 +201,35 @@ class Mumble extends Server
     this.emit('connection', this.connected);
     this._timeout = setTimeout(this._check, 3000);
   }
+}
+
+/**
+ * Cycle a specific user to the next channel set in opts.cycleChannels
+ *
+ * @param      {string}   username  The username
+ * @fires      Backend.Server#event:log
+ * @return     {boolean}  Whether the move was executed
+ */
+Mumble.cycleUser = (username) =>
+{
+  Server.getByType('mumble').forEach((mumble) =>
+  {
+    if(!mumble.client || !mumble.connected) return false;
+    let user = mumble.client.userByName(username);
+    if(!user) return false;
+
+    let curChannel = user.channel.name;
+    let index = mumble.cycleChannels.indexOf(curChannel);
+    if(index != -1)
+    {
+      // Figure out the next channel, or reset to the 0th one.
+      index = index + 1 >= mumble.cycleChannels.length ? 0 : index + 1;
+      let newChannel = mumble.client.channelByName(mumble.cycleChannels[index]);
+      this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
+      user.moveToChannel(newChannel);
+    } else
+      this.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
+  });
 }
 
 export default Mumble;

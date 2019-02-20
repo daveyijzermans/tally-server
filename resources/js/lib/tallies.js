@@ -17,13 +17,30 @@ class Tallies extends EventEmitter
   constructor(opts)
   {
     super();
-
+    /**
+     * Main container for this UI element
+     * 
+     * @type       {jQuery}
+     */
     this.$list = opts.$list;
-
+    /**
+     * Template for an entry for this UI element. Will be cloned to make a new
+     * entry and appended to $list
+     *
+     * @type       {jQuery}
+     */
     this.$tpl = opts.$tpl;
-    
+    /**
+     * Cached array of tally information sent by server
+     *
+     * @type       {Object.<string, number[]>}
+     */
     this._tallies = null;
-
+    /**
+     * Reference to Socket.IO client
+     * 
+     * @type       {Object}
+     */
     this.socket = opts.socket
       .on('admin.status.tallies', this._list);
   }
@@ -31,7 +48,9 @@ class Tallies extends EventEmitter
    * Executed when the server emits a list. Loop over them and add or update the
    * list elements to match
    *
-   * @param      {Array.Object}  data   Array of tally information
+   * @method     Frontend.UI.Tallies#_list
+   *
+   * @param      {Object.<string, number[]>}  data   Array of tally information
    * @fires      Frontend.UI.Tallies#event:updated
    */
   _list = data =>
@@ -67,14 +86,14 @@ class Tallies extends EventEmitter
      * Let listeners know that tally information was updated.
      *
      * @event      Frontend.UI.Tallies#event:updated
-     * @param      {Array.Object}  tallies  Array of tally information
+     * @param      {Object.<string, number[]>}  tallies  Array of tally information
      */
     this.emit('updated', this._tallies);
   }
   /**
    * Array of combined tally states. Used by the Users class.
    *
-   * @return     {Array}
+   * @return     {number[]}
    */
   get combined() { return this._tallies._combined }
   /**
