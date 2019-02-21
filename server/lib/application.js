@@ -680,6 +680,7 @@ class Application extends EventEmitter
    * 
    * @listens Backend.Application#event:"broadcast.plugs"
    * @listens Backend.Application#event:broadcast
+   * @fires   Socket#event:"admin.plugs.list"
    */
   _broadcastPlugs = () =>
   {
@@ -723,6 +724,7 @@ class Application extends EventEmitter
    * @listens    Backend.Server#event:connection
    * @listens    Backend.Server#event:connected
    * @listens    Backend.Server#event:disconnected
+   * @fires      Backend.Application#event:"broadcast.servers"
    */
   _defaultServerHandlers = (server) =>
   {
@@ -747,6 +749,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}          opts    The options
    * @return     {Backend.Mumble}  The server instance that was created
+   * @fires      Backend.Application#event:"broadcast.users"
    */
   _createMumble = (opts) =>
   {
@@ -796,6 +799,7 @@ class Application extends EventEmitter
    * @return     {Backend.Vmix}  The server instance that was created
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
+   * @fires      Backend.Application#event:"broadcast.tallies"
    */
   _createVmix = (opts) =>
   {
@@ -830,6 +834,7 @@ class Application extends EventEmitter
    * @return     {Backend.Atem}  The server instance that was created
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
+   * @fires      Backend.Application#event:"broadcast.tallies"
    */
   _createAtem = (opts) =>
   {
