@@ -69,6 +69,7 @@ class Log
    * @method     Frontend.UI.Log#_log
    *
    * @param      {string}  msg     The message
+   * @listens    Socket#event:"admin.log"
    */
   _log = msg =>
   {

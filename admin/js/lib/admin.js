@@ -27,6 +27,7 @@ class Admin
    * 
    * @param      {string}  password  MD5 hashed password
    * @listens    Frontend.UI.LoginModal#event:authenticated
+   * @fires      Socket#event:"admin.update"
    */
   _authenticated = (password) =>
   {

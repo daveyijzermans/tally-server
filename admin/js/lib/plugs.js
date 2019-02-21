@@ -50,6 +50,7 @@ class Plugs
    * @param      {string}    plugs.name         The name
    * @param      {string}    plugs.description  The description
    * @param      {boolean}   plugs.on           Whether the plug is powered on
+   * @listens    Socket#event:"admin.plugs.list"
    */
   _list = plugs =>
   {
@@ -79,6 +80,8 @@ class Plugs
    * @method     Frontend.UI.Plugs#_disconnect
    *
    * @param      {string}  hostname  The hostname
+   * 
+   * @listens    Socket#event:"admin.plugs.disconnect"
    */
   _disconnect = hostname =>
   {
@@ -90,6 +93,7 @@ class Plugs
    * Executed when the socket is disconnected. Cleanup the entries from the UI.
    *
    * @method     Frontend.UI.Plugs#_socketDisconnect
+   * @listens    Socket#event:disconnect
    */
   _socketDisconnect = () =>
   {
@@ -102,6 +106,7 @@ class Plugs
    * @method     Frontend.UI.Plugs#_btnPlugToggle
    *
    * @param      {Object}  event   The event
+   * @fires      Socket#event:"admin.plug.toggle"
    */
   _btnPlugToggle = event =>
   {

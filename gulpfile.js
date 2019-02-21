@@ -37,9 +37,9 @@ let resources = {
   images: ['admin/images/**/*.*'],
   html: ['admin/html/*.*'],
   htmlIncludes: ['admin/html/includes/*.html'],
-  client: ['client/**/*.*'],
+  client: ['client/config.json', 'client/package.client.json', 'client/update.sh'],
   server: ['server/**/*.*'],
-  docs: ['README.md', 'admin/js/**/*.*', 'server/**/*.*']
+  docs: ['README.md', 'client/*.js', 'admin/js/**/*.js', 'server/**/*.js']
 };
 
 /**
@@ -190,7 +190,8 @@ let watch = () =>
   gulp.watch(resources.html, html);
   gulp.watch(resources.client, client);
   gulp.watch(resources.htmlIncludes, html);
-  gulp.watch(resources.server, gulp.series(server, restart));
+  gulp.watch(resources.server, gulp.series(buildServer, restart));
+  gulp.watch('client/index.js', buildClient);
   gulp.watch(resources.docs, docs);
 };
 
@@ -205,7 +206,7 @@ let watchDocs = () =>
 /*
 * Server build task
 */
-let server = done =>
+let buildServer = done =>
 {
   if(argv.prod)
   {
@@ -218,6 +219,16 @@ let server = done =>
     .pipe(babel())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist'));
+};
+
+/*
+* Client build task
+*/
+let buildClient = done =>
+{
+  return gulp.src('client/index.js')
+    .pipe(babel())
+    .pipe(gulp.dest('dist/www/client'));
 };
 
 /**
@@ -252,12 +263,13 @@ let docs = done =>
 /**
  * Build all
  */
-let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), server);
+let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), buildClient, buildServer);
 
 /*
 * Start server task
 */
 exports.build = build;
+exports.watch = watch;
 exports.watchDocs = gulp.series(docs, watchDocs);
 exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
 exports.default = gulp.series(build, start);

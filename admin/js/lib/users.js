@@ -102,6 +102,7 @@ class Users extends EventEmitter
    *
    * @param      {Backend.User[]}  users   Array of users
    * @fires      Frontend.UI.Users#event:updated
+   * @listens    Socket#event:"admin.users.list"
    */
   _list = users =>
   {
@@ -163,6 +164,8 @@ class Users extends EventEmitter
    * @method     Frontend.UI.Users#_disconnect
    *
    * @param      {string}  username  The username
+   * 
+   * @listens    Socket#event:"admin.user.disconnect"
    */
   _disconnect = username =>
   {

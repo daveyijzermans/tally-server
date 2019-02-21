@@ -53,6 +53,7 @@ class Servers
    * @param      {string}          data.name       The server display name
    * @param      {string|boolean}  data.wol        WOL address
    * @param      {boolean}         data.connected  Connection status
+   * @listens    Socket#event:"admin.status.servers"
    */
   _list = data =>
   {

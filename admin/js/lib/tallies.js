@@ -44,7 +44,7 @@ class Tallies extends EventEmitter
      */
     this._tallies = null;
   }
-/**
+  /**
    * Executed when the server emits a list. Loop over them and add or update the
    * list elements to match
    *
@@ -52,6 +52,7 @@ class Tallies extends EventEmitter
    *
    * @param      {Object.<string, number[]>}  data   Array of tally information
    * @fires      Frontend.UI.Tallies#event:updated
+   * @listens    Socket#event:"admin.status.tallies"
    */
   _list = data =>
   {

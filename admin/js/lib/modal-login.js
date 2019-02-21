@@ -112,7 +112,7 @@ class LoginModal extends EventEmitter
    * modal.
    *
    * @method     Frontend.UI.LoginModal#_socketAuthenticated
-   *
+   * @listens    Socket#event:authenticated
    * @fires      Frontend.UI.LoginModal#event:authenticated
    */
   _socketAuthenticated = () =>
@@ -132,7 +132,7 @@ class LoginModal extends EventEmitter
    * the login modal.
    *
    * @method     Frontend.UI.LoginModal#_socketDisconnected
-   *
+   * @listens    Socket#event:disconnected
    * @fires      Frontend.UI.LoginModal#event:error
    */
   _socketDisconnect = () =>

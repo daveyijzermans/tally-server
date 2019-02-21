@@ -126,6 +126,7 @@ class ActionModal extends EventEmitter
    *
    * @param      {Object}  event   The event
    * @fires      Frontend.UI.ActionModal#event:"command.*"
+   * @fires      Socket#event:"admin.*"
    */
   _btnConfirmClick = event =>
   {

@@ -112,6 +112,12 @@ class EditUserModal
    * @method     Frontend.UI.EditUserModal#_btnEditClick
    *
    * @param      {Object}  event   The event
+   * @param      {Object}         newData              New user data
+   * @param      {string}         newData.username     Current username
+   * @param      {string}         newData.name         New display name
+   * @param      {string|number}  newData.camNumber    New camera number
+   * @param      {string}         newData.channelName  New channel name
+   * @fires      Socket#event:"admin.set.user"
    */
   _btnEditClick = event =>
   {
