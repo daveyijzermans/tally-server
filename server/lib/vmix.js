@@ -24,6 +24,12 @@ class Vmix extends Server
      * @type       {number[]}
      */
     this.tallies = [];
+    /**
+     * Windows username and password for remote shutdown
+     * 
+     * @type       {string}
+     */
+    this.winUserPass = opts.winUserPass;
     this._check();
   }
   /**
