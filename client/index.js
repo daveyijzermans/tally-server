@@ -65,7 +65,7 @@ class Client
       this.buttonPTT.watch(this._btnPTTPress);
 
       this.buttonCycle = new Gpio(17, 'in', 'falling', {debounceTimeout: 50});
-      this.buttonPTT.watch(this._btnCyclePress);
+      this.buttonCycle.watch(this._btnCyclePress);
     }
     this._findArduinos();
   }
