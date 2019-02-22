@@ -496,7 +496,7 @@ class Application extends EventEmitter
     {
       // Shutdown windows pc
       if(server.type == 'vmix')
-        return exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+        return exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.admin.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     }
   }
   /**
@@ -513,7 +513,7 @@ class Application extends EventEmitter
     Server._instances.forEach((server) =>
     {
       // Shutdown windows pc
-      exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+      exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.admin.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     });
     // Shutdown self
     exec('/sbin/shutdown -t 30');
