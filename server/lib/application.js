@@ -451,7 +451,7 @@ class Application extends EventEmitter
       if(server.type == 'vmix')
       {
         // Reboot windows pc
-        return exec('/usr/bin/net rpc shutdown -r -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+        return exec('/usr/bin/net rpc shutdown -r -I ' + server.hostname + ' -U ' + this.config.admin.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
       }
       if(server.type == 'netgear')
         server.rebootPending = true; // will reboot on next ping
