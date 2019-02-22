@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@babel/runtime": "^7.3.1",
     "onoff": "^3.2.2",
     "robotjs": "^0.5.1",
     "serialport": "^7.1.3",

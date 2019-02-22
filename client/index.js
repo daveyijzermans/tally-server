@@ -61,11 +61,11 @@ class Client
     {
       const Gpio = require('onoff').Gpio;
 
-      this.buttonPTT = new Gpio(4, 'in', 'both', {debounceTimeout: 50})
-        .watch(this._btnPTTPress);
+      this.buttonPTT = new Gpio(4, 'in', 'both', {debounceTimeout: 50});
+      this.buttonPTT.watch(this._btnPTTPress);
 
-      this.buttonCycle = new Gpio(17, 'in', 'falling', {debounceTimeout: 50})
-        .watch(this._btnCyclePress);
+      this.buttonCycle = new Gpio(17, 'in', 'falling', {debounceTimeout: 50});
+      this.buttonPTT.watch(this._btnCyclePress);
     }
     this._findArduinos();
   }
@@ -174,9 +174,9 @@ class Client
   _tryArduinos = (paths) =>
   {
     var index = 0;
-    tryNext = () =>
+    const tryNext = () =>
     {
-      port = new SerialPort(paths[index], { baudRate: 9600 }).on('error', () =>
+      let port = new SerialPort(paths[index], { baudRate: 9600 }).on('error', () =>
       {
         if(index == paths.length - 1)
           return this._findArduinos();
@@ -243,7 +243,7 @@ class Client
    */
   _btnCyclePress = (err, value) =>
   {
-    this.socket.emit('cycleUser', username)
+    this.socket.emit('cycleUser', this.username)
   }
   /**
    * Cleanup before exit

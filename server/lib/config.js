@@ -74,22 +74,19 @@ class Config extends EventEmitter
     });
   }
   /**
-   * Get user configuration from JSON file
+   * Make all users using configuration from JSON file
    *
    * @method     Backend.Config#getUser
    *
-   * @param      {string}        username  The username
-   * @return     {User|boolean}  The user.
+   * @return     {Backend.User[]}  The users.
    */
-  getUser = (username) =>
+  makeUsers = () =>
   {
-    if(typeof username != 'string') return false;
-    let match = this.users.filter((a) => a.username == username);
-    let opts = match.length == 1 ? match[0] : false;
-    if(!opts) return false;
-    let user = User.getByUsername(username)
-    if(!user) return new User(opts);
-    return user;
+    this.users.forEach((opts) =>
+    {
+      new User(opts);
+    });
+    return User._instances;
   }
   /**
    * Get server configuration from JSON file by type
