@@ -166,9 +166,11 @@ class Admin
      * @type       {Frontend.UI.AVSetup}
      */
     this.avSetup = new AVSetup({
-      $sources: $('.avSource'),
-      $targets: $('.avTarget')
-    });
+      $box: $('#boxAV'),
+      $sources: $('#boxAV').find('.avSource'),
+      $targets: $('#boxAV').find('.avTarget'),
+      isExpanded: Cookies.get('avExpanded') === 'true'
+    }).on('toggle', (s) => Cookies.set('avExpanded', s));
 
     this.tallies.on('updated', this._talliesUpdated);
     this.loginModal.on('authenticated', this._authenticated)

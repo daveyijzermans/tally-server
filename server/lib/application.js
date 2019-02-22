@@ -689,7 +689,9 @@ class Application extends EventEmitter
    */
   _broadcastPlugs = () =>
   {
-    let result = this._plugs.map(p =>
+    let result = this._plugs
+    .filter((p) => { return typeof p == 'object'; })
+    .map(p =>
     {
       return {
         hostname: p.host,
