@@ -13,13 +13,15 @@
     "type": "vmix",
     "hostname": "vmix1.local",
     "name": "vMix 1",
-    "wol": "00:00:00:00:00:00"
+    "wol": "00:00:00:00:00:00",
+    "winUserPass": "user%pass"
   },
   {
     "type": "vmix",
     "hostname": "vmix2.local",
     "name": "vMix 2",
-    "wol": "00:00:00:00:00:00"
+    "wol": "00:00:00:00:00:00",
+    "winUserPass": "user%pass"
   },
   {
     "type": "aten",

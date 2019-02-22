@@ -1,4 +1,3 @@
 {
-  "adminPass": "md5password",
-  "winUserPass": "windowsuser%password"
+  "adminPass": "md5password"
 }
