@@ -33,7 +33,7 @@ class Admin
   {
     this.socket.emit('admin.update');
     
-    if(this.remember)
+    if(this.loginModal.remember)
       Cookies.set('adminPass', password, { expires: 7 });
 
     $('#serverStatus').html('<i class="fas fa-check-circle"></i> Connected');

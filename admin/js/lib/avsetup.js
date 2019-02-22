@@ -22,7 +22,6 @@ class AVSetup
      * @type       {jQuery}
      */
     this.$sources = opts.$sources.draggable({
-      cursor: 'move',
       revert: true
     });
     /**

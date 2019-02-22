@@ -12,6 +12,14 @@
   font-family: inherit;
 }
 
+.avSource {
+  cursor: grab;
+}
+
+.avSource.ui-draggable-dragging {
+  cursor: grabbing;
+}
+
 .user-entry {
   .talking-indicator {
     width: 105px;

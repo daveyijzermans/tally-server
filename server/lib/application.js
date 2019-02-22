@@ -71,7 +71,7 @@ class Application extends EventEmitter
      * @type       {Backend.Config}
      * @listens    Backend.Config#event:"saved.users"
      */
-    this.config = new Config(opts.configPaths)
+    this.config = new Config(opts.paths)
       .on('saved.users', () => this.logger('Users.json file has been saved!'));
 
     /*

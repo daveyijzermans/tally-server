@@ -30,7 +30,7 @@ const gulp = require('gulp'),
  * Paths to source files
  * @type {Object}
  */
-let resources = {
+const resources = {
   scss: ['admin/scss/**/*.scss'],
   js: ['admin/js/**/*.*'],
   fonts: ['admin/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
@@ -46,7 +46,7 @@ let resources = {
  * Webpack log settings
  * @type {Object}
  */
-let webpackStatsConfig = {
+const webpackStatsConfig = {
     colors: true, hash: true, version: true, timings: true, assets: true, chunks: true,
     chunkModules: false, modules: false, children: false, cached: false, reasons: false,
     source: false, errorDetails: true, chunkOrigins: false
@@ -57,9 +57,9 @@ let webpackStatsConfig = {
 *
 * Description: compile SASS and using PostCSS plugins
 */
-let scss = () =>
+const scss = () =>
 {
-  let plugins = [
+  const plugins = [
     autoprefixer({browsers: ['last 8 versions'], cascade: false}),
     customProperties({
       preserve: false
@@ -92,7 +92,7 @@ let scss = () =>
 *
 * Description: making JS bundle
 */
-let js = done =>
+const js = done =>
 {
   return gulp.src('admin/js/index.js')
     .pipe(plumber({
@@ -125,7 +125,7 @@ let js = done =>
 *
 * Description: just moving to /dist/www folder.
 */
-let fonts = () =>
+const fonts = () =>
 {
   return gulp.src(resources.fonts)
     .pipe(gulp.dest('dist/www/assets/fonts'))
@@ -137,7 +137,7 @@ let fonts = () =>
 *
 * Description: just moving to /dist/www folder.
 */
-let images = () =>
+const images = () =>
 {
   return gulp.src(resources.images)
     .pipe(gulp.dest('dist/www/assets/images'))
@@ -149,7 +149,7 @@ let images = () =>
 *
 * Description: just moving to /dist/www folder.
 */
-let client = () =>
+const client = () =>
 {
   return gulp.src(resources.client)
     .pipe(gulp.dest('dist/www/client'));
@@ -158,7 +158,7 @@ let client = () =>
 /*
 * Move HTML files 
 */
-let html = () =>
+const html = () =>
 {
   return gulp.src(resources.html)
     .pipe(rigger())
@@ -169,7 +169,7 @@ let html = () =>
 /**
  * Browser sync task
  */
-let browser = () =>
+const browser = () =>
 {
   browserSync.init(null, {
     proxy: "http://localhost",
@@ -181,7 +181,7 @@ let browser = () =>
 /*
 * Watch task
 */
-let watch = () =>
+const watch = () =>
 {
   gulp.watch(resources.fonts, fonts);
   gulp.watch(resources.scss, scss);
@@ -198,7 +198,7 @@ let watch = () =>
 /*
 * Watch docs task
 */
-let watchDocs = () =>
+const watchDocs = () =>
 {
   gulp.watch(resources.docs, docs);
 };
@@ -206,7 +206,7 @@ let watchDocs = () =>
 /*
 * Server build task
 */
-let buildServer = done =>
+const buildServer = done =>
 {
   if(argv.prod)
   {
@@ -224,7 +224,7 @@ let buildServer = done =>
 /*
 * Client build task
 */
-let buildClient = done =>
+const buildClient = done =>
 {
   return gulp.src('client/index.js')
     .pipe(babel())
@@ -234,7 +234,7 @@ let buildClient = done =>
 /**
  * Start server task
  */
-let start = done =>
+const start = done =>
 {
   forever.start();
   done();
@@ -243,7 +243,7 @@ let start = done =>
 /**
  * Restart server task
  */
-let restart = done =>
+const restart = done =>
 {
   forever.restart();
   done();
@@ -254,7 +254,7 @@ process.once('SIGINT', () =>
   forever.stop();
 });
 
-let docs = done =>
+const docs = done =>
 {
   return gulp.src(resources.docs, {read: false})
     .pipe(jsdoc(require('./jsdoc.json')));
@@ -263,13 +263,13 @@ let docs = done =>
 /**
  * Build all
  */
-let build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), buildClient, buildServer);
+const build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), buildClient, buildServer);
 
 /*
 * Start server task
 */
 exports.build = build;
+exports.docs = docs;
 exports.watch = watch;
-exports.watchDocs = gulp.series(docs, watchDocs);
 exports.dev = gulp.series(build, gulp.parallel(start, browser, watch));
-exports.default = gulp.series(build, start);
+exports.default = start;

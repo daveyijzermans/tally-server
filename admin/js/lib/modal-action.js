@@ -82,7 +82,7 @@ class ActionModal extends EventEmitter
         this.$text.text('Are you sure you want to update all intercom users? Clients will disconnect and will take approximately 1 minute to get back online.');
         break;
       case 'shutdownUsers':
-        this.$text.text('Are you sure you want to shutdown the server? You will need to use Wake-On-LAN or power cycle the PoE switch to get them back online.');
+        this.$text.text('Are you sure you want to shutdown all intercom users? You will need to use Wake-On-LAN or power cycle the PoE switch to get them back online.');
         break;
       case 'shutdownAll':
         this.$text.text('Are you sure you want to shutdown everything? You will need to use Wake-On-LAN or power cycle to get everything back online.');

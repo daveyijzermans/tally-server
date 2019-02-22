@@ -14,7 +14,7 @@ import path from 'path';
  * @memberof   Backend
  */
 let app = new Application({
-  configPaths: {
+  paths: {
     admin: path.resolve(__dirname, '../config/admin.json'),
     servers: path.resolve(__dirname, '../config/servers.json'),
     users: path.resolve(__dirname, '../config/users.json')
