@@ -446,7 +446,7 @@ class Application extends EventEmitter
       if(server.type == 'vmix')
       {
         // Reboot windows pc
-        return exec('shutdown /r /m \\\\' + server.hostname + ' /f /t 5 /c "Reboot by administration interface"');
+        return exec('/usr/bin/net rpc shutdown -r -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
       }
       if(server.type == 'netgear')
         server.rebootPending = true; // will reboot on next ping
@@ -491,7 +491,7 @@ class Application extends EventEmitter
     {
       // Shutdown windows pc
       if(server.type == 'vmix')
-        return exec('shutdown /s /m \\\\' + server.hostname + ' /f /t 5 /c "Shutdown by administration interface"');
+        return exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     }
   }
   /**
@@ -508,10 +508,10 @@ class Application extends EventEmitter
     Server._instances.forEach((server) =>
     {
       // Shutdown windows pc
-      exec('shutdown /s /m \\\\' + server.hostname + ' /f /t 5 /c "Shutdown by administration interface"');
+      exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + this.config.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     });
     // Shutdown self
-    exec('shutdown /s /f /t 10 /c "Shutdown by administration interface"');
+    exec('/sbin/shutdown -t 30');
     this.logger('Bye bye!');
   }
   /**
