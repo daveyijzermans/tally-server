@@ -83,6 +83,11 @@ class Application extends EventEmitter
     this.config.getServerConfigByType('atem', this._createAtem);
     this.config.getServerConfigByType('netgear', this._createNetgear);
 
+    /*
+     * Create all users
+     */
+    this.config.makeUsers();
+
     /**
      * TPLink Kasa API
      *
@@ -172,7 +177,7 @@ class Application extends EventEmitter
 
     if(username)
     {
-      if (!this.config.getUser(username))
+      if (!User.getByUsername(username))
         return socket.disconnect(); // user not in config
 
       socket.join('users');
