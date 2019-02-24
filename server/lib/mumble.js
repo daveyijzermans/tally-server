@@ -59,7 +59,7 @@ class Mumble extends Server
   {
     if(err) return this._closed(err);
     this.client = client;
-    this.client.authenticate(this.username);
+    this.client.authenticate(this.username, this.password);
     this.client.on('initialized', this._initialized);
   }
   /**

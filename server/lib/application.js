@@ -509,7 +509,7 @@ class Application extends EventEmitter
    */
   _adminShutdownAll = () =>
   {
-    io.to('users').emit('shutdown');
+    this._io.to('users').emit('shutdown');
     Server._instances.forEach((server) =>
     {
       // Shutdown windows pc
