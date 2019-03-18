@@ -7,8 +7,16 @@
     </li>
   </ul>
 
-  <ul class="header-nav pull-right">
-    <li id="log">
+  <div class="header-nav pull-right" id="modems">
+    <div class="modem-entry" style="display:none" id="tplModem">
+      <a href="#" class="header-nav-item">
+        <i class="fas strength-icon"></i>
+        <span class="badge badge-pill service badge-xs"></span>
+      </a>
+    </div>
+  </div>
+  <div class="header-nav">
+    <div id="log">
       <a href="#" class="header-nav-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="far fa-bell"></i>
         <span class="badge badge-pill"></span>
@@ -20,13 +28,11 @@
         </div>
         <small class="text-secondary pull-right"></small>
       </div>
-    </li>
-    <li>
-      <a href="#" class="header-nav-item" id="btnFullscreen">
-        <i class="fas fa-expand-arrows-alt"></i>
-      </a>
-    </li>
-    <li>
+    </div>
+    <a href="#" class="header-nav-item" id="btnFullscreen">
+      <i class="fas fa-expand-arrows-alt"></i>
+    </a>
+    <div>
       <a href="#" class="user-panel dropdown-toggle" id="serverMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <div class="user-panel-image">
           <div class="avatar avatar-sm">
@@ -43,6 +49,6 @@
         <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="restart">Restart server</a></li>
         <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownAll">Shutdown everything</a></li>
       </ul>
-    </li>
-  </ul>
+    </div>
+  </div>
 </header>

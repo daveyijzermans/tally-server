@@ -23,10 +23,10 @@
 // 2. Vendors
 @import
   'node_modules/bootstrap/scss/bootstrap',
-  'node_modules/@fortawesome/fontawesome-free/scss/fontawesome',
-  'node_modules/@fortawesome/fontawesome-free/scss/brands',
-  'node_modules/@fortawesome/fontawesome-free/scss/solid',
-  'node_modules/@fortawesome/fontawesome-free/scss/regular';
+  '../vendor/fontawesome-pro-5.7.2-web/scss/fontawesome',
+  '../vendor/fontawesome-pro-5.7.2-web/scss/brands',
+  '../vendor/fontawesome-pro-5.7.2-web/scss/solid',
+  '../vendor/fontawesome-pro-5.7.2-web/scss/regular';
 
 // 3. Base
 @import

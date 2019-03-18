@@ -12,6 +12,7 @@
   "dependencies": {
     "atem": "^0.1.8",
     "express": "^4.16.4",
+    "hilinkhuawei": "github:daveyijzermans/hilinkhuawei",
     "io-videohub": "github:daveyijzermans/io-videohub",
     "mumble": "^0.3.19",
     "socket.io": "^2.2.0",

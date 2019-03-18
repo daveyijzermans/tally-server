@@ -6,6 +6,7 @@ import Vmix from './vmix';
 import Aten from './aten';
 import Atem from './atem';
 import Netgear from './netgear';
+import Huawei from './huawei';
 import User from './user';
 import { Client as TPLinkClient } from 'tplink-smarthome-api';
 
@@ -82,6 +83,7 @@ class Application extends EventEmitter
     this.config.getServerConfigByType('aten', this._createAten);
     this.config.getServerConfigByType('atem', this._createAtem);
     this.config.getServerConfigByType('netgear', this._createNetgear);
+    this.config.getServerConfigByType('huawei', this._createHuawei);
 
     /*
      * Create all users
@@ -147,8 +149,9 @@ class Application extends EventEmitter
      */
     this._io = Socket(this._server);
 
-    this._server.listen(80);
+    this._server.listen(8080);
     this._app.use(express.static('dist/www'));
+    this._app.use('/docs', express.static('dist/docs'));
 
     /**
      * User joins socket server
@@ -569,26 +572,12 @@ class Application extends EventEmitter
    */
   _broadcastServers = () =>
   {
-    let result = Server._instances.map(s =>
-    {
-      return {
-        type: s.type,
-        hostname: s.hostname,
-        name: s.name,
-        wol: s.wol,
-        connected: s.connected
-      };
-    });
+    let result = Server.allStatus;
     /**
      * Broadcast an array on server information
      *
      * @event      Socket#event:"admin.status.servers"
      * @param      {Object[]}        result            Array of servers.
-     * @param      {string}          result.type       The server type
-     * @param      {string}          result.hostname   The server hostname
-     * @param      {string}          result.name       The server display name
-     * @param      {string|boolean}  result.wol        WOL address
-     * @param      {boolean}         result.connected  Connection status
      */
     this._io.to('admins').emit('admin.status.servers', result);
   }
@@ -866,6 +855,18 @@ class Application extends EventEmitter
   _createNetgear = (opts) =>
   {
     return this._defaultServerHandlers(new Netgear(opts));
+  }
+  /**
+   * Initialize a Huawei server object
+   *
+   * @method     Backend.Application#_createHuawei
+   *
+   * @param      {Object}           opts    The options
+   * @return     {Backend.Huawei}  The server instance that was created
+   */
+  _createHuawei = (opts) =>
+  {
+    return this._defaultServerHandlers(new Huawei(opts));
   }
 }
 /**

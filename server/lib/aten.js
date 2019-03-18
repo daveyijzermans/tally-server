@@ -96,7 +96,7 @@ class Aten extends Server
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
-    this.timeout = setTimeout(this._check, 10000);
+    this._timeout = setTimeout(this._check, 10000);
   }
 }
 

@@ -80,6 +80,35 @@ class Server extends EventEmitter
 
     Server._instances.push(this);
   }
+  /**
+   * Server properties
+   *
+   * @type       {Object}
+   * @property   {string}          result.type       The server type
+   * @property   {string}          result.hostname   The server hostname
+   * @property   {string}          result.name       The server display name
+   * @property   {string|boolean}  result.wol        WOL address
+   * @property   {boolean}         result.connected  Connection status
+   */
+  get status()
+  {
+    return {
+      type: this.type,
+      hostname: this.hostname,
+      name: this.name,
+      wol: this.wol,
+      connected: this.connected
+    }
+  }
+  /**
+   * Get all status object for all server instances 
+   *
+   * @return     {Object[]}  Array of status objects
+   */
+  static get allStatus()
+  {
+    return Server._instances.map(s => { return s.status });
+  }
 }
 /**
  * Collection of all server instances

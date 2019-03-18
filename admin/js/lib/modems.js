@@ -1,11 +1,11 @@
 import $ from 'jquery';
 
 /**
- * Class for servers UI.
+ * Class for modems UI.
  *
  * @memberof   Frontend.UI
  */
-class Servers
+class Modems
 {
   /**
    * Constructs the object.
@@ -60,50 +60,25 @@ class Servers
     if(JSON.stringify(data) === JSON.stringify(this._servers))
       return false;
     this._servers = data;
-    this.$list.find('.noresults').toggle(this._servers.length == 0);
 
     $.each(this._servers, (id, server) =>
     {
+      if(server.type != 'huawei') return;
       let $tr = this.$list.find('[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
-
-        let wol = typeof server.wol == 'string';
-        let $actions = $tr.find('.actions');
-        let $dropdown = $actions.find('.dropdown-menu');
-        if(wol || server.type == 'netgear')
-        {
-          $actions.append('<a href="#" class="icon text-black-25" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i></a>');
-        }
-        if(wol)
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="wake">Wake</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
-        if(wol || server.type == 'netgear')
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
-        if(wol)
-        {
-          $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
-            .attr('data-param', server.name)
-            .appendTo($dropdown);
-        }
+        $tr.find('a').attr('href', server.url)
       }
-      let sClass = server.connected ? 'bg-success' : 'bg-danger';
-      let $name = $tr.find('.name').text(server.name);
-      let $type = $tr.find('.type').text(server.type);
-      let $hostname = $tr.find('.hostname').text(server.hostname);
-      $tr.find('.status-icon')
-        .toggleClass('bg-success', server.connected == true)
-        .toggleClass('bg-danger', server.connected == false);
-      $tr.find('.status-text')
-        .text(server.connected ? 'Connected' : 'Disconnected');
+      let $icon = $tr.find('.strength-icon')
+        .toggleClass('fa-signal-slash', server.signal == 0)
+        .toggleClass('fa-signal-1', server.signal == 1)
+        .toggleClass('fa-signal-2', server.signal == 2)
+        .toggleClass('fa-signal-3', server.signal == 3)
+        .toggleClass('fa-signal-4', server.signal == 4)
+        .toggleClass('fa-signal-5', server.signal == 5)
+      let $service = $tr.find('.service')
+        .text(server.service)
     });
   }
   /**
@@ -111,7 +86,7 @@ class Servers
    *
    * @return     {jQuery}
    */
-  get $items() { return this.$list.find('.server-entry') }
+  get $items() { return this.$list.find('.modem-entry') }
 }
 
-export default Servers;
+export default Modems;

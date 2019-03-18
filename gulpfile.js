@@ -33,7 +33,7 @@ const gulp = require('gulp'),
 const resources = {
   scss: ['admin/scss/**/*.scss'],
   js: ['admin/js/**/*.*'],
-  fonts: ['admin/fonts/**/*.*', 'node_modules/@fortawesome/fontawesome-free/webfonts/*.*'],
+  fonts: ['admin/fonts/**/*.*', 'admin/vendor/fontawesome-pro-5.7.2-web/webfonts/*.*'],
   images: ['admin/images/**/*.*'],
   html: ['admin/html/*.*'],
   htmlIncludes: ['admin/html/includes/*.html'],

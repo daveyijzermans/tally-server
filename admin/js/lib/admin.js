@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 
 import Log from './log';
 import Servers from './servers';
+import Modems from './modems';
 import Users from './users';
 import Tallies from './tallies';
 import Plugs from './plugs';
@@ -129,6 +130,16 @@ class Admin
     this.servers = new Servers({
       $list: $('#servers'),
       $tpl: $('#tplServer'),
+      socket: this.socket
+    });
+    /**
+     * Modems class instance
+     *
+     * @type       {Frontend.UI.Modems}
+     */
+    this.modems = new Modems({
+      $list: $('#modems'),
+      $tpl: $('#tplModem'),
       socket: this.socket
     });
     /**

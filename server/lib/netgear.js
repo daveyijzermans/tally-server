@@ -19,6 +19,18 @@ class Netgear extends Server
   constructor(opts)
   {
     super(opts);
+    /**
+     * Username used to connect to this server
+     * 
+     * @type       {string}
+     */
+    this.username = opts.username;
+    /**
+     * Password used to connect to this server
+     * 
+     * @type       {string}
+     */
+    this.password = opts.password;
     this._check();
   }
   /**
@@ -36,7 +48,7 @@ class Netgear extends Server
     if(this.rebootPending)
     {
       logger('Rebooting Netgear...');
-      this.client.write('admin\r\npassword\r\nenable\r\n\r\nreload\r\nyy');
+      this.client.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyy');
     }
     this.emit('connection', this.connected);
     this.client.end() && this.client.destroy();
