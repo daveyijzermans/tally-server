@@ -13,8 +13,6 @@ class Apc extends Server
    * Constructs the object.
    *
    * @param      {Object}  opts    The options
-   * @fires      Backend.Server#event:connected
-   * @fires      Backend.Server#event:connection
    */
   constructor(opts)
   {
@@ -41,8 +39,11 @@ class Apc extends Server
    * Executed when server is connected
    *
    * @method     Backend.Apc#_connected
+   *
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:connection
    */
-  _connected = (response) =>
+  _connected = () =>
   {
     if(!this.connected)
     {
@@ -56,13 +57,14 @@ class Apc extends Server
    * connection status if needed
    *
    * @method     Backend.Apc#_check
+   * 
    * @fires      Backend.Huawei#event:updated
    */
   _check = () =>
   {
     let callback = (err, result) =>
     {
-      if(err) return this._closed();
+      if(err) return this._closed(err);
 
       if(result.percentage)
         this.percentage = result.percentage;
@@ -100,7 +102,7 @@ class Apc extends Server
    * @fires      Backend.Server#event:disconnected
    * @fires      Backend.Server#event:connection
    */
-  _closed = (error) =>
+  _closed err= (error) =>
   {
     if(error && this.connected)
     {

@@ -13,8 +13,6 @@ class Huawei extends Server
    * Constructs the object.
    *
    * @param      {Object}  opts    The options
-   * @fires      Backend.Server#event:connected
-   * @fires      Backend.Server#event:connection
    */
   constructor(opts)
   {
@@ -53,6 +51,9 @@ class Huawei extends Server
    * Executed when server is connected
    *
    * @method     Backend.Huawei#_connected
+   *
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:connection
    */
   _connected = () =>
   {
@@ -86,9 +87,9 @@ class Huawei extends Server
     this.client.status(this._updated);
   }
   /**
-   * Exectuted when server status is updated
+   * Exectuted when dongle status is updated
    *
-   * @param      {obkect}  response  The response from the UPS
+   * @param      {obkect}  response  The response from the dongle
    * @fires      Backend.Huawei#event:updated
    */
   _updated = (response) =>
@@ -112,13 +113,12 @@ class Huawei extends Server
    *
    * @method     Backend.Huawei#_closed
    *
-   * @param      {undefined|boolean}  error   The error
    * @fires      Backend.Server#event:disconnected
    * @fires      Backend.Server#event:connection
    */
-  _closed = (error) =>
+  _closed = () =>
   {
-    if(error && this.connected)
+    if(this.connected)
     {
       this.connected = false;
       this.emit('disconnected');
