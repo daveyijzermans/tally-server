@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
     "atem": "^0.1.8",
     "express": "^4.16.4",
     "hilinkhuawei": "github:daveyijzermans/hilinkhuawei",

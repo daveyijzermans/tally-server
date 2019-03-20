@@ -87,7 +87,6 @@ class Server extends EventEmitter
    * @property   {string}          result.type       The server type
    * @property   {string}          result.hostname   The server hostname
    * @property   {string}          result.name       The server display name
-   * @property   {string|boolean}  result.wol        WOL address
    * @property   {boolean}         result.connected  Connection status
    */
   get status()
@@ -96,7 +95,6 @@ class Server extends EventEmitter
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      wol: this.wol,
       connected: this.connected
     }
   }

@@ -45,7 +45,7 @@ class Modems
    * Executed when the server emits a list. Loop over them and add or update the
    * list elements to match
    *
-   * @method     Frontend.UI.Servers#_list
+   * @method     Frontend.UI.Modems#_list
    *
    * @param      {Object[]}  data    Array of servers
    * @param      {string}          data.type       The server type

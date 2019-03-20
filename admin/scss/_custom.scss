@@ -35,11 +35,25 @@
     opacity: 1;
     border-radius: 0 0 6px 6px;
   }
+  .avSource {
+    cursor: grab;
+  }
+  .avSource.ui-draggable-dragging {
+    cursor: grabbing;
+  }
+  
   &.visible {
     max-height: 2000px;
 
     &::before {
       opacity: 0;
+    }
+
+    .avSource {
+      z-index: 2;
+    }
+    .avTarget {
+      z-index: 2;
     }
   }
   &.animated {
@@ -54,14 +68,6 @@
   .dropdown-menu {
     z-index: 4;
   }
-}
-
-.avSource {
-  cursor: grab;
-}
-
-.avSource.ui-draggable-dragging {
-  cursor: grabbing;
 }
 
 .user-entry {
@@ -157,21 +163,6 @@ html.popout {
   animation: faa-beat 1s infinite linear;
 }
 
-@-webkit-keyframes faa-beat {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.4);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-
 @keyframes faa-beat {
   0% {
     transform: scale(1);
@@ -179,6 +170,7 @@ html.popout {
 
   50% {
     transform: scale(1.4);
+    color: red;
   }
 
   100% {

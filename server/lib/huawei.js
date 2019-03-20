@@ -20,13 +20,13 @@ class Huawei extends Server
   {
     super(opts);
     /**
-     * Username used to connect to this server
+     * Dongle model name (e3372s or h)
      * 
      * @type       {string}
      */
     this._model = opts.model;
     /**
-     * Current service name
+     * Current service identifier
      * 
      * @type       {string}
      */
@@ -47,19 +47,16 @@ class Huawei extends Server
     this.client = new hilink();
     this.client.setModel(this._model);
     this.client.setIp(this.hostname);
-    this._check();
+    this._timeout = setTimeout(this._check, 10000);
   }
   /**
    * Executed when server is connected
    *
    * @method     Backend.Huawei#_connected
    */
-  _connected = (response) =>
+  _connected = () =>
   {
     clearTimeout(this._timeout);
-    let data = response.response;
-    this.service = data.CurrentNetworkTypeEx;
-    this.signal = parseInt(data.SignalIcon);
     if(!this.connected)
     {
       this.connected = true;
@@ -74,14 +71,41 @@ class Huawei extends Server
     this._timeout = setTimeout(this._check, 10000);
   }
   /**
-   * Setup a new connection to the server and connect
+   * Get the status from the dongle, emit an event if data is received and
+   * update the connection status if needed
    *
    * @method     Backend.Huawei#_check
    */
   _check = () =>
   {
+    /*
+     * Set a 5 second timeout to the _closed method, since the http request will
+     * never timeout
+     */
     this._timeout = setTimeout(this._closed, 5000);
-    this.client.status(this._connected);
+    this.client.status(this._updated);
+  }
+  /**
+   * Exectuted when server status is updated
+   *
+   * @param      {obkect}  response  The response from the UPS
+   * @fires      Backend.Huawei#event:updated
+   */
+  _updated = (response) =>
+  {
+    let data = response.response;
+    this.service = data.CurrentNetworkTypeEx;
+    this.signal = parseInt(data.SignalIcon);
+    /**
+     * Huawei dongle status was updated
+     *
+     * @event      Backend.Huawei#event:updated
+     */
+    this.emit('updated')
+    /*
+     * Also fire the connected method to update connection status
+     */
+    this._connected();
   }
   /**
    * Executed when server connection is closed
@@ -103,7 +127,7 @@ class Huawei extends Server
     this._timeout = setTimeout(this._check, 5000);
   }
   /**
-   * Huawei modem properties
+   * Get Huawei modem properties
    *
    * @type       {Object}
    * @property   {string}          result.type       The server type

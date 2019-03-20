@@ -7,6 +7,7 @@ import Aten from './aten';
 import Atem from './atem';
 import Netgear from './netgear';
 import Huawei from './huawei';
+import Apc from './apc';
 import User from './user';
 import { Client as TPLinkClient } from 'tplink-smarthome-api';
 
@@ -84,6 +85,7 @@ class Application extends EventEmitter
     this.config.getServerConfigByType('atem', this._createAtem);
     this.config.getServerConfigByType('netgear', this._createNetgear);
     this.config.getServerConfigByType('huawei', this._createHuawei);
+    this.config.getServerConfigByType('apc', this._createApc);
 
     /*
      * Create all users
@@ -519,7 +521,7 @@ class Application extends EventEmitter
       exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + server.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     });
     // Shutdown self
-    exec('/sbin/shutdown -t 30');
+    exec('/usr/bin/sudo /sbin/shutdown 1');
     this.logger('Bye bye!');
   }
   /**
@@ -866,7 +868,27 @@ class Application extends EventEmitter
    */
   _createHuawei = (opts) =>
   {
-    return this._defaultServerHandlers(new Huawei(opts));
+    return this._defaultServerHandlers(new Huawei(opts))
+    .on('updated', () =>
+    {
+      this.emit('broadcast.servers');
+    });
+  }
+  /**
+   * Initialize a Apc server object
+   *
+   * @method     Backend.Application#_createApc
+   *
+   * @param      {Object}           opts    The options
+   * @return     {Backend.Apc}  The server instance that was created
+   */
+  _createApc = (opts) =>
+  {
+    return this._defaultServerHandlers(new Apc(opts))
+    .on('updated', () =>
+    {
+      this.emit('broadcast.servers');
+    });
   }
 }
 /**

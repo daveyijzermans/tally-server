@@ -24,7 +24,7 @@ class AVSetup extends EventEmitter
      * @type       {jQuery}
      */
     this.$box = opts.$box;
-    this.$box.find('.btnMinimize .fas').click((event) =>
+    this.$box.find('.btnMinimize').click((event) =>
     {
       this._togglePane(true);
     });
