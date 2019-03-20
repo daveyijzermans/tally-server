@@ -102,7 +102,7 @@ class Apc extends Server
    * @fires      Backend.Server#event:disconnected
    * @fires      Backend.Server#event:connection
    */
-  _closed err= (error) =>
+  _closed = (error) =>
   {
     if(error && this.connected)
     {
