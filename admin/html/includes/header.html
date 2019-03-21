@@ -9,7 +9,7 @@
 
   <div class="header-nav pull-right" id="ups">
     <div class="ups-entry" style="display:none" id="tplUps">
-      <a href="#" class="header-nav-item">
+      <a href="#" class="header-nav-item" data-trigger="focus" tabindex="-1" data-placement="bottom" data-container="body">
         <i class="fas battery-icon"></i>
         <span class="badge badge-pill runtime badge-xs"></span>
       </a>
@@ -17,7 +17,7 @@
   </div>
   <div class="header-nav" id="modems">
     <div class="modem-entry" style="display:none" id="tplModem">
-      <a href="#" class="header-nav-item">
+      <a href="#" class="header-nav-item" data-trigger="focus" tabindex="-1" data-placement="bottom" data-container="body">
         <i class="fas strength-icon"></i>
         <span class="badge badge-pill service badge-xs"></span>
       </a>
@@ -53,6 +53,7 @@
         </div>
       </a>
       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="serverMenu">
+        <li><a class="dropdown-item disabled" href="#">Uptime: <span id="uptime"></span></a></li>
         <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="logout">Logout</a></li>
         <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="restart">Restart server</a></li>
         <li><a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownAll">Shutdown everything</a></li>

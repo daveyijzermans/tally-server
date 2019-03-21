@@ -14,6 +14,7 @@ import AVSetup from './avsetup';
 import poof from './jquery-poof';
 $.fn.poof = poof;
 import { toggleFullscreen } from './fullscreen';
+import moment from 'moment'
 
 /**
  * Admin interface bootstrap
@@ -217,6 +218,13 @@ class Admin
     {
       toggleFullscreen();
       event.preventDefault();
+    });
+
+    let $uptime = $('#uptime');
+    this.socket.on('uptime', (uptime) =>
+    {
+      let formatted = moment.utc(uptime*1000).format('HH:mm:ss');
+      $uptime.text(formatted);
     });
   }
 }

@@ -161,6 +161,7 @@ class Application extends EventEmitter
      * @event      Socket#event:connection
      */
     this._io.on('connection', this._onSocketConnection);
+    this._uptimeInterval = setInterval(() => this._io.to('admins').emit('uptime', process.uptime()), 5000);
   }
   /**
    * Executed when a client connects to socket.io
@@ -317,6 +318,8 @@ class Application extends EventEmitter
        * @event      Socket#event:"admin.shutdownAll"
        */
       socket.on('admin.shutdownAll', this._adminShutdownAll);
+
+      this._io.to('admins').emit('uptime', process.uptime());
     }
   }
   /**

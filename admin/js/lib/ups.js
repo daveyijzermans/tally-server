@@ -1,5 +1,23 @@
 import $ from 'jquery';
 
+const properties = [
+  'model',
+  'temperature',
+  'inputVoltage',
+  'inputFrequency',
+  'outputVoltage',
+  'outputFrequency',
+  'outputLoadPercentage',
+  'outputLoad',
+  'batteryCapacity',
+  'batteryStatus',
+  'batteryRunTime',
+  'lastFailCause',
+  'batteryReplaceIndicator',
+  'lastDiagnosticsTestDate',
+  'lastDiagnosticsTestResult'
+];
+
 /**
  * Class for UPS UI.
  *
@@ -40,6 +58,12 @@ class Ups
      * @type       {Object[]}
      */
     this._servers = null;
+    /**
+     * Cached array of popover content
+     *
+     * @type       {string[]}
+     */
+    this._upsInfo = [];
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -68,16 +92,31 @@ class Ups
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
-        $tr.find('a').attr('href', 'http://' + server.hostname);
+        $tr.find('a')
+          .popover({
+            html: true,
+            title: server.name,
+            content: () => { return this._upsInfo[server.name] }
+          });
       }
       let $icon = $tr.find('.battery-icon')
-        .toggleClass('fa-battery-slash faa-beat', server.percentage < 10)
-        .toggleClass('fa-battery-quarter', server.percentage >= 10 && server.percentage < 25)
-        .toggleClass('fa-battery-half', server.percentage >= 25 && server.percentage < 50)
-        .toggleClass('fa-battery-three-quarters', server.percentage >= 50 && server.percentage < 75)
-        .toggleClass('fa-battery-full', server.percentage >= 75);
+        .toggleClass('fa-battery-slash faa-beat', server.batteryCapacity < 10)
+        .toggleClass('fa-battery-quarter', server.batteryCapacity >= 10 && server.batteryCapacity < 25)
+        .toggleClass('fa-battery-half', server.batteryCapacity >= 25 && server.batteryCapacity < 50)
+        .toggleClass('fa-battery-three-quarters', server.batteryCapacity >= 50 && server.batteryCapacity < 75)
+        .toggleClass('fa-battery-full', server.batteryCapacity >= 75);
       let $runtime = $tr.find('.runtime')
-        .text(Math.floor(server.runtime));
+        .text(Math.floor(server.batteryRunTime));
+
+      let info = '';
+      properties.forEach((prop) =>
+      {
+        info += '<p><strong>' + prop + ':</strong> ' + server[prop] + '</p>';
+      });
+      info += '<a class="btn btn-primary btn-block" href="http://' + server.hostname + '" role="button">UPS admin</a>';
+      this._upsInfo[server.name] = info;
+      let popId = $tr.find('a').attr('aria-describedby');
+      $('#' + popId).find('.popover-body').html(info);
     });
   }
   /**

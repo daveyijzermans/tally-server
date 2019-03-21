@@ -1,4 +1,41 @@
 import $ from 'jquery';
+import 'popper.js';
+import 'bootstrap';
+
+const jsonNet = {
+  1: 'GSM',
+  2: 'GPRS',
+  3: 'EDGE',
+  21: 'IS95A',
+  22: 'IS95B',
+  23: 'CDMA',
+  24: 'EVDO',
+  25: 'EVDO',
+  26: 'EVDO',
+  27: 'HCDMA',
+  28: 'HEVDO',
+  29: 'HEVDO',
+  30: 'HEVDO',
+  31: 'EHRPD',
+  32: 'EHRPD',
+  33: 'EHRPD',
+  34: 'HEHRPD',
+  35: 'HEHRPD',
+  36: 'HEHRPD',
+  41: 'WCDMA',
+  42: 'HSDPA',
+  43: 'HSUPA',
+  44: 'HSPA',
+  45: 'HSPA+',
+  46: 'HSPA+',
+  61: 'SCDMA',
+  62: 'HSDPA',
+  63: 'HSUPA',
+  64: 'HSPA',
+  65: 'HSPA+',
+  81: '802.16E',
+  101: 'LTE'
+}
 
 /**
  * Class for modems UI.
@@ -40,6 +77,12 @@ class Modems
      * @type       {Object[]}
      */
     this._servers = null;
+    /**
+     * Cached array of popover content
+     *
+     * @type       {string[]}
+     */
+    this._modemInfo = [];
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -68,17 +111,30 @@ class Modems
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
-        $tr.find('a').attr('href', server.url)
+        $tr.find('a')
+          .popover({
+            html: true,
+            title: server.name,
+            content: () => { return this._modemInfo[server.name] }
+          });
       }
       let $icon = $tr.find('.strength-icon')
-        .toggleClass('fa-signal-slash', server.signal == 0)
-        .toggleClass('fa-signal-1', server.signal == 1)
-        .toggleClass('fa-signal-2', server.signal == 2)
-        .toggleClass('fa-signal-3', server.signal == 3)
-        .toggleClass('fa-signal-4', server.signal == 4)
-        .toggleClass('fa-signal-5', server.signal == 5)
+        .toggleClass('fa-signal-slash', server.SignalIcon == 0)
+        .toggleClass('fa-signal-1', server.SignalIcon == 1)
+        .toggleClass('fa-signal-2', server.SignalIcon == 2)
+        .toggleClass('fa-signal-3', server.SignalIcon == 3)
+        .toggleClass('fa-signal-4', server.SignalIcon == 4)
+        .toggleClass('fa-signal-5', server.SignalIcon == 5)
       let $service = $tr.find('.service')
-        .text(server.service)
+        .text(server.CurrentNetworkTypeEx == 0 ? '' : jsonNet[server.CurrentNetworkTypeEx]);
+      console.log(server)
+      let info = '';
+      info += '<p><strong>Carrier:</strong> ' + server.FullName + '</p>';
+      info += '<p><strong>Roaming:</strong> ' + (server.cellroam == 1 ? 'yes' : 'no') + '</p>';
+      info += '<a class="btn btn-primary btn-block" href="' + server.url + '" role="button">Modem admin</a>';
+      this._modemInfo[server.name] = info;
+      let popId = $tr.find('a').attr('aria-describedby');
+      $('#' + popId).find('.popover-body').html(info);
     });
   }
   /**

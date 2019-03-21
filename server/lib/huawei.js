@@ -1,5 +1,5 @@
 import Server from './server';
-import hilink from 'hilinkhuawei';
+import Router from '@p4d/huawei-router/core/Router';
 
 /**
  * Class for connecting to Huawei dongle.
@@ -18,34 +18,42 @@ class Huawei extends Server
   {
     super(opts);
     /**
-     * Dongle model name (e3372s or h)
-     * 
-     * @type       {string}
-     */
-    this._model = opts.model;
-    /**
      * Current service identifier
      * 
-     * @type       {string}
+     * @type       {number}
      */
-    this.service = '';
+    this.CurrentNetworkTypeEx = '';
     /**
      * Current signal strength
      * 
      * @type       {number}
      */
-    this.signal = 0;
+    this.SignalIcon = 0;
+    /**
+     * Roaming status
+     * 
+     * @type       {number}
+     */
+    this.cellroam = 0;
+    /**
+     * Carrier full name
+     * 
+     * @type       {string}
+     */
+    this.FullName = '';
     /**
      * Nice URL that others in the LAN can access the modem page
      * 
      * @type       {string}
      */
     this.url = opts.url;
+    this.client = new Router({
+      host: this.hostname,
+      username: 'admin',
+      password: 'admin'
+    });
 
-    this.client = new hilink();
-    this.client.setModel(this._model);
-    this.client.setIp(this.hostname);
-    this._timeout = setTimeout(this._check, 10000);
+    this._timeout = setTimeout(this._check, 5000);
   }
   /**
    * Executed when server is connected
@@ -79,34 +87,37 @@ class Huawei extends Server
    */
   _check = () =>
   {
-    /*
-     * Set a 5 second timeout to the _closed method, since the http request will
-     * never timeout
-     */
-    this._timeout = setTimeout(this._closed, 5000);
-    this.client.status(this._updated);
-  }
-  /**
-   * Exectuted when dongle status is updated
-   *
-   * @param      {obkect}  response  The response from the dongle
-   * @fires      Backend.Huawei#event:updated
-   */
-  _updated = (response) =>
-  {
-    let data = response.response;
-    this.service = data.CurrentNetworkTypeEx;
-    this.signal = parseInt(data.SignalIcon);
-    /**
-     * Huawei dongle status was updated
-     *
-     * @event      Backend.Huawei#event:updated
-     */
-    this.emit('updated')
-    /*
-     * Also fire the connected method to update connection status
-     */
-    this._connected();
+    let timeout = new Promise((resolve, reject) =>
+    {
+      setTimeout(() => {
+        reject('Request timed out in 3 seconds...');
+      }, 3000)
+    });
+
+    let promise = Promise.all([
+      this.client.getStatus(),
+      this.client.getNetwork()
+    ]);
+
+    Promise.race([promise, timeout]).then((data) =>
+    {
+      this.CurrentNetworkTypeEx = parseInt(data[0].CurrentNetworkTypeEx);
+      this.SignalIcon = parseInt(data[0].SignalIcon);
+      this.cellroam = parseInt(data[0].cellroam);
+      this.FullName = data[1].FullName;
+      /**
+       * Huawei dongle status was updated
+       *
+       * @event      Backend.Huawei#event:updated
+       */
+      this.emit('updated');
+      /*
+       * Also fire the connected method to update connection status
+       */
+      this._connected();
+    }).catch(error => {
+      this._closed();
+    });
   }
   /**
    * Executed when server connection is closed
@@ -116,9 +127,9 @@ class Huawei extends Server
    * @fires      Backend.Server#event:disconnected
    * @fires      Backend.Server#event:connection
    */
-  _closed = () =>
+  _closed = (error) =>
   {
-    if(this.connected)
+    if(error && this.connected)
     {
       this.connected = false;
       this.emit('disconnected');
@@ -130,14 +141,23 @@ class Huawei extends Server
    * Get Huawei modem properties
    *
    * @type       {Object}
-   * @property   {string}          result.type       The server type
-   * @property   {string}          result.hostname   The server hostname
-   * @property   {string}          result.name       The server display name
-   * @property   {string|boolean}  result.wol        WOL address
-   * @property   {boolean}         result.connected  Connection status
-   * @property   {string}          result.service    Connection service state
-   * @property   {numer}           result.signal     Signal strength 1-5
-   * @property   {string}          result.url        Huawei hilink dmin url
+   * @property   {string}          result.type                  The server type
+   * @property   {string}          result.hostname              The server
+   *                                                            hostname
+   * @property   {string}          result.name                  The server
+   *                                                            display name
+   * @property   {string|boolean}  result.wol                   WOL address
+   * @property   {boolean}         result.connected             Connection
+   *                                                            status
+   * @property   {number}          result.CurrentNetworkTypeEx  Connection
+   *                                                            service state
+   * @property   {number}          result.SignalIcon            Signal strength
+   *                                                            1-5
+   * @property   {number}          result.cellroam              Roaming status
+   * @property   {string}          result.FullName              Carrier full
+   *                                                            name
+   * @property   {string}          result.url                   Huawei hilink
+   *                                                            admin url
    */
   get status()
   {
@@ -147,8 +167,10 @@ class Huawei extends Server
       name: this.name,
       wol: this.wol,
       connected: this.connected,
-      service: this.service,
-      signal: this.signal || 0,
+      CurrentNetworkTypeEx: this.CurrentNetworkTypeEx,
+      SignalIcon: this.SignalIcon,
+      cellroam: this.cellroam,
+      FullName: this.FullName,
       url: this.url
     }
   }
