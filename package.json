@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@p4d/huawei-router": "^2.0.0",
+    "p4d-huawei-router": "github:daveyijzermans/p4d-huawei-router",
     "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
     "atem": "^0.1.8",
     "express": "^4.16.4",

@@ -1,5 +1,5 @@
 import Server from './server';
-import Router from '@p4d/huawei-router/core/Router';
+import Router from 'p4d-huawei-router';
 
 /**
  * Class for connecting to Huawei dongle.
@@ -87,19 +87,10 @@ class Huawei extends Server
    */
   _check = () =>
   {
-    let timeout = new Promise((resolve, reject) =>
-    {
-      setTimeout(() => {
-        reject('Request timed out in 3 seconds...');
-      }, 3000)
-    });
-
     let promise = Promise.all([
       this.client.getStatus(),
       this.client.getNetwork()
-    ]);
-
-    Promise.race([promise, timeout]).then((data) =>
+    ]).then((data) =>
     {
       this.CurrentNetworkTypeEx = parseInt(data[0].CurrentNetworkTypeEx);
       this.SignalIcon = parseInt(data[0].SignalIcon);
