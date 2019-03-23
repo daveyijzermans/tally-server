@@ -9,6 +9,7 @@ import Netgear from './netgear';
 import Huawei from './huawei';
 import Apc from './apc';
 import User from './user';
+import API from './api';
 import { Client as TPLinkClient } from 'tplink-smarthome-api';
 
 import express from 'express';
@@ -156,6 +157,19 @@ class Application extends EventEmitter
     this._app.use('/docs', express.static('dist/docs'));
 
     /**
+     * Web API class instance
+     * 
+     * @type {Backend.API}
+     */
+    this._webAPI = new API();
+    this._app.use('/api', this._webAPI.router);
+
+    this._webAPI.on('plugs', (host, cmd, cb) =>
+    {
+      cb(this._plugCmd(host, cmd));
+    })
+
+    /**
      * User joins socket server
      * 
      * @event      Socket#event:connection
@@ -248,7 +262,7 @@ class Application extends EventEmitter
        * @event      Socket#event:"admin.plug.toggle"
        * @param      {string}   hostname  The hostname
        */
-      socket.on('admin.plug.toggle', this._adminPlugToggle)
+      socket.on('admin.plug.toggle', this._plugCmd)
 
       /**
        * Logout admin user
@@ -428,17 +442,27 @@ class Application extends EventEmitter
   /**
    * Toggle a smartplug power state
    *
-   * @method     Backend.Application#_adminPlugToggle
+   * @method     Backend.Application#_plugCmd
    *
-   * @param      {string}   hostname  The hostname
+   * @param      {string}   host  The hostname
+   * @param      {string}   cmd  The command
    * @listens    Socket#event:"admin.plug.toggle"
    */
-  _adminPlugToggle = (hostname) =>
+  _plugCmd = (host, cmd = 'toggle') =>
   {
-    if(typeof hostname == 'undefined') return false;
-    let result = this._plugs.filter((a) => a.host == hostname);
+    if(typeof host == 'undefined') return false;
+    let result = this._plugs.filter((a) => a.host == host);
     let device = result.length == 1 ? result[0] : false;
-    if(device) device.togglePowerState();
+    if(device)
+    {
+      if(cmd == 'toggle')
+        return device.togglePowerState();
+      if(cmd == 'on')
+        return device.setPowerState(true);
+      if(cmd == 'off')
+        return device.setPowerState(false);
+    }
+    return false;
   }
   /**
    * Reboot a user or server.
