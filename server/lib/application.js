@@ -161,9 +161,16 @@ class Application extends EventEmitter
      * 
      * @type {Backend.API}
      */
-    this._webAPI = new API();
+    this._webAPI = new API({
+      adminPass: this.config.admin.adminPass
+    });
     this._app.use('/api', this._webAPI.router);
 
+    /**
+     * Listen to plug commands from the API
+     *
+     * @listens Backend.API#event:plugs
+     */
     this._webAPI.on('plugs', (host, cmd, cb) =>
     {
       cb(this._plugCmd(host, cmd));

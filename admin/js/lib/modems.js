@@ -127,7 +127,6 @@ class Modems
         .toggleClass('fa-signal-5', server.SignalIcon == 5)
       let $service = $tr.find('.service')
         .text(server.CurrentNetworkTypeEx == 0 ? '' : jsonNet[server.CurrentNetworkTypeEx]);
-      console.log(server)
       let info = '';
       info += '<p><strong>Carrier:</strong> ' + server.FullName + '</p>';
       info += '<p><strong>Roaming:</strong> ' + (server.cellroam == 1 ? 'yes' : 'no') + '</p>';
