@@ -172,7 +172,7 @@ const html = () =>
 const browser = () =>
 {
   browserSync.init(null, {
-    proxy: "http://localhost",
+    proxy: "http://localhost:8080",
         files: ["dist/www/**/*.*"],
         port: 3000,
   });
