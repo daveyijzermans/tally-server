@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 
 const info = {
   apiRoot: 'API root. Available sub commands: plugs',
-  plugs: 'Plugs API root. Commands: toggle|on|off [name]'
+  plugs: 'Plugs API root. Commands: toggle|on|off [host|*]'
 }
 
 /**
@@ -29,7 +29,7 @@ class API extends EventEmitter
 
     this.plugs = new express.Router()
       .all('/', (req, res) => res.end(info.plugs))
-      .get('/:cmd/:host', this._plugCmd);
+      .get('/:cmd/:host?', this._plugCmd);
     this.router = new express.Router()
       .use(cookies())
       .use('/auth/logout', this._logout)
@@ -106,6 +106,7 @@ class API extends EventEmitter
   {
     let cmd = req.params.cmd;
     let host = req.params.host;
+    if(!req.params.host) return res.end('host?');
     /**
      * Tell the server we want to execute a 'plug' command
      *
