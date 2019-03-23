@@ -10,6 +10,12 @@ import Huawei from './huawei';
 import Apc from './apc';
 import User from './user';
 import API from './api';
+/**
+ * TPLinkClient API
+ *
+ * @class      TPLinkClient
+ * @see        {@link https://github.com/plasticrake/tplink-smarthome-api/blob/master/API.md tplink-smarthome-api documentation}
+ */
 import { Client as TPLinkClient } from 'tplink-smarthome-api';
 
 import express from 'express';
@@ -252,9 +258,9 @@ class Application extends EventEmitter
       /* Admin-only commands */
       /**
        * Set new data on a user and save the config file
-       * 
+       *
        * @event      Socket#event:"admin.set.user"
-       * @param      {Object}         data    The data
+       * @param      {Object}         data              The data
        * @param      {string}         data.username     Current username
        * @param      {string}         data.name         New display name
        * @param      {string|number}  data.camNumber    New camera number
@@ -265,9 +271,11 @@ class Application extends EventEmitter
 
       /**
        * Toggle the power state of a smart plug
-       * 
+       *
        * @event      Socket#event:"admin.plug.toggle"
-       * @param      {string}   hostname  The hostname
+       * @param      {string}  hostname      The hostname or '*' to target all
+       * @param      {string}  [cmd=toggle]  Command to execute (on, off or
+       *                                     toggle)
        */
       socket.on('admin.plug.toggle', this._plugCmd)
 
@@ -281,7 +289,7 @@ class Application extends EventEmitter
        * Event sent by admin to request server data
        * 
        * @event      Socket#event:"admin.update"
-       * @fires      Socket#event:broadcast
+       * @fires      Backend.Application#event:broadcast
        */
       socket.on('admin.update', () => this.emit('broadcast'));
       /**
@@ -451,17 +459,16 @@ class Application extends EventEmitter
    *
    * @method     Backend.Application#_plugCmd
    *
-   * @param      {string}   host  The hostname
-   * @param      {string}   cmd  The command
+   * @param      {string}   host          The hostname or '*' to target all
+   * @param      {string}   [cmd=toggle]  Command to execute (on, off or toggle)
    * @listens    Socket#event:"admin.plug.toggle"
    */
   _plugCmd = (host, cmd = 'toggle') =>
   {
     if(typeof host == 'undefined') return false;
-    let result = this._plugs.filter((a) => a.host == host);
-    let device = result.length == 1 ? result[0] : false;
-    if(device)
+    let execute = (device) =>
     {
+      if(!device) return false;
       if(cmd == 'toggle')
         return device.togglePowerState();
       if(cmd == 'on')
@@ -469,7 +476,14 @@ class Application extends EventEmitter
       if(cmd == 'off')
         return device.setPowerState(false);
     }
-    return false;
+    if (host === '*')
+      Promise.all(this._plugs.map((device) => execute(device)));
+    else
+    {
+      let result = this._plugs.filter((a) => a.host == host);
+      let device = result.length == 1 ? result[0] : false;
+      return execute(device);
+    }
   }
   /**
    * Reboot a user or server.
@@ -563,7 +577,7 @@ class Application extends EventEmitter
    *
    * @method     Backend.Application#_smartPlugHandler
    * @param      {Object}  device  The device
-   * @fires      Socket#event:"broadcast.plugs"
+   * @fires      Socket#event:"admin.plugs.list"
    * @fires      Socket#event:"admin.plugs.disconnect"
    */
   _smartPlugHandler = (device) =>
@@ -782,6 +796,9 @@ class Application extends EventEmitter
    * @param      {Object}          opts    The options
    * @return     {Backend.Mumble}  The server instance that was created
    * @fires      Backend.Application#event:"broadcast.users"
+   * @listens    Backend.Mumble#event:user-channels
+   * @listens    Backend.Mumble#event:user-move
+   * @listens    Backend.Mumble#event:user-talk
    */
   _createMumble = (opts) =>
   {
@@ -899,6 +916,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}           opts    The options
    * @return     {Backend.Huawei}  The server instance that was created
+   * @listens    Backend.Huawei#event:updated
    */
   _createHuawei = (opts) =>
   {
@@ -915,6 +933,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}           opts    The options
    * @return     {Backend.Apc}  The server instance that was created
+   * @listens    Backend.Apc#event:updated
    */
   _createApc = (opts) =>
   {

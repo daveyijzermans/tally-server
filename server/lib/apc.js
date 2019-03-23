@@ -154,7 +154,7 @@ class Apc extends Server
    *
    * @method     Backend.Apc#_check
    * 
-   * @fires      Backend.Huawei#event:updated
+   * @fires      Backend.Apc#event:updated
    */
   _check = () =>
   {

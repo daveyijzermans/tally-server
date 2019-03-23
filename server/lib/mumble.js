@@ -69,7 +69,7 @@ class Mumble extends Server
    * 
    * @fires      Backend.Server#event:connected
    * @fires      Backend.Server#event:connection
-   * @fires      Backend.Server#event:user-channels
+   * @fires      Backend.Mumble#event:user-channels
    */
   _initialized = () =>
   {

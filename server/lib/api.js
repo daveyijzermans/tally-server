@@ -18,7 +18,9 @@ class API extends EventEmitter
   /**
    * Constructs the object.
    *
-   * @param      {Object}  opts    The options
+   * @param      {Object}  opts            The options
+   * @param      {string}  opts.adminPass  Administrator password used for
+   *                                       authentication
    */
   constructor(opts)
   {
@@ -26,23 +28,25 @@ class API extends EventEmitter
     this._adminPass = opts.adminPass
 
     this.plugs = new express.Router()
-      .use(this._checkCookie)
       .all('/', (req, res) => res.end(info.plugs))
       .get('/:cmd/:host', this._plugCmd);
     this.router = new express.Router()
       .use(cookies())
-      .all('/', (req, res) => res.end(info.apiRoot))
+      .use('/auth/logout', this._logout)
       .use('/auth/:password', this._authenticate)
-      .use('/logout', this._logout)
+      .use(this._checkCookie)
+      .all('/', (req, res) => res.end(info.apiRoot))
       .use('/plugs', this.plugs);
   }
   /**
    * Authenticate API user with password
-   * 
+   *
    * @method     Backend.API#_authenticate
    *
-   * @param      {Object}  req     The request
-   * @param      {Object}  res     The resource
+   * @param      {Object}  req                  The request
+   * @param      {Object}  req.params           Request parameters
+   * @param      {string}  req.params.password  Password to authenticate with
+   * @param      {Object}  res                  The resource
    */
   _authenticate = (req, res) =>
   {
@@ -73,9 +77,11 @@ class API extends EventEmitter
    *
    * @method     Backend.API#_checkCookie
    *
-   * @param      {Object}    req     The request
-   * @param      {Object}    res     The resource
-   * @param      {Function}  next    Next middleware
+   * @param      {Object}    req                    The request
+   * @param      {Object}    req.cookies            Parsed cookies
+   * @param      {string}    req.cookies.adminPass  Password to authenticate with
+   * @param      {Object}    res                    The resource
+   * @param      {Function}  next                   Next middleware
    */
   _checkCookie = (req, res, next) =>
   {
@@ -89,8 +95,11 @@ class API extends EventEmitter
    *
    * @method     Backend.API#_plugCmd
    *
-   * @param      {Object}    req     The request
-   * @param      {Object}    res     The resource
+   * @param      {Object}  req              The request
+   * @param      {Object}  req.params       Request parameters
+   * @param      {string}  req.params.cmd   Command to execute
+   * @param      {string}  req.params.host  The hostname or '*' to target all
+   * @param      {Object}  res              The resource
    * @fires      Backend.API#event:plugs
    */
   _plugCmd = (req, res) =>
@@ -101,8 +110,8 @@ class API extends EventEmitter
      * Tell the server we want to execute a 'plug' command
      *
      * @event      Backend.API#event:plugs
-     * @param      {string}    host    The hostname
-     * @param      {string}    cmd     The command
+     * @param      {string}    host    The hostname or '*' to target all
+     * @param      {string}    cmd     The command to execute
      * @param      {function}  cb      The callback function to execute after
      *                                 the command is executed server-side
      */
