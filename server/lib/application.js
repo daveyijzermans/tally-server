@@ -177,9 +177,9 @@ class Application extends EventEmitter
      *
      * @listens Backend.API#event:plugs
      */
-    this._webAPI.on('plugs', (host, cmd, cb) =>
+    this._webAPI.on('plugs', (hosts, cmd, cb) =>
     {
-      cb(this._plugCmd(host, cmd));
+      cb(this._plugCmd(hosts, cmd));
     })
 
     /**
@@ -273,7 +273,8 @@ class Application extends EventEmitter
        * Toggle the power state of a smart plug
        *
        * @event      Socket#event:"admin.plug.toggle"
-       * @param      {string}  hostname      The hostname or '*' to target all
+       * @param      {string}  hosts         Hostnames comma seperated or '*' to
+       *                                     target all. Start with ! to exclude
        * @param      {string}  [cmd=toggle]  Command to execute (on, off or
        *                                     toggle)
        */
@@ -459,16 +460,17 @@ class Application extends EventEmitter
    *
    * @method     Backend.Application#_plugCmd
    *
-   * @param      {string}   host          The hostname or '*' to target all
+   * @param      {string}   hosts         The hostname or '*' to target all
    * @param      {string}   [cmd=toggle]  Command to execute (on, off or toggle)
+   * @return     {Promise}  Promise object
    * @listens    Socket#event:"admin.plug.toggle"
    */
-  _plugCmd = (host, cmd = 'toggle') =>
+  _plugCmd = (hosts, cmd = 'toggle') =>
   {
-    if(typeof host == 'undefined') return false;
+    if(typeof hosts == 'undefined') return Promise.reject(new Error('hosts?'));
     let execute = (device) =>
     {
-      if(!device) return false;
+      if(!device) return Promise.reject(new Error('device?'));
       if(cmd == 'toggle')
         return device.togglePowerState();
       if(cmd == 'on')
@@ -479,29 +481,29 @@ class Application extends EventEmitter
     /* 
      * Target all plugs that are discovered.
      */
-    if(host === '*')
+    if(hosts === '*')
       return Promise.all(this._plugs.map((d) => execute(d)));
 
     /*
      * If the host starts with ! then we want to target all except the given host
      */
     let exclude = false;
-    if(host.charAt(0) === '!')
+    if(hosts.charAt(0) === '!')
     {
       exclude = true;
-      host = host.substring(1);
+      hosts = hosts.substring(1);
     }
     /*
      * Array of hosts we want to exclude
      */
-    host = host.split(',');
+    hosts = hosts.split(',');
 
     return Promise.all(this._plugs.map((d) =>
     {
       /*
        * Is this host in the list?
        */
-      let i = host.indexOf(d.host);
+      let i = hosts.indexOf(d.host);
       /*
        * If we want to exclude this host, this host should not be in the list.
        * If we want to include this host, this host should be in the list.
