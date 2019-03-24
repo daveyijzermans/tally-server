@@ -44,22 +44,30 @@ class Videohub extends Server
     this.emit('connection', this.connected);
 
     this.client.setTimeout(0);
-    this.client.on('data', (data) => this._updateStatus(data));
+    this.client.on('data', this._parseData);
   }
-
-  _updateStatus = (obj) =>
+  /**
+   * Parse data coming from the video hub
+   *
+   * @param      {Object}  obj     data object
+   */
+  _parseData = (obj) =>
   {
     obj = parser(obj.toString());
-    if (!this._statusObj[obj.title]) {
-      if (obj.array) {
+    if (!this._statusObj[obj.title])
+    {
+      if (obj.array)
+      {
         this._statusObj[obj.title] = [];
       } else {
         this._statusObj[obj.title] = {};
       };
     };
     
-    for (var key in obj.data) {
-      if (obj.array) {
+    for (var key in obj.data)
+    {
+      if (obj.array)
+      {
         this._statusObj[obj.title][parseInt(key, 10)] = obj.data[key];
       } else {
         this._statusObj[obj.title][key] = obj.data[key];
@@ -102,7 +110,15 @@ class Videohub extends Server
     this.emit('connection', this.connected);
     this.timeout = setTimeout(this._check, 3000);
   }
-
+  /**
+   * Set a route on the videohub
+   *
+   * @method     Backend.Videohub#route
+   *
+   * @param      {number|string}  output  The output number, zero-indexed
+   * @param      {number|string}  input   The input number, zero-indexed
+   * @return     {boolean}        Result
+   */
   route = (output, input) =>
   {
     if (!this.connected) return false;
@@ -112,6 +128,42 @@ class Videohub extends Server
     this.client.write(str);
     return true;
   }
+  /**
+   * Set an output label
+   *
+   * @method     Backend.Videohub#setOutputLabel
+   *
+   * @param      {Number}   output  The output
+   * @param      {String}   label   The label
+   * @return     {boolean}  Result
+   */
+  setOutputLabel = (output, label) =>
+  {
+    if (!this.connected) return false;
+
+    let str = ['OUTPUT LABELS:', output + ' ' + label].join('\n');
+    str += '\n\n';
+    this.client.write(str);
+    return true;
+  };
+  /**
+   * Set an input label
+   *
+   * @method     Backend.Videohub#setInputLabel
+   *
+   * @param      {Number}   input   The input
+   * @param      {String}   label   The label
+   * @return     {boolean}  Result
+   */
+  setInputLabel = (input, label) =>
+  {
+    if (!this.connected) return false;
+
+    var str = ['INPUT LABELS:', input + ' ' + label].join('\n');
+    str += '\n\n';
+    this.client.write(str);
+    return true;
+  };
   /**
    * Get Videohub server properties
    *
