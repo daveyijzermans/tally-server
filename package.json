@@ -12,7 +12,6 @@
   "dependencies": {
     "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
     "atem": "^0.1.8",
-    "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
     "io-videohub": "github:daveyijzermans/io-videohub",
     "mumble": "^0.3.19",

@@ -476,14 +476,39 @@ class Application extends EventEmitter
       if(cmd == 'off')
         return device.setPowerState(false);
     }
-    if (host === '*')
-      Promise.all(this._plugs.map((device) => execute(device)));
-    else
+    /* 
+     * Target all plugs that are discovered.
+     */
+    if(host === '*')
+      return Promise.all(this._plugs.map((d) => execute(d)));
+
+    /*
+     * If the host starts with ! then we want to target all except the given host
+     */
+    let exclude = false;
+    if(host.charAt(0) === '!')
     {
-      let result = this._plugs.filter((a) => a.host == host);
-      let device = result.length == 1 ? result[0] : false;
-      return execute(device);
+      exclude = true;
+      host = host.substring(1);
     }
+    /*
+     * Array of hosts we want to exclude
+     */
+    host = host.split(',');
+
+    return Promise.all(this._plugs.map((d) =>
+    {
+      /*
+       * Is this host in the list?
+       */
+      let i = host.indexOf(d.host);
+      /*
+       * If we want to exclude this host, this host should not be in the list.
+       * If we want to include this host, this host should be in the list.
+       * If the requirement is true for the given situation, execute the action.
+       */
+      if(exclude ? i == -1 : i != -1) return execute(d);
+    }));
   }
   /**
    * Reboot a user or server.
