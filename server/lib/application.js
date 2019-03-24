@@ -3,6 +3,7 @@ import Config from './config';
 import Server from './server';
 import Mumble from './mumble';
 import Vmix from './vmix';
+import Videohub from './videohub';
 import Aten from './aten';
 import Atem from './atem';
 import Netgear from './netgear';
@@ -88,6 +89,7 @@ class Application extends EventEmitter
      */
     this.config.getServerConfigByType('mumble', this._createMumble);
     this.config.getServerConfigByType('vmix', this._createVmix);
+    this.config.getServerConfigByType('videohub', this._createVideohub);
     this.config.getServerConfigByType('aten', this._createAten);
     this.config.getServerConfigByType('atem', this._createAtem);
     this.config.getServerConfigByType('netgear', this._createNetgear);
@@ -888,6 +890,18 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.tallies');
       });
+  }
+  /**
+   * Initialize a Videohub server object
+   *
+   * @method     Backend.Application#_createVideohub
+   *
+   * @param      {Object}        opts    The options
+   * @return     {Backend.Videohub}  The server instance that was created
+   */
+  _createVideohub = (opts) =>
+  {
+    return this._defaultServerHandlers(new Videohub(opts))
   }
   /**
    * Initialize a Aten server object
