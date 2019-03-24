@@ -19,7 +19,7 @@ class Videohub extends Server
   {
     super(opts);
     /**
-     * Routing information
+     * Status information from API
      * 
      * @type       {Object}
      */
@@ -48,6 +48,8 @@ class Videohub extends Server
   }
   /**
    * Parse data coming from the video hub
+   *
+   * @method     Backend.Videohub#_parseData
    *
    * @param      {Object}  obj     data object
    */
@@ -168,10 +170,14 @@ class Videohub extends Server
    * Get Videohub server properties
    *
    * @type       {Object}
-   * @property   {string}          result.type       The server type
-   * @property   {string}          result.hostname   The server hostname
-   * @property   {string}          result.name       The server display name
-   * @property   {boolean}         result.connected  Connection status
+   * @property   {string}    result.type          The server type
+   * @property   {string}    result.hostname      The server hostname
+   * @property   {string}    result.name          The server display name
+   * @property   {boolean}   result.connected     Connection status
+   * @property   {string[]}  result.inputLabels   Input labels
+   * @property   {string[]}  result.outputLabels  Output labels
+   * @property   {string[]}  result.routing       Routing status
+   * @property   {string[]}  result.lockStatus    Genlock status
    */
   get status()
   {
@@ -179,7 +185,11 @@ class Videohub extends Server
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      connected: this.connected
+      connected: this.connected,
+      inputLabels: this._statusObj.inputLabels,
+      outputLabels: this._statusObj.outputLabels,
+      routing: this._statusObj.video_output_routing,
+      lockStatus: this._statusObj.video_output_locks
     }
   }
 }
