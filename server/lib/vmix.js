@@ -2,6 +2,8 @@ import Server from './server';
 import { Socket } from 'net';
 import readline from 'readline';
 
+const effects = ['FADE', 'ZOOM', 'WIPE', 'SLIDE', 'FLY', 'CROSSZOOM', 'FLYROTATE', 'CUBE', 'CUBEZOOM', 'VERTICALWIPE', 'VERTICALSLIDE', 'MERGE', 'WIPEREVERSE', 'SLIDEREVERSE', 'VERTICALWIPEREVERSE', 'VERTICALSLIDEREVERSE'];
+
 /**
  * Class for connecting to vMix API via TCP.
  *
@@ -130,6 +132,27 @@ class Vmix extends Server
       return false;
     let fnc = state === 1 ? 'ActiveInput' : 'PreviewInput';
     this.client.write('FUNCTION ' + fnc + ' Input=' + input + '\r\n');
+  }
+  /**
+   * Send cut command to vMix
+   *
+   * @method     Backend.Vmix#cut
+   */
+  cut = () =>
+  {
+    this.client.write('FUNCTION CUT\r\n');
+  }
+  /**
+   * Send transition command to vMix
+   *
+   * @method     Backend.Vmix#transition
+   */
+  transition = (duration = 2000, effect = 'FADE') =>
+  {
+    duration = parseInt(duration);
+    if(isNaN(duration)) return false;
+    if(effects.indexOf(effect.toUpperCase()) == -1) return false;
+    this.client.write('FUNCTION ' + effect + '\r\n');
   }
   /**
    * Get vMix server properties

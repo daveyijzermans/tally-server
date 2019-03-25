@@ -74,7 +74,7 @@ class Switchers
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
         $tr.find('.btnCut').click((event) =>
         {
-          this.socket.emit('admin.server.command', server.name, 'cut', [duration]);
+          this.socket.emit('admin.server.command', server.name, 'cut');
           event.preventDefault();
         });
         $tr.find('.btnAuto').click((event) =>

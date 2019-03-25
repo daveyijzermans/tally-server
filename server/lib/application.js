@@ -478,7 +478,7 @@ class Application extends EventEmitter
    */
   _serverCmd = (name, method, args) =>
   {
-    const methods = ['switchInput'];
+    const methods = ['switchInput', 'cut', 'transition'];
     if(methods.indexOf(method) == -1) return false;
     if(name === '*')
     {

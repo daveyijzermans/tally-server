@@ -76,7 +76,8 @@ class SwitcherPopout
       socket: this.socket
     });
 
-    this.loginModal.on('authenticated', this._authenticated);
+    this.loginModal.on('authenticated', this._authenticated)
+                   .on('error', () => {});
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
 
     /*
