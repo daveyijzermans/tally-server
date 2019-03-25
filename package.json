@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
+    "grandiose": "github:daveyijzermans/grandiose",
     "atem": "^0.1.8",
     "express": "^4.16.4",
     "io-videohub": "github:daveyijzermans/io-videohub",

@@ -199,7 +199,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}  socket  The socket
    * @fires      Backend.Application#event:"broadcast.users"
-   * @fires      Socket#event:"authenticated"
+   * @fires      Socket#event:authenticated
    * @listens    Socket#event:connection
    * @listens    Socket#event:request
    */
@@ -280,7 +280,9 @@ class Application extends EventEmitter
        * @param      {string}  [cmd=toggle]  Command to execute (on, off or
        *                                     toggle)
        */
-      socket.on('admin.plug.toggle', this._plugCmd)
+      socket.on('admin.plug.toggle', this._plugCmd);
+
+      socket.on('admin.server.switch', this._switchCmd);
 
       /**
        * Logout admin user
@@ -452,11 +454,33 @@ class Application extends EventEmitter
       if(!mumbleUser) return;
       mumbleUser.moveToChannel(newChannel);
     });
-    this.emit('broadcast.users');
     this.emit('broadcast.tallies');
+    this.emit('broadcast.users');
     this.config.saveUsers();
     cb(r);
   }
+  /**
+   * Send a switch command to a specified vMix server
+   *
+   * @method     Backend.Application#_switchCmd
+   *
+   * @param      {(number|string)}   input       The input number
+   * @param      {number}            [state=1]   The state (1=program, 2=preview)
+   * @param      {string}            name        The server name or '*' to target all
+   * @return     {boolean}  Whether the command was successful.
+   */
+  _switchCmd = (input, state = 1, name) =>
+  {
+    if(name === '*')
+      return Server.getByType('vmix').forEach((vmix) =>
+      {
+        vmix.switchInput(input, state);
+      });
+    
+    let vmix = Server.getByName(name);
+    if(!vmix || vmix.type != 'vmix') return false;
+    return vmix.switchInput(input, state);
+  };
   /**
    * Toggle a smartplug power state
    *
@@ -878,6 +902,7 @@ class Application extends EventEmitter
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
    * @fires      Backend.Application#event:"broadcast.tallies"
+   * @fires      Backend.Application#event:"broadcast.users"
    */
   _createVmix = (opts) =>
   {
@@ -885,10 +910,12 @@ class Application extends EventEmitter
       .on('disconnected', () =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.users');
       })
       .on('tallies', (tallies) =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.users');
       });
   }
   /**
@@ -925,6 +952,7 @@ class Application extends EventEmitter
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
    * @fires      Backend.Application#event:"broadcast.tallies"
+   * @fires      Backend.Application#event:"broadcast.users"
    */
   _createAtem = (opts) =>
   {
@@ -932,10 +960,12 @@ class Application extends EventEmitter
       .on('disconnected', () =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.users');
       })
       .on('tallies', (tallies) =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.users');
       });
   }
   /**

@@ -46,8 +46,9 @@ class Vmix extends Server
     {
       this.tallies = line.substring(9).split('').map((a) => { return parseInt(a) });
       this.emit('tallies', this.tallies);
+      return;
     }
-  }
+  };
   /**
    * Executed when server is connected
    *
@@ -106,6 +107,23 @@ class Vmix extends Server
     }
     this.emit('connection', this.connected);
     this.timeout = setTimeout(this._check, 3000);
+  }
+  /**
+   * Set an input to preview or active state
+   *
+   * @method     Backend.Vmix#switchInput
+   *
+   * @param      {(number|string)}   input       The input number
+   * @param      {number}            [state=1]   The state (1=program, 2=preview)
+   * @return     {boolean}  Whether the command was successful.
+   */
+  switchInput = (input, state = 1) =>
+  {
+    input = parseInt(input);
+    if(!this.connected || isNaN(input) || input < 1 || !(state === 1 || state === 2))
+      return false;
+    let fnc = state === 1 ? 'ActiveInput' : 'PreviewInput';
+    this.client.write('FUNCTION ' + fnc + ' Input=' + input + '\r\n');
   }
   /**
    * Get vMix server properties

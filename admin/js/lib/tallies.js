@@ -76,20 +76,20 @@ class Tallies extends EventEmitter
         let $s = $('<span class="badge badge-pill"></span>')
           .text(i + 1)
           .addClass(state)
-          .appendTo($indicators);
+          .appendTo($indicators)
+          .click((event) =>
+          {
+            let newState = result[i] == 0 ? 2 : 1;
+            let dest = host == '_combined' ? '*' : host;
+            this.socket.emit('admin.server.switch', i + 1, newState, dest);
+            event.preventDefault();
+          });
       }
     });
 
     let hostsOnline = this.$list.find('.tally-entry').length > 1;
     this.$list.siblings('.noresults').toggle(!hostsOnline);
     this.$list.find('.tally-entry').toggle(hostsOnline);
-    /**
-     * Let listeners know that tally information was updated.
-     *
-     * @event      Frontend.UI.Tallies#event:updated
-     * @param      {Object.<string, number[]>}  tallies  Array of tally information
-     */
-    this.emit('updated', this._tallies);
   }
   /**
    * Array of combined tally states. Used by the Users class.

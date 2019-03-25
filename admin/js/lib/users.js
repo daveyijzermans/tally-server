@@ -65,34 +65,6 @@ class Users extends EventEmitter
       $modal: this.$modal,
       socket: this.socket
     });
-
-    /**
-     * Update users' tally information when it it received.
-     *
-     * @event      Frontend.UI.Users#event:tallies
-     * @param      {number[]}  tallies  The combined tally information
-     */
-    this.on('tallies', this._updateUserTallies);
-  }
-  /**
-   * Executed when tally information is updated, primarily by the Tallies class
-   *
-   * @method     Frontend.UI.Users#_updateUserTallies
-   *
-   * @param      {number[]}  tallies  The combined tally information
-   */
-  _updateUserTallies = tallies =>
-  {
-    this.$list.find('.user-entry').each((i, el) =>
-    {
-      let $el = $(el);
-      let n = $el.attr('data-camnumber');
-      let val = tallies[n - 1];
-      $el.find('.avatar')
-        .toggleClass('avatar-danger', val == '1')
-        .toggleClass('avatar-success', val == '2')
-        .toggleClass('avatar-secondary', val == '0');
-    });
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -147,16 +119,21 @@ class Users extends EventEmitter
       $u.attr('data-camnumber', user.camNumber);
       $u.find('.name').text(user.name);
       $u.find('.username').text(user.username);
-      $u.find('.camNumber').text(user.camNumber);
+      $u.find('.camNumber')
+        .text(user.camNumber)
+        .toggleClass('avatar-danger', user.status == 1)
+        .toggleClass('avatar-success', user.status == 2)
+        .toggleClass('avatar-secondary', user.status == 0)
+        .off('click.switch')
+        .one('click.switch', (event) =>
+        {
+          let newState = user.status == 0 ? 2 : 1;
+          this.socket.emit('admin.server.switch', user.camNumber, newState, '*');
+          event.preventDefault();
+        });
       $u.find('.channelName').text(user.channelName);
       $dropdown.find('.edit-user-modal').data('user', user);
     });
-    /**
-     * Let listeners know that user information was updated.
-     *
-     * @event      Frontend.UI.Users#event:updated
-     */
-    this.emit('updated');
   }
   /**
    * Executed when a user disconnects. Remove the entry from the UI.

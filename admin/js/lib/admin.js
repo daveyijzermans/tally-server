@@ -53,31 +53,6 @@ class Admin
     $('#serverStatus').html('<i class="fas fa-times-circle faa-beat"></i> Disconnected');
   }
   /**
-   * Executed when tally info is updated
-   *
-   * @method     Frontend.Admin#_talliesUpdated
-   *
-   * @param      {Object.<string, number[]>}  tallies  Tally information
-   * @listens    Frontend.UI.Tallies#event:updated
-   * @fires      Frontend.UI.Users#event:tallies
-   */
-  _talliesUpdated = (tallies) => 
-  {
-    this.users.emit('tallies', this.tallies.combined);
-  }
-  /**
-   * Executed when user info is updated
-   *
-   * @method     Frontend.Admin#_usersUpdated
-   * 
-   * @listens    Frontend.UI.Users#event:updated
-   * @fires      Frontend.UI.Users#event:tallies
-   */
-  _usersUpdated = () => 
-  {
-    this.users.emit('tallies', this.tallies.combined);
-  }
-  /**
    * Constructs the object.
    */
   constructor()
@@ -195,10 +170,8 @@ class Admin
       isExpanded: Cookies.get('avExpanded') === 'true'
     }).on('toggle', (s) => Cookies.set('avExpanded', s));
 
-    this.tallies.on('updated', this._talliesUpdated);
     this.loginModal.on('authenticated', this._authenticated)
                    .on('error', this._loginError);
-    this.users.on('updated', this._usersUpdated);
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
 
     /*
