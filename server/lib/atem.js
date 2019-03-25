@@ -106,6 +106,28 @@ class Atem extends Server
     this.client[fnc](input-1);
     return true;
   }
+  /**
+   * Get ATEM server properties
+   *
+   * @type       {Object}
+   * @property   {string}          result.type       The server type
+   * @property   {string}          result.hostname   The server hostname
+   * @property   {string}          result.name       The server display name
+   * @property   {boolean}         result.connected  Connection status
+   * @property   {number[]}        result.tallies    Tally information
+   * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
+   */
+  get status()
+  {
+    return {
+      type: this.type,
+      hostname: this.hostname,
+      name: this.name,
+      connected: this.connected,
+      tallies: this.tallies,
+      switchable: this.switchable
+    }
+  }
 }
 
 export default Atem;

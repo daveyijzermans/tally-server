@@ -282,6 +282,15 @@ class Application extends EventEmitter
        */
       socket.on('admin.plug.toggle', this._plugCmd);
 
+      /**
+       * Send a switch command to a specified vMix server
+       *
+       * @event      Socket#event:"admin.server.switch"
+       *
+       * @param      {(number|string)}   input       The input number
+       * @param      {number}            [state=1]   The state (1=program, 2=preview)
+       * @param      {string}            name        The server name or '*' to target all
+       */
       socket.on('admin.server.switch', this._switchCmd);
 
       /**
@@ -898,6 +907,7 @@ class Application extends EventEmitter
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
    * @fires      Backend.Application#event:"broadcast.tallies"
+   * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
   _createVmix = (opts) =>
@@ -911,6 +921,7 @@ class Application extends EventEmitter
       .on('tallies', (tallies) =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.servers');
         this.emit('broadcast.users');
       });
   }
@@ -948,6 +959,7 @@ class Application extends EventEmitter
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
    * @fires      Backend.Application#event:"broadcast.tallies"
+   * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
   _createAtem = (opts) =>
@@ -961,6 +973,7 @@ class Application extends EventEmitter
       .on('tallies', (tallies) =>
       {
         this.emit('broadcast.tallies');
+        this.emit('broadcast.servers');
         this.emit('broadcast.users');
       });
   }

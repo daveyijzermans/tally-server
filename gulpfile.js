@@ -7,6 +7,7 @@ const gulp = require('gulp'),
       webpackGulp = require('webpack-stream'),
       babel = require('gulp-babel'),
       rigger = require('gulp-rigger'),
+      named = require('vinyl-named'),
       plumber = require('gulp-plumber'),
       notifier = require('node-notifier'),
       sourcemaps = require('gulp-sourcemaps'),
@@ -94,7 +95,8 @@ const scss = () =>
 */
 const js = done =>
 {
-  return gulp.src('admin/js/index.js')
+  return gulp.src(['admin/js/*.js'])
+    .pipe(named())
     .pipe(plumber({
       errorHandler: error =>
       {

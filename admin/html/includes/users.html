@@ -7,7 +7,7 @@
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="updateUsers">Update all</a>
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdownUsers">Shutdown all</a>
       </div>
-      <button class="box-actions-item btn-popout" id="usersPopout"><i class="fas fa-external-link-alt"></i></button>
+      <a class="box-actions-item btn-popout usersPopout" href="/usersPopout.html"><i class="fas fa-external-link-alt"></i></a>
       <button class="box-actions-item" id="usersMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
     </div>
   </div>
@@ -27,6 +27,9 @@
     </div>
   </div>
   <div class="box-footer">
-    <a href="#" class="text-secondary text-sm d-block">Show more contacts <i class="fas fa-chevron-right"></i></a>
+    <label class="form-checkbox-custom mb-0">
+      <input type="checkbox" id="chkUpdateInput">
+      <span class="form-label text-secondary">Update input names to assigned users</span>
+    </label>
   </div>
 </div>

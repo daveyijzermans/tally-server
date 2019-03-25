@@ -38,6 +38,14 @@ class Tallies extends EventEmitter
      */
     this.$tpl = opts.$tpl;
     /**
+     * Switcher popout button
+     * 
+     * @type       {jQuery}
+     */
+    this.$btnPopout = opts.$btnPopout
+    if(opts.$btnPopout)
+        this.$btnPopout.click(this._popout);
+    /**
      * Cached array of tally information sent by server
      *
      * @type       {Object.<string, number[]>}
@@ -51,7 +59,6 @@ class Tallies extends EventEmitter
    * @method     Frontend.UI.Tallies#_list
    *
    * @param      {Object.<string, number[]>}  data   Array of tally information
-   * @fires      Frontend.UI.Tallies#event:updated
    * @listens    Socket#event:"admin.status.tallies"
    */
   _list = data =>
@@ -90,6 +97,21 @@ class Tallies extends EventEmitter
     let hostsOnline = this.$list.find('.tally-entry').length > 1;
     this.$list.siblings('.noresults').toggle(!hostsOnline);
     this.$list.find('.tally-entry').toggle(hostsOnline);
+  }
+  /**
+   * Open the switcher in a seperate window
+   *
+   * @param      {Object}  event   The event
+   *
+   * @method     Frontend.UI.Tallies#_popout
+   */
+  _popout = event =>
+  {
+    let t = event.currentTarget.href;
+    let w = screen.availWidth;
+    let h = screen.availHeight;
+    window.open(t, 'Switcher', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,top=0,left=0,width=' + w + ',height=' + h);
+    event.preventDefault();
   }
   /**
    * Array of combined tally states. Used by the Users class.

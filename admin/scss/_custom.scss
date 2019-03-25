@@ -26,6 +26,20 @@
   font-size: 9px;
 }
 
+.btn-xl, .btn-group-xl > .btn {
+  padding: 22px;
+  line-height: 46px;
+  font-size: 46px;
+}
+
+.overflow-x {
+  overflow-x: auto;
+}
+
+.overflow-y {
+  overflow-y: auto;
+}
+
 .box-wrapper {
   max-height: 70px;
   overflow: hidden;
@@ -159,6 +173,21 @@ html.popout {
   }
   .btn-popout {
     display: none
+  }
+}
+
+.switcher-popout {
+  .content-header-scene {
+    padding-top: 120px;
+    margin-bottom: -210px;
+  }
+
+  .bg-switcher {
+    background-color: #2f363d;
+  }
+
+  .switcher-label {
+    width: 40px;
   }
 }
 

@@ -55,7 +55,8 @@ class Users extends EventEmitter
      * @type       {jQuery}
      */
     this.$btnPopout = opts.$btnPopout
-      .click(this._popout);
+    if(opts.$btnPopout)
+        this.$btnPopout.click(this._popout);
     /**
      * Edit user modal instance
      * 
@@ -73,7 +74,6 @@ class Users extends EventEmitter
    * @method     Frontend.UI.Users#_list
    *
    * @param      {Backend.User[]}  users   Array of users
-   * @fires      Frontend.UI.Users#event:updated
    * @listens    Socket#event:"admin.users.list"
    */
   _list = users =>
@@ -159,7 +159,8 @@ class Users extends EventEmitter
    */
   _popout = event =>
   {
-    window.open('/users_popout.html', 'users_popout', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
+    let t = event.currentTarget.href;
+    window.open(t, 'Users', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
     event.preventDefault();
   }
   /**

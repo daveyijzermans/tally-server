@@ -140,6 +140,8 @@ class Vmix extends Server
    * @property   {string}          result.name       The server display name
    * @property   {string|boolean}  result.wol        WOL address
    * @property   {boolean}         result.connected  Connection status
+   * @property   {number[]}        result.tallies    Tally information
+   * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
    */
   get status()
   {
@@ -148,7 +150,9 @@ class Vmix extends Server
       hostname: this.hostname,
       name: this.name,
       wol: this.wol,
-      connected: this.connected
+      connected: this.connected,
+      tallies: this.tallies,
+      switchable: this.switchable
     }
   }
 }
