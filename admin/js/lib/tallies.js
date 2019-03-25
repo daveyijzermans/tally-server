@@ -88,7 +88,7 @@ class Tallies extends EventEmitter
           {
             let newState = result[i] == 0 ? 2 : 1;
             let dest = host == '_combined' ? '*' : host;
-            this.socket.emit('admin.server.switch', i + 1, newState, dest);
+            this.socket.emit('admin.server.command', dest, 'switchInput', [i + 1, newState]);
             event.preventDefault();
           });
       }

@@ -75,6 +75,7 @@ class Users extends EventEmitter
    *
    * @param      {Backend.User[]}  users   Array of users
    * @listens    Socket#event:"admin.users.list"
+   * @fires      Socket#event:"admin.server.command"
    */
   _list = users =>
   {
@@ -128,7 +129,7 @@ class Users extends EventEmitter
         .one('click.switch', (event) =>
         {
           let newState = user.status == 0 ? 2 : 1;
-          this.socket.emit('admin.server.switch', user.camNumber, newState, '*');
+          this.socket.emit('admin.server.command', '*', 'switchInput', [user.camNumber, newState]);
           event.preventDefault();
         });
       $u.find('.channelName').text(user.channelName);

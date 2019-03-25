@@ -283,15 +283,11 @@ class Application extends EventEmitter
       socket.on('admin.plug.toggle', this._plugCmd);
 
       /**
-       * Send a switch command to a specified vMix server
+       * Send a command to a server
        *
-       * @event      Socket#event:"admin.server.switch"
-       *
-       * @param      {(number|string)}   input       The input number
-       * @param      {number}            [state=1]   The state (1=program, 2=preview)
-       * @param      {string}            name        The server name or '*' to target all
+       * @event      Socket#event:"admin.server.command"
        */
-      socket.on('admin.server.switch', this._switchCmd);
+      socket.on('admin.server.command', this._serverCmd);
 
       /**
        * Logout admin user
@@ -469,22 +465,29 @@ class Application extends EventEmitter
     cb(r);
   }
   /**
-   * Send a switch command to a specified vMix server
+   * Send a command to a server
    *
-   * @method     Backend.Application#_switchCmd
+   * @method     Backend.Application#_serverCmd
    *
-   * @param      {(number|string)}   input       The input number
-   * @param      {number}            [state=1]   The state (1=program, 2=preview)
-   * @param      {string}            name        The server name or '*' to target all
+   * @listens    Socket#event:"admin.server.command"
+   *
+   * @param      {string}   name    The server name or '*' to target all
+   * @param      {string}   method  The method to call
+   * @param      {array}    args    Arguments to pass to the function
    * @return     {boolean}  Whether the command was successful.
    */
-  _switchCmd = (input, state = 1, name) =>
+  _serverCmd = (name, method, args) =>
   {
+    const methods = ['switchInput'];
+    if(methods.indexOf(method) == -1) return false;
     if(name === '*')
-      return Server.getSwitchable().forEach((s) => s.switchInput(input, state));
+    {
+      Server._instances.forEach((s) => s[method] ? s[method].apply(s, args) : false);
+      return true;
+    }
     
     let s = Server.getByName(name);
-    return s && s.switchable ? s.switchInput(input, state) : false;
+    return s && s[method] ? s[method].apply(s, args) : false;
   };
   /**
    * Toggle a smartplug power state

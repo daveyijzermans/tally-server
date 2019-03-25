@@ -54,9 +54,7 @@ class Switchers
    * @param      {string|boolean}  data.wol        WOL address
    * @param      {boolean}         data.connected  Connection status
    * @listens    Socket#event:"admin.status.servers"
-   * @fires      Socket#event:"admin.server.cut"
-   * @fires      Socket#event:"admin.server.transition"
-   * @fires      Socket#event:"admin.server.switch"
+   * @fires      Socket#event:"admin.server.command"
    */
   _list = data =>
   {
@@ -76,13 +74,13 @@ class Switchers
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
         $tr.find('.btnCut').click((event) =>
         {
-          this.socket.emit('admin.server.cut', server.name);
+          this.socket.emit('admin.server.command', server.name, 'cut', [duration]);
           event.preventDefault();
         });
         $tr.find('.btnAuto').click((event) =>
         {
           let duration = 2000;
-          this.socket.emit('admin.server.transition', server.name, duration);
+          this.socket.emit('admin.server.command', server.name, 'transition', [duration]);
           event.preventDefault();
         });
       }
@@ -112,7 +110,7 @@ class Switchers
           .appendTo($prv)
           .one('click', (event) =>
           {
-            this.socket.emit('admin.server.switch', i + 1, 2, server.name);
+            this.socket.emit('admin.server.command', server.name, 'switchInput', [i + 1, 2]);
             event.preventDefault();
           });
 
@@ -126,7 +124,7 @@ class Switchers
           .appendTo($pgm)
           .one('click', (event) =>
           {
-            this.socket.emit('admin.server.switch', i + 1, 1, server.name);
+            this.socket.emit('admin.server.command', server.name, 'switchInput', [i + 1, 1]);
             event.preventDefault();
           });
       }
