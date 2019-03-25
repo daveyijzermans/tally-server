@@ -31,6 +31,12 @@ class Atem extends Server
      * @type       {number[]}
      */
     this.tallies = [];
+    /**
+     * Is this a video mixer that is switchable?
+     *
+     * @type       {boolean}
+     */
+    this.switchable = true;
   }
   /**
    * Executed when server is connected
@@ -81,6 +87,24 @@ class Atem extends Server
       this.tallies[n-1] = newState;
       this.emit('tallies', this.tallies);
     }
+  }
+  /**
+   * Set an input to preview or active state
+   *
+   * @method     Backend.Atem#switchInput
+   *
+   * @param      {(number|string)}   input       The input number
+   * @param      {number}            [state=1]   The state (1=program, 2=preview)
+   * @return     {boolean}  Whether the command was successful.
+   */
+  switchInput = (input, state = 1) =>
+  {
+    input = parseInt(input);
+    if(!this.connected || isNaN(input) || input < 1 || !(state === 1 || state === 2))
+      return false;
+    let fnc = state === 1 ? 'setProgram' : 'setPreview';
+    this.client[fnc](input-1);
+    return true;
   }
 }
 

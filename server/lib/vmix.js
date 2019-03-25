@@ -25,6 +25,12 @@ class Vmix extends Server
      */
     this.tallies = [];
     /**
+     * Is this a video mixer that is switchable?
+     *
+     * @type       {boolean}
+     */
+    this.switchable = true;
+    /**
      * Windows username and password for remote shutdown
      * 
      * @type       {string}

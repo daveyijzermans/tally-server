@@ -138,6 +138,15 @@ Server.getByName = (name) =>
   let result = Server._instances.filter((a) => a.name == name);
   return result.length == 1 ? result[0] : false;
 }
+/**
+ * Get switchable servers
+ *
+ * @return     {Backend.Server[]}  The servers
+ */
+Server.getSwitchable = () =>
+{
+  return Server._instances.filter((a) => a.switchable === true);
+}
 
 /**
  * Let listeners know the connection state of this server.

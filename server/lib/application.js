@@ -472,14 +472,10 @@ class Application extends EventEmitter
   _switchCmd = (input, state = 1, name) =>
   {
     if(name === '*')
-      return Server.getByType('vmix').forEach((vmix) =>
-      {
-        vmix.switchInput(input, state);
-      });
+      return Server.getSwitchable().forEach((s) => s.switchInput(input, state));
     
-    let vmix = Server.getByName(name);
-    if(!vmix || vmix.type != 'vmix') return false;
-    return vmix.switchInput(input, state);
+    let s = Server.getByName(name);
+    return s && s.switchable ? s.switchInput(input, state) : false;
   };
   /**
    * Toggle a smartplug power state
