@@ -117,12 +117,6 @@ class Application extends EventEmitter
      */
     this.on('broadcast.servers', this._broadcastServers);
     /**
-     * Broadcast tally status to admins and users connected to the socket
-     *
-     * @event      Backend.Application#event:"broadcast.tallies"
-     */
-    this.on('broadcast.tallies', this._broadcastTallies);
-    /**
      * Broadcast user status to admin clients
      *
      * @event      Backend.Application#event:"broadcast.users"
@@ -140,7 +134,6 @@ class Application extends EventEmitter
      * @event      Backend.Application#event:broadcast
      */
     this.on('broadcast', this._broadcastServers);
-    this.on('broadcast', this._broadcastTallies);
     this.on('broadcast', this._broadcastUsers);
     this.on('broadcast', this._broadcastPlugs);
 
@@ -289,6 +282,10 @@ class Application extends EventEmitter
        */
       socket.on('admin.server.command', this._serverCmd);
 
+      socket.on('admin.server.link', this._serverLink);
+
+      socket.on('admin.server.unlink', this._serverUnlink);
+
       /**
        * Logout admin user
        * 
@@ -425,7 +422,7 @@ class Application extends EventEmitter
    * @param      {Function}       cb                Callback
    * @listens    Socket#event:"admin.set.user"
    * @fires      Backend.Application#event:"broadcast.users"
-   * @fires      Backend.Application#event:"broadcast.tallies"
+   * @fires      Backend.Application#event:"broadcast.servers"
    */
   _adminUserSet = (data, cb) =>
   {
@@ -459,7 +456,7 @@ class Application extends EventEmitter
       if(!mumbleUser) return;
       mumbleUser.moveToChannel(newChannel);
     });
-    this.emit('broadcast.tallies');
+    this.emit('broadcast.servers');
     this.emit('broadcast.users');
     this.config.saveUsers();
     cb(r);
@@ -489,6 +486,20 @@ class Application extends EventEmitter
     let s = Server.getByName(name);
     return s && s[method] ? s[method].apply(s, args) : false;
   };
+
+  _serverLink = (params) =>
+  {
+    let s = Server.getByName(params.slave);
+    if(s && s.linkTo)
+      try { return s.linkTo(params.master); }
+      catch(e) { this._io.to('admins').emit('admin.error', e.message); return false }
+  }
+
+  _serverUnlink = (name) =>
+  {
+    let s = Server.getByName(name)
+    return s.unlink ? s.unlink() : false;
+  }
   /**
    * Toggle a smartplug power state
    *
@@ -679,45 +690,13 @@ class Application extends EventEmitter
    *
    * @listens Backend.Application#event:"broadcast.servers"
    * @listens Backend.Application#event:broadcast
+   * @fires      Socket#event:status
    * @fires      Socket#event:"admin.status.servers"
    */
   _broadcastServers = () =>
   {
     let result = Server.allStatus;
-    /**
-     * Broadcast an array on server information
-     *
-     * @event      Socket#event:"admin.status.servers"
-     * @param      {Object[]}        result            Array of servers.
-     */
-    this._io.to('admins').emit('admin.status.servers', result);
-  }
-  /**
-   * Broadcast tally updates
-   *
-   * @method     Backend.Application#_broadcastTallies
-   * 
-   * @listens Backend.Application#event:"broadcast.tallies"
-   * @listens Backend.Application#event:broadcast
-   * @fires   Socket#event:"admin.status.tallies"
-   * @fires   Socket#event:status
-   */
-  _broadcastTallies = () =>
-  {
-    let result = {};
-    let allTallies = Server.tallies;
-    // Make a duplicate and sort by server name
-    Object.keys(allTallies).sort().forEach(key => result[key] = allTallies[key]);
-    // Append the combined (calculated) tally state at the end with a special key '_combined'
-    result._combined = Application._combineTallies(allTallies);
-    /**
-     * Broadcast tally information
-     *
-     * @event      Socket#event:"admin.status.tallies"
-     * @param      {Object.<string, number[]>}  result  Array of tally
-     *                                                  information
-     */
-    this._io.to('admins').emit('admin.status.tallies', result);
+    let combined = Server.combined;
 
     /*
      * Compare connected users' old tally state and only emit
@@ -726,7 +705,7 @@ class Application extends EventEmitter
     User._instances.forEach(user =>
     {
       let oldStatus = user.status;
-      let newStatus = result._combined[user.camNumber - 1];
+      let newStatus = combined[user.camNumber - 1];
       if(newStatus != oldStatus)
       {
         user.status = newStatus;
@@ -739,6 +718,13 @@ class Application extends EventEmitter
         this._io.to(user.username).emit('status', user);
       }
     });
+    /**
+     * Broadcast an array on server information
+     *
+     * @event      Socket#event:"admin.status.servers"
+     * @param      {Object[]}        result            Array of servers.
+     */
+    this._io.to('admins').emit('admin.status.servers', result);
   }
   /**
    * Broadcast user updates
@@ -909,7 +895,6 @@ class Application extends EventEmitter
    * @return     {Backend.Vmix}  The server instance that was created
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
-   * @fires      Backend.Application#event:"broadcast.tallies"
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
@@ -918,12 +903,11 @@ class Application extends EventEmitter
     return this._defaultServerHandlers(new Vmix(opts))
       .on('disconnected', () =>
       {
-        this.emit('broadcast.tallies');
+        this.emit('broadcast.servers');
         this.emit('broadcast.users');
       })
       .on('tallies', (tallies) =>
       {
-        this.emit('broadcast.tallies');
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
       });
@@ -961,7 +945,6 @@ class Application extends EventEmitter
    * @return     {Backend.Atem}  The server instance that was created
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Server#event:tallies
-   * @fires      Backend.Application#event:"broadcast.tallies"
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
@@ -970,12 +953,11 @@ class Application extends EventEmitter
     return this._defaultServerHandlers(new Atem(opts))
       .on('disconnected', () =>
       {
-        this.emit('broadcast.tallies');
+        this.emit('broadcast.servers');
         this.emit('broadcast.users');
       })
       .on('tallies', (tallies) =>
       {
-        this.emit('broadcast.tallies');
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
       });
@@ -1033,26 +1015,5 @@ class Application extends EventEmitter
  * @type     {Backend.Application}
  */
 Application._instance;
-/**
- * Process an object with tally states from multiple hosts and combine them into
- * one. Program states (1) take precedence over preview (2) states and lastly
- * comes the stand-by (0) state.
- *
- * @param      {Object.<string, number[]>}  t       Tally information from all hosts
- * @return     {number[]}   Array of tally information, combined by importance
- */
-Application._combineTallies = t =>
-{
-  let all = Object.values(t);
-  let max = Math.max(...(all.map(el => el != null && el.length)));
-  let result = [];
-  for (let i = 0; i < max; i++)
-  {
-    let map = all.map(el => el ? parseInt(el[i]) || 0 : 0);
-    let status = map.indexOf(1) != -1 ? 1 : Math.max(...map);
-    result.push(status);
-  }
-  return result;
-}
 
 export default Application;

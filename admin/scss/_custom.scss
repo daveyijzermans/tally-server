@@ -32,6 +32,25 @@
   font-size: 46px;
 }
 
+a.text-white {
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.btn-progress {
+  span.progress {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.4);
+    top:0;
+    left:0;
+    right:0;
+    width:0%;
+    height: 100%;
+  }
+}
+
 .overflow-x {
   overflow-x: auto;
 }
@@ -86,9 +105,14 @@
   }
 }
 
-.box-header {
-  .dropdown-menu {
-    z-index: 4;
+.box.transition-dark-bottom {
+  .box-header, .box-body {
+    position: relative;
+    z-index: 3;
+  }
+  &::after {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 }
 

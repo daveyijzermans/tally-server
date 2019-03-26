@@ -61,7 +61,8 @@ class Plugs
       let $p = this.$list.find('[data-hostname="' + plug.hostname + '"]');
       if($p.length == 0)
       {
-        $p = this.$tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).show().appendTo(this.$list);
+        $p = this.$tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).addClass('plug-entry')
+          .show().appendTo(this.$list);
         $p.find('a.toggle').click(this._btnPlugToggle);
       }
 

@@ -33,6 +33,12 @@ class Vmix extends Server
      */
     this.switchable = true;
     /**
+     * Is this linked to another switcher?
+     *
+     * @type       {boolean|Backend.Server}
+     */
+    this.linked = opts.linked ? this.linkTo(opts.linked) : false;
+    /**
      * Windows username and password for remote shutdown
      * 
      * @type       {string}
@@ -54,6 +60,31 @@ class Vmix extends Server
     {
       this.tallies = line.substring(9).split('').map((a) => { return parseInt(a) });
       this.emit('tallies', this.tallies);
+      return;
+    }
+    if(line.indexOf('ACTS OK Input ') == 0)
+    {
+      let val = line.split(' ');
+      if(val[4] == '0') return;
+      let input = parseInt(val[3]);
+      this.emit('action', 'switchInput', [input, 1]);
+      return;
+    }
+    if(line.indexOf('ACTS OK InputPreview ') == 0)
+    {
+      let val = line.split(' ');
+      if(val[4] == '0') return;
+      let input = parseInt(val[3]);
+      this.emit('action', 'switchInput', [input, 2]);
+      return;
+    }
+    if(line.indexOf('ACTS OK Overlay') == 0)
+    {
+      let val = line.substring('ACTS OK Overlay'.length).split(' ');
+      let overlayN = parseInt(val[0]);
+      let input = parseInt(val[1]);
+      let state = val[2] == '1';
+      this.emit('action', 'overlay', [overlayN, input, state]);
       return;
     }
   };
@@ -80,7 +111,7 @@ class Vmix extends Server
     });
     this.readline.on('line', this._line);
 
-    this.client.write('SUBSCRIBE TALLY\r\n');
+    this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\n');
   }
   /**
    * Setup a new connection to the server and connect
@@ -141,6 +172,7 @@ class Vmix extends Server
   cut = () =>
   {
     this.client.write('FUNCTION CUT\r\n');
+    this.emit('action', 'cut');
   }
   /**
    * Send transition command to vMix
@@ -152,7 +184,43 @@ class Vmix extends Server
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
     if(effects.indexOf(effect.toUpperCase()) == -1) return false;
-    this.client.write('FUNCTION ' + effect + '\r\n');
+    this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
+    this.emit('action', 'transition', [duration, effect]);
+  }
+
+  overlay = (overlayN, input, state = true) =>
+  {
+    overlayN = parseInt(overlayN);
+    input = parseInt(input);
+    if(isNaN(overlayN) || isNaN(input)) return false;
+    let stateCmd = state == true ? 'In' : 'Out';
+    this.client.write('FUNCTION OverlayInput' + overlayN + stateCmd + ' INPUT=' + input + '\r\n');
+    if(!state) this.emit('action', 'overlay', [overlayN, input, false]);
+  }
+
+  linkTo = (master) =>
+  {
+    let s = Server.getByName(master);
+    if(!s) return false;
+    if(master == this.name || s.linked.name == this.name)
+      throw new Error('Are you trying to collapse the universe?');
+
+    this.linked = s;
+    this.linked.on('action', this._copyAction);
+    return this.linked;
+  }
+
+  unlink = () =>
+  {
+    this.linked.off('action', this._copyAction);
+    this.linked = false;
+  }
+
+  _copyAction = (method, args) =>
+  {
+    const methods = ['transition', 'switchInput', 'overlay'];
+    if(methods.indexOf(method) == -1) return;
+    return this[method].apply(this, args);
   }
   /**
    * Get vMix server properties
@@ -165,6 +233,7 @@ class Vmix extends Server
    * @property   {boolean}         result.connected  Connection status
    * @property   {number[]}        result.tallies    Tally information
    * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
+   * @property   {boolean}         result.linked     Whether this mixer is linked to another mixer
    */
   get status()
   {
@@ -175,7 +244,8 @@ class Vmix extends Server
       wol: this.wol,
       connected: this.connected,
       tallies: this.tallies,
-      switchable: this.switchable
+      switchable: this.switchable,
+      linked: this.linked ? this.linked.status : false
     }
   }
 }

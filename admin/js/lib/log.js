@@ -73,7 +73,8 @@ class Log
    */
   _log = msg =>
   {
-    let $l = this.$tpl.clone().attr('id', '').show().prependTo(this.$dropdown);
+    let $l = this.$tpl.clone().attr('id', '').addClass('log-entry')
+      .show().prependTo(this.$dropdown);
     let date = new Date().toLocaleTimeString('en-US', {
       hour12: false, 
       hour: 'numeric', 

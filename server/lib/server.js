@@ -10,16 +10,19 @@ const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9
 class Server extends EventEmitter
 {
   /**
-   * Tally information for all hosts by key
-   * @type       {Object.<string, string>}
+   * Tally information combining all hosts by importance (1=program comes before
+   * 2=preview comes before 0)
+   *
+   * @type       {number[]}
    */
-  static get tallies()
+  static get combined()
   {
-    return Server._instances.reduce((a, s) =>
+    return Server.getSwitchable().reduce((a, s) =>
     {
-      if(s.tallies && s.tallies.length > 0) a[s.name] = s.tallies;
-      return a;
-    }, {});
+      for (let i = 0; i < s.tallies.length; i++)
+        a[i] = a[i] ? (a[i] == 1 ? 1 : (a[i] == 2 ? 2 : 0)) : s.tallies[i];
+      return a
+    }, []);
   }
   /**
    * The available channels for all Mumble servers
@@ -51,13 +54,13 @@ class Server extends EventEmitter
      * 
      * @type       {string}
      */
-    this.hostname = opts.hostname;
+    this.hostname = opts.hostname.replace('"', '\\"');
     /**
      * Server display name
      * 
      * @type       {string}
      */
-    this.name = opts.name;
+    this.name = opts.name.replace('"', '\\"');
     /**
      * Server connection status
      * 

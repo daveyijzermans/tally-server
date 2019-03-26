@@ -87,7 +87,8 @@ class Users extends EventEmitter
       let $dropdown = $u.find('.dropdown-menu');
       if($u.length == 0)
       {
-        $u = this.$tpl.clone().attr('id', '').attr('data-username', user.username).show().appendTo(this.$list);
+        $u = this.$tpl.clone().attr('id', '').attr('data-username', user.username).addClass('user-entry')
+          .show().appendTo(this.$list);
         $dropdown = $u.find('.dropdown-menu');
         $dropdown.attr('aria-labelledby', user.username);
         $('<a class="dropdown-item edit-user-modal" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')

@@ -67,7 +67,8 @@ class Servers
       let $tr = this.$list.find('[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
-        $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
+        $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('server-entry')
+          .show().appendTo(this.$list);
 
         let $actions = $tr.find('.actions');
         let $dropdown = $actions.find('.dropdown-menu');

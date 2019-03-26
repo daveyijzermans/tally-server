@@ -90,6 +90,12 @@ class ActionModal extends EventEmitter
       case 'logout':
         this.$text.text('Are you sure you want to logout of the administration page?');
         break;
+      case 'server.link':
+        this.$text.html('Are you sure you want to link ' + this._param.slave + ' to ' + this._param.master + '? All actions <strong>performed on</strong> ' + this._param.master + ' will be <strong>mirrored on to</strong> ' + this._param.slave + ' until you unlink.');
+        break;
+      case 'server.unlink':
+        this.$text.html('Are you sure you want to unlink ' + this._param + '?');
+        break;
       default:
         console.error('Invalid command');
         return false;
@@ -138,6 +144,7 @@ class ActionModal extends EventEmitter
      */
     this.emit('command.' + this._cmd, this._param);
     this.socket.emit('admin.' + this._cmd, this._param);
+    this.socket.once('admin.error', (msg) => alert(msg));
     this.$modal.modal('hide');
   }
 }

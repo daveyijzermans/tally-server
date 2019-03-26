@@ -23,7 +23,7 @@ class Tallies extends EventEmitter
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.status.tallies', this._list);
+      .on('admin.status.servers', this._list);
     /**
      * Main container for this UI element
      * 
@@ -46,11 +46,11 @@ class Tallies extends EventEmitter
     if(opts.$btnPopout)
         this.$btnPopout.click(this._popout);
     /**
-     * Cached array of tally information sent by server
+     * Cached array of server objects sent by server
      *
-     * @type       {Object.<string, number[]>}
+     * @type       {Object[]}
      */
-    this._tallies = null;
+    this._servers = null;
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -59,44 +59,66 @@ class Tallies extends EventEmitter
    * @method     Frontend.UI.Tallies#_list
    *
    * @param      {Object.<string, number[]>}  data   Array of tally information
-   * @listens    Socket#event:"admin.status.tallies"
+   * @listens    Socket#event:"admin.status.servers"
    */
   _list = data =>
   {
-    if(JSON.stringify(data) === JSON.stringify(this._tallies))
+    let switchable = data.filter((s) => s.connected && s.switchable);
+    if(JSON.stringify(switchable) === JSON.stringify(this._servers))
       return false;
-    this._tallies = data;
-    let max = this.combined.length;
+    this._servers = switchable;
+    let max = this._servers.reduce((a, c) => Math.max(a, c.tallies.length), 0);
     let states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
     this.$list.empty();
-    $.each(this._tallies, (host, result) =>
+    let combined = [];
+    $.each(this._servers, (i, server) =>
     {
-      let $t = this.$tpl.clone().attr('id', '').attr('data-host', host).show().appendTo(this.$list);
-      let name = host == '_combined' ? 'Combined result' : host;
-      let $a = $t.find('b').text(name);
+      let $t = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('tally-entry')
+        .show().appendTo(this.$list);
+      let $a = $t.find('b').text(server.name);
+      const isLinked = typeof server.linked == 'object';
+      $t.find('.fas').toggle(isLinked);
 
       let $indicators = $t.find('.tally-indicators');
       for (let i = 0; i < max; i++)
       {
-        let state = typeof result[i] == 'number' ? states[result[i]] : states[0];
+        let state = typeof server.tallies[i] == 'number' ? states[server.tallies[i]] : states[0];
         let $s = $('<span class="badge badge-pill"></span>')
           .text(i + 1)
           .addClass(state)
           .appendTo($indicators)
           .click((event) =>
           {
-            let newState = result[i] == 0 ? 2 : 1;
-            let dest = host == '_combined' ? '*' : host;
+            if(isLinked) return;
+            let newState = server.tallies[i] == 0 ? 2 : 1;
+            let dest = server.name == '_combined' ? '*' : server.name;
             this.socket.emit('admin.server.command', dest, 'switchInput', [i + 1, newState]);
             event.preventDefault();
           });
+        combined[i] = combined[i] ? (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0)) : server.tallies[i];
       }
     });
 
-    let hostsOnline = this.$list.find('.tally-entry').length > 1;
-    this.$list.siblings('.noresults').toggle(!hostsOnline);
-    this.$list.find('.tally-entry').toggle(hostsOnline);
+    let serversOnline = this._servers.length > 0;
+    if(serversOnline)
+    {
+      let $t = this.$tpl.clone().attr('id', '').addClass('tally-entry')
+        .show().appendTo(this.$list);
+      let $a = $t.find('b').text('Combined result');
+
+      let $indicators = $t.find('.tally-indicators');
+      for (let i = 0; i < max; i++)
+      {
+        let state = typeof combined[i] == 'number' ? states[combined[i]] : states[0];
+        let $s = $('<span class="badge badge-pill"></span>')
+          .text(i + 1)
+          .addClass(state)
+          .appendTo($indicators)
+      }
+    }
+    this.$list.siblings('.noresults').toggle(!serversOnline);
+    this.$list.find('.tally-entry').toggle(serversOnline);
   }
   /**
    * Open the switcher in a seperate window
@@ -113,12 +135,6 @@ class Tallies extends EventEmitter
     window.open(t, 'Switcher', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,top=0,left=0,width=' + w + ',height=' + h);
     event.preventDefault();
   }
-  /**
-   * Array of combined tally states. Used by the Users class.
-   *
-   * @return     {number[]}
-   */
-  get combined() { return this._tallies._combined }
   /**
    * All items in the list
    *

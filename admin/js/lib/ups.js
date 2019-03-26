@@ -91,7 +91,8 @@ class Ups
       let $tr = this.$list.find('[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
-        $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).show().appendTo(this.$list);
+        $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('ups-entry')
+          .show().appendTo(this.$list);
         $tr.find('a')
           .popover({
             html: true,
