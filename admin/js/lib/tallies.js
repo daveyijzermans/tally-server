@@ -73,10 +73,11 @@ class Tallies extends EventEmitter
     let combined = [];
     $.each(this._mixers, (i, mixer) =>
     {
+      if(!mixer.connected) return;
       let $t = this.$tpl.clone().attr('id', '').attr('data-name', mixer.name).addClass('tally-entry')
         .show().appendTo(this.$list);
       let $a = $t.find('b').text(mixer.name);
-      const isLinked = typeof mixer.linked == 'object'; //FIXME: this is static
+      let isLinked = typeof mixer.linked == 'object';
       $t.find('.fas').toggle(isLinked);
 
       let $indicators = $t.find('.tally-indicators');

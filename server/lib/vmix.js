@@ -84,6 +84,75 @@ class Vmix extends Mixer
       this.emit('action', 'overlay', [overlayN, input, state]);
       return;
     }
+    if(line.indexOf('ACTS OK InputVolumeChannelMixer') == 0)
+    {
+      let val = line.substring('ACTS OK InputVolumeChannelMixer'.length).split(' ');
+      let ch = parseInt(val[0]);
+      let input = parseInt(val[1]);
+      let value = parseFloat(val[2]);
+      this.emit('action', 'inputVolumeChannelMixer' + ch, [input, value]);
+      return;
+    }
+    if(line.indexOf('ACTS OK ') == 0) 
+    {
+      let val = line.substring('ACTS OK '.length).split(' ');
+      switch(val[0])
+      {
+        /* number + bool */
+        case 'InputAudio':
+        case 'InputSolo':
+        case 'InputMasterAudio':
+        case 'InputBusAAudio':
+        case 'InputBusBAudio':
+        {
+          let input = parseInt(val[1]);
+          let state = val[2] == '1';
+          let method = val[0].charAt(0).toLowerCase() + val[0].substring(1);
+          this.emit('action', method, [input, state]);
+          break;
+        }
+
+        /* number + float */
+        case 'InputVolume':
+        case 'InputHeadphones':
+        {
+          let input = parseInt(val[1]);
+          let value = parseFloat(val[2]);
+          let method = val[0].charAt(0).toLowerCase() + val[0].substring(1);
+          this.emit('action', method, [input, value]);
+          break;
+        }
+
+        /* float */
+        case 'MasterVolume':
+        case 'MasterHeadphones':
+        case 'BusAVolume':
+        case 'BusBVolume':
+        {
+          let value = parseFloat(val[1]);
+          let method = val[0].charAt(0).toLowerCase() + val[0].substring(1);
+          this.emit('action', method, [value]);
+          break;
+        }
+
+        /* booleans only */
+        case 'FadeToBlack':
+        case 'Recording':
+        case 'Streaming':
+        case 'External':
+        case 'MultiCorder':
+        case 'Fullscreen':
+        case 'MasterAudio':
+        case 'BusAAudio':
+        case 'BusBAudio':
+        {
+          let state = val[1] == '1';
+          let method = val[0].charAt(0).toLowerCase() + val[0].substring(1);
+          this.emit('action', method, [state]);
+          break;
+        }
+      }
+    }
   };
   /**
    * Executed when server is connected
@@ -231,6 +300,16 @@ class Vmix extends Mixer
     return Object.assign(super.status, {
       wol: this.wol
     });
+  }
+  /**
+   * Return which actions that are executed by a master can be mirrored on this
+   * mixer
+   *
+   * @type       {string[]}
+   */
+  get actions()
+  {
+    return ['transition', 'switchInput', 'overlay'];
   }
 }
 

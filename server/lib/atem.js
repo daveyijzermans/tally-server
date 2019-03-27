@@ -98,6 +98,16 @@ class Atem extends Mixer
     this.client[fnc](input-1);
     return true;
   }
+  /**
+   * Return which actions that are executed by a master can be mirrored on this
+   * mixer
+   *
+   * @type       {string[]}
+   */
+  get actions()
+  {
+    return ['transition', 'switchInput', 'overlay'];
+  }
 }
 
 export default Atem;

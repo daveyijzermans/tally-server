@@ -47,7 +47,9 @@ class Mixer extends Server
     if(!s) return false;
     if(master == this.name || s.linked.name == this.name)
       throw new Error('Are you trying to collapse the universe?');
-    this.linked = s.on('action', this._copyAction);
+    this.linked = s;
+    this.linked.on('action', this._copyAction)
+               .on('disconnected', this.unlink);
     
     /**
      * Mixer is linked
@@ -66,7 +68,8 @@ class Mixer extends Server
    */
   unlink = () =>
   {
-    this.linked.off('action', this._copyAction);
+    this.linked.off('action', this._copyAction)
+               .off('disconnected', this.unlink);
     this.linked = false;
     /**
      * Mixer is unlinked
@@ -88,8 +91,7 @@ class Mixer extends Server
    */
   _copyAction = (method, args) =>
   {
-    const methods = ['transition', 'switchInput', 'overlay'];
-    if(methods.indexOf(method) == -1) return;
+    if(this.actions.indexOf(method) == -1) return;
     return this[method].apply(this, args);
   }
   /**
@@ -133,6 +135,16 @@ class Mixer extends Server
   static get allStatus()
   {
     return Mixer._instances.map(s => s.status);
+  }
+  /**
+   * Return which actions that are executed by a master can be mirrored on this
+   * mixer
+   *
+   * @type       {string[]}
+   */
+  get actions()
+  {
+    return [];
   }
 }
 /**

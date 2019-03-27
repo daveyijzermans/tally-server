@@ -67,11 +67,10 @@ class Mixers
     const states = ['btn-secondary', 'btn-danger', 'btn-success'];
     $.each(this._mixers, (id, mixer) =>
     {
-      let $tr = this.$list.find('[data-name="' + mixer.name + '"]');
+      let $tr = this.$list.find('.mixer-entry[data-name="' + mixer.name + '"]');
       if(!mixer.connected)
         return $tr.remove();
-
-      const isLinked = typeof mixer.linked == 'object'; //FIXME: this is static
+      let isLinked = () => typeof this._mixers[id].linked == 'object';
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').addClass('mixer-entry')
@@ -87,7 +86,7 @@ class Mixers
          */
         $btnCut.click((event) =>
         {
-          if(isLinked) return;
+          if(isLinked()) return;
           this.socket.emit('admin.mixer.command', mixer.name, 'cut');
           $spanPrg.stop(true, true);
           event.preventDefault();
@@ -97,7 +96,7 @@ class Mixers
          */
         $btnAuto.click((event) =>
         {
-          if(isLinked) return;
+          if(isLinked()) return;
           let duration = 2000;
           this.socket.emit('admin.mixer.command', mixer.name, 'transition', [duration]);
           $spanPrg.stop(true, true)
@@ -111,17 +110,38 @@ class Mixers
 
       let $dropdown = $tr.find('.dropdown-menu');
       let $linkedItem = $dropdown.find('.dropdown-item.linked');
-      if(isLinked)
+      if(isLinked())
       {
         $dropdown.find('.dropdown-item.other').remove();
         $dropdown.find('.dropdown-item.noresults').hide();
         $linkedItem.find('span').text(mixer.linked.name);
+      } else {
+        $.each(this._mixers, (i, other) =>
+        {
+          if(other.name == mixer.name) return;
+          if(!other.connected) return $dropdown.find('.dropdown-item[data-name="' + other.name +'"]').remove();
+          if(typeof other.linked == 'object') return;
+
+          let $item = $dropdown.find('.dropdown-item[data-name="' + other.name +'"]');
+          if($item.length == 0)
+          {
+            $item = $('<a class="dropdown-item other" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.link"></a>')
+              .text('Link with ' + other.name)
+              .attr('data-name', other.name)
+              .data('param', {
+                master: other.name,
+                slave: mixer.name
+              })
+              .appendTo($dropdown);
+          }
+        });
+        $dropdown.find('.dropdown-item.noresults').toggle($dropdown.find('.dropdown-item.other').length == 0);
       }
-      $linkedItem.toggle(isLinked);
+      $linkedItem.toggle(isLinked());
       $tr.find('.linkToggle .fas')
-        .toggleClass('fa-link', isLinked)
-        .toggleClass('fa-unlink', !isLinked);
-      $tr.toggleClass('mixer-linked', isLinked);
+        .toggleClass('fa-link', isLinked())
+        .toggleClass('fa-unlink', !isLinked());
+      $tr.toggleClass('mixer-linked', isLinked());
       
       let $name = $tr.find('.name').text(mixer.name);
       $tr.find('.previewBus, .programBus').find('.btn').remove();
@@ -149,7 +169,7 @@ class Mixers
           .appendTo($prv)
           .one('click', (event) =>
           {
-            if(isLinked) return;
+            if(isLinked()) return;
             this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, 2]);
             event.preventDefault();
           });
@@ -164,42 +184,11 @@ class Mixers
           .appendTo($pgm)
           .one('click', (event) =>
           {
-            if(isLinked) return;
+            if(isLinked()) return;
             this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, 1]);
             event.preventDefault();
           });
       }
-    });
-    /*
-     * Add self to other mixers' link dropdown
-     */
-    $.each(connected, (id, mixer) =>
-    {
-      this.$list.find('.mixer-entry[data-name!="' + mixer.name + '"]').each((i, other) =>
-      {
-        let $other = $(other);
-        if($(other).hasClass('mixer-linked')) return;
-        let $dropdown = $other.find('.dropdown-menu');
-        let $item = $dropdown.find('.dropdown-item[data-name="' + mixer.name +'"]');
-        if($item.length == 0)
-        {
-          $item = $('<a class="dropdown-item other" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.link"></a>')
-            .text('Link with ' + mixer.name)
-            .attr('data-name', mixer.name)
-            .data('param', {
-              master: mixer.name,
-              slave: $other.data('name')
-            })
-            .appendTo($dropdown);
-        }
-      });
-    });
-    this.$list.find('.mixer-entry').each((i, entry) =>
-    {
-      let $tr = $(entry);
-      if($tr.hasClass('mixer-linked')) return;
-      let $dropdown = $tr.find('.dropdown-menu');
-      $dropdown.find('.noresults').toggle($dropdown.find('.dropdown-item.other').length == 0);
     });
   }
   /**
