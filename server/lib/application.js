@@ -1,6 +1,7 @@
 import Config from './config';
 
 import Server from './server';
+import Mixer from './mixer';
 import Mumble from './mumble';
 import Vmix from './vmix';
 import Videohub from './videohub';
@@ -276,15 +277,24 @@ class Application extends EventEmitter
       socket.on('admin.plug.toggle', this._plugCmd);
 
       /**
-       * Send a command to a server
+       * Send a command to a mixer
        *
-       * @event      Socket#event:"admin.server.command"
+       * @event      Socket#event:"admin.mixer.command"
        */
-      socket.on('admin.server.command', this._serverCmd);
-
-      socket.on('admin.server.link', this._serverLink);
-
-      socket.on('admin.server.unlink', this._serverUnlink);
+      socket.on('admin.mixer.command', this._mixerCmd);
+      
+      /**
+       * Link a mixer to another mixer
+       * 
+       * @event      Socket#event:"admin.mixer.link"
+       */
+      socket.on('admin.mixer.link', this._mixerLink);
+      /**
+       * Unlink a mixer
+       *
+       * @event      Socket#event:"admin.mixer.unlink"
+       */
+      socket.on('admin.mixer.unlink', this._mixerUnlink);
 
       /**
        * Logout admin user
@@ -462,42 +472,51 @@ class Application extends EventEmitter
     cb(r);
   }
   /**
-   * Send a command to a server
+   * Send a command to a mixer
    *
-   * @method     Backend.Application#_serverCmd
+   * @method     Backend.Application#_mixerCmd
    *
-   * @listens    Socket#event:"admin.server.command"
+   * @listens    Socket#event:"admin.mixer.command"
    *
-   * @param      {string}   name    The server name or '*' to target all
+   * @param      {string}   name    The mixer name or '*' to target all
    * @param      {string}   method  The method to call
    * @param      {array}    args    Arguments to pass to the function
    * @return     {boolean}  Whether the command was successful.
    */
-  _serverCmd = (name, method, args) =>
+  _mixerCmd = (name, method, args) =>
   {
     const methods = ['switchInput', 'cut', 'transition'];
     if(methods.indexOf(method) == -1) return false;
     if(name === '*')
     {
-      Server._instances.forEach((s) => s[method] ? s[method].apply(s, args) : false);
+      Mixer._instances.filter((s) => s.linked === false)
+        .forEach((s) => s[method] ? s[method].apply(s, args) : false);
       return true;
     }
     
-    let s = Server.getByName(name);
+    let s = Mixer.getByName(name);
     return s && s[method] ? s[method].apply(s, args) : false;
   };
-
-  _serverLink = (params) =>
+  /**
+   * Link a mixer to another mixer
+   * 
+   * @listens    Socket#event:"admin.mixer.link"
+   */
+  _mixerLink = (params) =>
   {
-    let s = Server.getByName(params.slave);
+    let s = Mixer.getByName(params.slave);
     if(s && s.linkTo)
       try { return s.linkTo(params.master); }
       catch(e) { this._io.to('admins').emit('admin.error', e.message); return false }
   }
-
-  _serverUnlink = (name) =>
+  /**
+   * Unlink a mixer
+   * 
+   * @listens    Socket#event:"admin.mixer.unlink"
+   */
+  _mixerUnlink = (name) =>
   {
-    let s = Server.getByName(name)
+    let s = Mixer.getByName(name)
     return s.unlink ? s.unlink() : false;
   }
   /**
@@ -692,16 +711,15 @@ class Application extends EventEmitter
    * @listens Backend.Application#event:broadcast
    * @fires      Socket#event:status
    * @fires      Socket#event:"admin.status.servers"
+   * @fires      Socket#event:"admin.status.mixers"
    */
   _broadcastServers = () =>
   {
-    let result = Server.allStatus;
-    let combined = Server.combined;
-
     /*
      * Compare connected users' old tally state and only emit
      * an event when it has changed.
      */
+    let combined = Mixer.combined;
     User._instances.forEach(user =>
     {
       let oldStatus = user.status;
@@ -724,7 +742,14 @@ class Application extends EventEmitter
      * @event      Socket#event:"admin.status.servers"
      * @param      {Object[]}        result            Array of servers.
      */
-    this._io.to('admins').emit('admin.status.servers', result);
+    this._io.to('admins').emit('admin.status.servers', Server.allStatus);
+    /**
+     * Broadcast an array on mixer information
+     *
+     * @event      Socket#event:"admin.status.mixers"
+     * @param      {Object[]}        result            Array of mixers.
+     */
+    this._io.to('admins').emit('admin.status.mixers', Mixer.allStatus);
   }
   /**
    * Broadcast user updates
@@ -893,8 +918,10 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Vmix}  The server instance that was created
+   * @listens    Backend.Mixer#event:linked
+   * @listens    Backend.Mixer#event:unlinked
    * @listens    Backend.Server#event:disconnected
-   * @listens    Backend.Server#event:tallies
+   * @listens    Backend.Vmix#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
@@ -910,6 +937,14 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
+      })
+      .on('linked', () =>
+      {
+        this.emit('broadcast.servers');
+      })
+      .on('unlinked', () =>
+      {
+        this.emit('broadcast.servers');
       });
   }
   /**
@@ -943,8 +978,10 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Atem}  The server instance that was created
+   * @listens    Backend.Mixer#event:linked
+   * @listens    Backend.Mixer#event:unlinked
    * @listens    Backend.Server#event:disconnected
-   * @listens    Backend.Server#event:tallies
+   * @listens    Backend.Atem#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
@@ -960,6 +997,14 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
+      })
+      .on('linked', () =>
+      {
+        this.emit('broadcast.servers');
+      })
+      .on('unlinked', () =>
+      {
+        this.emit('broadcast.servers');
       });
   }
   /**

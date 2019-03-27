@@ -2,7 +2,7 @@
 <html lang="en" class="popout">
 <head>
   <meta charset="UTF-8">
-  <title>Unit 1-2 switcher</title>
+  <title>Unit 1-2 mixer</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,22 +11,22 @@
 
   <link rel="stylesheet" href="/assets/css/main.css">
 </head>
-<body class="bg-secondary switcher-popout">
+<body class="bg-secondary mixer-popout">
   <div class="wrapper theme-inverse">
     <main class="content">
-      <div class="container-fluid" id="switchers">
+      <div class="container-fluid" id="mixers">
         <div class="content-header content-header-scene">
-          <h3 class="noresults">No switchers are connected.</h3>
+          <h3 class="noresults">No mixers are connected.</h3>
         </div>
 
-        <div class="row" style="display:none" id="tplSwitcher">
+        <div class="row" style="display:none" id="tplMixer">
           <div class="col-lg-12">
-            <div class="box bg-switcher transition-dark-bottom">
+            <div class="box bg-mixer transition-dark-bottom">
               <div class="box-header">
                 <h3 class="name text-white"></h3>
                 <div class="dropdown-menu dropdown-menu-right">
-                  <a class="dropdown-item noresults disabled" href="#">No other switchers to link to</a>
-                  <a class="dropdown-item linked unlink" href="#" data-toggle="modal" data-target="#actionModal" data-command="server.unlink">This server is linked to <span></span>. Click to unlink.</a>
+                  <a class="dropdown-item noresults disabled" href="#">No other mixers to link with</a>
+                  <a class="dropdown-item linked unlink" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.unlink">This mixer is linked to <span></span>. Click to unlink.</a>
                 </div>
                 <a class="box-actions-item text-white linkToggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-unlink"></i></a>
               </div>
@@ -34,10 +34,10 @@
                 <div class="d-flex align-items-center flex-row overflow-x">
                   <div>
                     <div class="d-flex align-items-center flex-row previewBus">
-                      <div class="m-1 font-weight-bold switcher-label">PRV</div>
+                      <div class="m-1 font-weight-bold mixer-label">PRV</div>
                     </div>
                     <div class="d-flex align-items-center flex-row programBus">
-                      <div class="m-1 font-weight-bold switcher-label">PGM</div>
+                      <div class="m-1 font-weight-bold mixer-label">PGM</div>
                     </div>
                   </div>
                   <div>
@@ -60,7 +60,7 @@
   //= includes/modal-action.html
   
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/assets/js/switcherPopout.js"></script>
+  <script src="/assets/js/mixerPopout.js"></script>
 </body>
 
 </html>

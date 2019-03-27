@@ -1,13 +1,13 @@
-import Server from './server';
+import Mixer from './mixer';
 import API from 'atem';
 
 /**
  * Class for connecting to Atem switchers.
  *
- * @extends    Backend.Server
+ * @extends    Backend.Mixer
  * @memberof   Backend
  */
-class Atem extends Server
+class Atem extends Mixer
 {
   /**
    * Constructs the object.
@@ -17,26 +17,12 @@ class Atem extends Server
   constructor(opts)
   {
     super(opts);
-    /**
-     * Client API used for communicating to this server
-     */
+    
     this.client = new API(this.hostname)
       .on('connectionStateChange', this._connected)
       .on('sourceTally', this._handleTally)
       .on('inputTally', this._handleTally) //TODO: check if this works
       .on('error', err => console.error);
-    /**
-     * Tally information
-     * 
-     * @type       {number[]}
-     */
-    this.tallies = [];
-    /**
-     * Is this a video mixer that is switchable?
-     *
-     * @type       {boolean}
-     */
-    this.switchable = true;
   }
   /**
    * Executed when server is connected
@@ -77,7 +63,7 @@ class Atem extends Server
    *                                       or not
    * @param      {boolean}  state.preview  Indicates whether the source is in preview
    *                                       or not
-   * @fires      Backend.Server#event:tallies
+   * @fires      Backend.Atem#event:tallies
    */
   _handleTally = (n, state) =>
   {
@@ -85,6 +71,12 @@ class Atem extends Server
     {
       let newState = state.program == true ? 1 : state.preview == true ? 2 : 0;
       this.tallies[n-1] = newState;
+      /**
+       * Let listeners know that tally information was updated.
+       *
+       * @event      Backend.Atem#event:tallies
+       * @param      {number[]}  tallies  Tally information
+       */
       this.emit('tallies', this.tallies);
     }
   }
@@ -105,28 +97,6 @@ class Atem extends Server
     let fnc = state === 1 ? 'setProgram' : 'setPreview';
     this.client[fnc](input-1);
     return true;
-  }
-  /**
-   * Get ATEM server properties
-   *
-   * @type       {Object}
-   * @property   {string}          result.type       The server type
-   * @property   {string}          result.hostname   The server hostname
-   * @property   {string}          result.name       The server display name
-   * @property   {boolean}         result.connected  Connection status
-   * @property   {number[]}        result.tallies    Tally information
-   * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
-   */
-  get status()
-  {
-    return {
-      type: this.type,
-      hostname: this.hostname,
-      name: this.name,
-      connected: this.connected,
-      tallies: this.tallies,
-      switchable: this.switchable
-    }
   }
 }
 

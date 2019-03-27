@@ -1,16 +1,17 @@
-import Server from './server';
+import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
 
 const effects = ['FADE', 'ZOOM', 'WIPE', 'SLIDE', 'FLY', 'CROSSZOOM', 'FLYROTATE', 'CUBE', 'CUBEZOOM', 'VERTICALWIPE', 'VERTICALSLIDE', 'MERGE', 'WIPEREVERSE', 'SLIDEREVERSE', 'VERTICALWIPEREVERSE', 'VERTICALSLIDEREVERSE'];
+const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
 
 /**
  * Class for connecting to vMix API via TCP.
  *
- * @extends    Backend.Server
+ * @extends    Backend.Mixer
  * @memberof   Backend
  */
-class Vmix extends Server
+class Vmix extends Mixer
 {
   /**
    * Constructs the object.
@@ -21,23 +22,12 @@ class Vmix extends Server
   {
     super(opts);
     /**
-     * Tally information
-     * 
-     * @type       {number[]}
-     */
-    this.tallies = [];
-    /**
-     * Is this a video mixer that is switchable?
+     * MAC address to send WOL packets to. If WOL is not supported it is set
+     * to false
      *
-     * @type       {boolean}
+     * @type       {string|boolean}
      */
-    this.switchable = true;
-    /**
-     * Is this linked to another switcher?
-     *
-     * @type       {boolean|Backend.Server}
-     */
-    this.linked = opts.linked ? this.linkTo(opts.linked) : false;
+    this.wol = regexMac.test(opts.wol) ? opts.wol : false;
     /**
      * Windows username and password for remote shutdown
      * 
@@ -52,13 +42,20 @@ class Vmix extends Server
    * @method     Backend.Vmix#_line
    *
    * @param      {string}  line    The line
-   * @fires      Backend.Server#event:tallies
+   * @fires      Backend.Vmix#event:tallies
+   * @fires      Backend.Mixer#event:action
    */
   _line = line =>
   {
     if(line.indexOf('TALLY OK ') == 0)
     {
       this.tallies = line.substring(9).split('').map((a) => { return parseInt(a) });
+      /**
+       * Let listeners know that tally information was updated.
+       *
+       * @event      Backend.Vmix#event:tallies
+       * @param      {number[]}  tallies  Tally information
+       */
       this.emit('tallies', this.tallies);
       return;
     }
@@ -168,6 +165,8 @@ class Vmix extends Server
    * Send cut command to vMix
    *
    * @method     Backend.Vmix#cut
+   * 
+   * @fires      Backend.Mixer#event:action
    */
   cut = () =>
   {
@@ -178,6 +177,12 @@ class Vmix extends Server
    * Send transition command to vMix
    *
    * @method     Backend.Vmix#transition
+   * 
+   * @fires      Backend.Mixer#event:action
+   *
+   * @param      {number}   duration  The duration
+   * @param      {string}   effect    The effect
+   * @return     {boolean}  Whether the command was successful
    */
   transition = (duration = 2000, effect = 'FADE') =>
   {
@@ -186,8 +191,20 @@ class Vmix extends Server
     if(effects.indexOf(effect.toUpperCase()) == -1) return false;
     this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
     this.emit('action', 'transition', [duration, effect]);
+    return true;
   }
-
+  /**
+   * Send overlay show/hide command to vMix
+   *
+   * @method     Backend.Vmix#overlay
+   * 
+   * @fires      Backend.Mixer#event:action
+   *
+   * @param      {number}   overlayN  The overlay number
+   * @param      {number}   input     The input number
+   * @param      {boolean}  state     The state (on/off)
+   * @return     {boolean}  Whether the command was successful
+   */
   overlay = (overlayN, input, state = true) =>
   {
     overlayN = parseInt(overlayN);
@@ -197,56 +214,23 @@ class Vmix extends Server
     this.client.write('FUNCTION OverlayInput' + overlayN + stateCmd + ' INPUT=' + input + '\r\n');
     if(!state) this.emit('action', 'overlay', [overlayN, input, false]);
   }
-
-  linkTo = (master) =>
-  {
-    let s = Server.getByName(master);
-    if(!s) return false;
-    if(master == this.name || s.linked.name == this.name)
-      throw new Error('Are you trying to collapse the universe?');
-
-    this.linked = s;
-    this.linked.on('action', this._copyAction);
-    return this.linked;
-  }
-
-  unlink = () =>
-  {
-    this.linked.off('action', this._copyAction);
-    this.linked = false;
-  }
-
-  _copyAction = (method, args) =>
-  {
-    const methods = ['transition', 'switchInput', 'overlay'];
-    if(methods.indexOf(method) == -1) return;
-    return this[method].apply(this, args);
-  }
   /**
    * Get vMix server properties
    *
    * @type       {Object}
-   * @property   {string}          result.type       The server type
-   * @property   {string}          result.hostname   The server hostname
-   * @property   {string}          result.name       The server display name
-   * @property   {string|boolean}  result.wol        WOL address
+   * @property   {string}          result.type       The mixer type
+   * @property   {string}          result.hostname   The mixer hostname
+   * @property   {string}          result.name       The mixer display name
    * @property   {boolean}         result.connected  Connection status
    * @property   {number[]}        result.tallies    Tally information
-   * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
-   * @property   {boolean}         result.linked     Whether this mixer is linked to another mixer
+   * @property   {boolean|object}  result.linked     Link status
+   * @property   {string|boolean}  result.wol        WOL address
    */
   get status()
   {
-    return {
-      type: this.type,
-      hostname: this.hostname,
-      name: this.name,
-      wol: this.wol,
-      connected: this.connected,
-      tallies: this.tallies,
-      switchable: this.switchable,
-      linked: this.linked ? this.linked.status : false
-    }
+    return Object.assign(super.status, {
+      wol: this.wol
+    });
   }
 }
 

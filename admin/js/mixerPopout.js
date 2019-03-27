@@ -2,23 +2,23 @@ import $ from 'jquery';
 import Cookies from 'js-cookie';
 
 import LoginModal from './lib/modal-login';
-import Switchers from './lib/switchers';
+import Mixers from './lib/mixers';
 import ActionModal from './lib/modal-action';
 import poof from './lib/jquery-poof';
 $.fn.poof = poof;
 import { toggleFullscreen } from './lib/fullscreen';
 
 /**
- * Switcher popout interface bootstrap
+ * Mixer popout interface bootstrap
  *
  * @memberof      Frontend
  */
-class SwitcherPopout
+class MixerPopout
 {
   /**
    * Executed every time the socket authenticates correctly
    *
-   * @method     Frontend.SwitcherPopout#_authenticated
+   * @method     Frontend.MixerPopout#_authenticated
    * 
    * @param      {string}  password  MD5 hashed password
    * @listens    Frontend.UI.LoginModal#event:authenticated
@@ -36,8 +36,8 @@ class SwitcherPopout
    */
   constructor()
   {
-    if(SwitcherPopout._instance) return SwitcherPopout._instance;
-    SwitcherPopout._instance = this;
+    if(MixerPopout._instance) return MixerPopout._instance;
+    MixerPopout._instance = this;
 
     /**
      * Socket.io client. This will be resused indefinitely
@@ -57,13 +57,13 @@ class SwitcherPopout
       socket: this.socket
     });
     /**
-     * Switchers class instance
+     * Mixers class instance
      *
-     * @type       {Frontend.UI.Switchers}
+     * @type       {Frontend.UI.Mixers}
      */
-    this.switchers = new Switchers({
-      $list: $('#switchers'),
-      $tpl: $('#tplSwitcher'),
+    this.mixers = new Mixers({
+      $list: $('#mixers'),
+      $tpl: $('#tplMixer'),
       socket: this.socket
     });
     /**
@@ -95,8 +95,8 @@ class SwitcherPopout
 }
 
 /**
- * Switcher popout bootstrap instance
+ * Mixer popout bootstrap instance
  *
- * @type       {Frontend.SwitcherPopout}
+ * @type       {Frontend.MixerPopout}
  */
-new SwitcherPopout();
+new MixerPopout();

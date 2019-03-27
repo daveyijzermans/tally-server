@@ -137,7 +137,6 @@ class Huawei extends Server
    *                                                            hostname
    * @property   {string}          result.name                  The server
    *                                                            display name
-   * @property   {string|boolean}  result.wol                   WOL address
    * @property   {boolean}         result.connected             Connection
    *                                                            status
    * @property   {number}          result.CurrentNetworkTypeEx  Connection
@@ -156,7 +155,6 @@ class Huawei extends Server
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      wol: this.wol,
       connected: this.connected,
       CurrentNetworkTypeEx: this.CurrentNetworkTypeEx,
       SignalIcon: this.SignalIcon,

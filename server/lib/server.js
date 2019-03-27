@@ -1,7 +1,5 @@
 import EventEmitter from 'events';
 
-const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
-
 /**
  * Base class for servers.
  *
@@ -9,32 +7,6 @@ const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9
  */
 class Server extends EventEmitter
 {
-  /**
-   * Tally information combining all hosts by importance (1=program comes before
-   * 2=preview comes before 0)
-   *
-   * @type       {number[]}
-   */
-  static get combined()
-  {
-    return Server.getSwitchable().reduce((a, s) =>
-    {
-      for (let i = 0; i < s.tallies.length; i++)
-        a[i] = a[i] ? (a[i] == 1 ? 1 : (a[i] == 2 ? 2 : 0)) : s.tallies[i];
-      return a
-    }, []);
-  }
-  /**
-   * The available channels for all Mumble servers
-   * @type       {string[]}
-   */
-  static get cycleableChannels()
-  {
-    return Server.getByType('mumble').reduce((a, m) =>
-    {
-      return m.cycleChannels ? a.concat(m.cycleChannels) : a;
-    }, []);
-  }
   /**
    * Constructs the object.
    *
@@ -73,13 +45,6 @@ class Server extends EventEmitter
      * @type       {mixed}
      */
     this.client = null;
-    /**
-     * MAC address to send WOL packets to. If WOL is not supported it is set
-     * to false
-     *
-     * @type       {string|boolean}
-     */
-    this.wol = regexMac.test(opts.wol) ? opts.wol : false;
 
     Server._instances.push(this);
   }
@@ -91,7 +56,6 @@ class Server extends EventEmitter
    * @property   {string}          result.hostname   The server hostname
    * @property   {string}          result.name       The server display name
    * @property   {boolean}         result.connected  Connection status
-   * @property   {boolean}         result.switchable Whether this a video mixer that is switchable
    */
   get status()
   {
@@ -99,8 +63,7 @@ class Server extends EventEmitter
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      connected: this.connected,
-      switchable: this.switchable || false
+      connected: this.connected
     }
   }
   /**
@@ -111,6 +74,17 @@ class Server extends EventEmitter
   static get allStatus()
   {
     return Server._instances.map(s => { return s.status });
+  }
+  /**
+   * The available channels for all Mumble servers
+   * @type       {string[]}
+   */
+  static get cycleableChannels()
+  {
+    return Server.getByType('mumble').reduce((a, m) =>
+    {
+      return m.cycleChannels ? a.concat(m.cycleChannels) : a;
+    }, []);
   }
 }
 /**
@@ -143,15 +117,6 @@ Server.getByName = (name) =>
   let result = Server._instances.filter((a) => a.name == name);
   return result.length == 1 ? result[0] : false;
 }
-/**
- * Get switchable servers
- *
- * @return     {Backend.Server[]}  The servers
- */
-Server.getSwitchable = () =>
-{
-  return Server._instances.filter((a) => a.switchable === true);
-}
 
 /**
  * Let listeners know the connection state of this server.
@@ -170,12 +135,6 @@ Server.getSwitchable = () =>
  * previously connected.
  *
  * @event      Backend.Server#event:disconnected
- */
-/**
- * Let listeners know that tally information was updated.
- *
- * @event      Backend.Server#event:tallies
- * @param      {number[]}  tallies  Tally information
  */
 /**
  * Let listeners know of a log message.

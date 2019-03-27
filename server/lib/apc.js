@@ -225,7 +225,6 @@ class Apc extends Server
    * @property   {string}          result.name                       The server
    *                                                                 display
    *                                                                 name
-   * @property   {string|boolean}  result.wol                        WOL address
    * @property   {boolean}         result.connected                  Connection
    *                                                                 status
    * @property   {string}          result.model                      The UPS
@@ -281,7 +280,6 @@ class Apc extends Server
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      wol: this.wol,
       connected: this.connected
     }
     properties.forEach((prop) => r[prop] = this[prop]);

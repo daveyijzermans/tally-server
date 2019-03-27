@@ -23,7 +23,7 @@ class Tallies extends EventEmitter
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.status.servers', this._list);
+      .on('admin.status.mixers', this._list);
     /**
      * Main container for this UI element
      * 
@@ -38,7 +38,7 @@ class Tallies extends EventEmitter
      */
     this.$tpl = opts.$tpl;
     /**
-     * Switcher popout button
+     * Mixer popout button
      * 
      * @type       {jQuery}
      */
@@ -46,11 +46,11 @@ class Tallies extends EventEmitter
     if(opts.$btnPopout)
         this.$btnPopout.click(this._popout);
     /**
-     * Cached array of server objects sent by server
+     * Cached array of mixer objects sent by server
      *
      * @type       {Object[]}
      */
-    this._servers = null;
+    this._mixers = null;
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -59,31 +59,30 @@ class Tallies extends EventEmitter
    * @method     Frontend.UI.Tallies#_list
    *
    * @param      {Object.<string, number[]>}  data   Array of tally information
-   * @listens    Socket#event:"admin.status.servers"
+   * @listens    Socket#event:"admin.status.mixers"
    */
   _list = data =>
   {
-    let switchable = data.filter((s) => s.connected && s.switchable);
-    if(JSON.stringify(switchable) === JSON.stringify(this._servers))
+    if(JSON.stringify(data) === JSON.stringify(this._mixers))
       return false;
-    this._servers = switchable;
-    let max = this._servers.reduce((a, c) => Math.max(a, c.tallies.length), 0);
+    this._mixers = data;
+    let max = this._mixers.reduce((a, c) => Math.max(a, c.tallies.length), 0);
     let states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
     this.$list.empty();
     let combined = [];
-    $.each(this._servers, (i, server) =>
+    $.each(this._mixers, (i, mixer) =>
     {
-      let $t = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('tally-entry')
+      let $t = this.$tpl.clone().attr('id', '').attr('data-name', mixer.name).addClass('tally-entry')
         .show().appendTo(this.$list);
-      let $a = $t.find('b').text(server.name);
-      const isLinked = typeof server.linked == 'object';
+      let $a = $t.find('b').text(mixer.name);
+      const isLinked = typeof mixer.linked == 'object'; //FIXME: this is static
       $t.find('.fas').toggle(isLinked);
 
       let $indicators = $t.find('.tally-indicators');
       for (let i = 0; i < max; i++)
       {
-        let state = typeof server.tallies[i] == 'number' ? states[server.tallies[i]] : states[0];
+        let state = typeof mixer.tallies[i] == 'number' ? states[mixer.tallies[i]] : states[0];
         let $s = $('<span class="badge badge-pill"></span>')
           .text(i + 1)
           .addClass(state)
@@ -91,17 +90,16 @@ class Tallies extends EventEmitter
           .click((event) =>
           {
             if(isLinked) return;
-            let newState = server.tallies[i] == 0 ? 2 : 1;
-            let dest = server.name == '_combined' ? '*' : server.name;
-            this.socket.emit('admin.server.command', dest, 'switchInput', [i + 1, newState]);
+            let newState = mixer.tallies[i] == 0 ? 2 : 1;
+            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, newState]);
             event.preventDefault();
           });
-        combined[i] = combined[i] ? (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0)) : server.tallies[i];
+        combined[i] = combined[i] ? (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0)) : mixer.tallies[i];
       }
     });
 
-    let serversOnline = this._servers.length > 0;
-    if(serversOnline)
+    let mixersOnline = this._mixers.length > 0;
+    if(mixersOnline)
     {
       let $t = this.$tpl.clone().attr('id', '').addClass('tally-entry')
         .show().appendTo(this.$list);
@@ -115,13 +113,19 @@ class Tallies extends EventEmitter
           .text(i + 1)
           .addClass(state)
           .appendTo($indicators)
+          .click((event) =>
+          {
+            let newState = combined[i] == 0 ? 2 : 1;
+            this.socket.emit('admin.mixer.command', '*', 'switchInput', [i + 1, newState]);
+            event.preventDefault();
+          });
       }
     }
-    this.$list.siblings('.noresults').toggle(!serversOnline);
-    this.$list.find('.tally-entry').toggle(serversOnline);
+    this.$list.siblings('.noresults').toggle(!mixersOnline);
+    this.$list.find('.tally-entry').toggle(mixersOnline);
   }
   /**
-   * Open the switcher in a seperate window
+   * Open the combined mixer in a separate window
    *
    * @param      {Object}  event   The event
    *
@@ -132,7 +136,7 @@ class Tallies extends EventEmitter
     let t = event.currentTarget.href;
     let w = screen.availWidth;
     let h = screen.availHeight;
-    window.open(t, 'Switcher', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,top=0,left=0,width=' + w + ',height=' + h);
+    window.open(t, 'Mixer', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,top=0,left=0,width=' + w + ',height=' + h);
     event.preventDefault();
   }
   /**

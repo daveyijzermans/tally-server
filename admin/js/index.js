@@ -98,7 +98,7 @@ class Admin
     this.tallies = new Tallies({
       $list: $('#tallies'),
       $tpl: $('#tplTally'),
-      $btnPopout: $('.switcherPopout'),
+      $btnPopout: $('.mixerPopout'),
       socket: this.socket
     });
     /**
