@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import 'jquery-ui/ui/widgets/slider';
 
 /**
  * Class for Mixers UI.
@@ -70,6 +71,7 @@ class Mixers
       let $tr = this.$list.find('.mixer-entry[data-name="' + mixer.name + '"]');
       if(!mixer.connected)
         return $tr.remove();
+
       let isLinked = () => typeof this._mixers[id].linked == 'object';
       if($tr.length == 0)
       {
@@ -81,6 +83,8 @@ class Mixers
         let $btnCut = $tr.find('.btnCut');
         let $btnAuto = $tr.find('.btnAuto');
         let $spanPrg = $btnAuto.find('span.progress');
+        let $tbar = $tr.find('.tbar');
+        let $handle = $tbar.find('.tbar-handle');
         /*
          * Bind cut button
          */
@@ -103,8 +107,41 @@ class Mixers
             .animate({width: '100%'}, duration, 'linear', () =>
               {
                 $spanPrg.css({width: '0%'});
+                $tbar.slider('value', 0);
               });
           event.preventDefault();
+        });
+        /*
+         * Bind tbar
+         */
+        $tbar.slider({
+          min: 0,
+          max: 254,
+          create: () =>
+          {
+            $handle.text($tbar.slider('value'));
+          },
+          change: (event, ui) =>
+          {
+            $handle.text(ui.value);
+            $spanPrg.stop(true, true)
+              .css({width: Math.ceil(ui.value / 254 * 100) + '%'})
+          },
+          slide: (event, ui) =>
+          {
+            this.socket.emit('admin.mixer.command', mixer.name, 'fade', [ui.value]);
+            $handle.text(ui.value);
+            $spanPrg.stop(true, true)
+              .css({width: Math.ceil(ui.value / 254 * 100) + '%'})
+          },
+          stop: (event, ui) =>
+          {
+            if(ui.value >= 254)
+            {
+              this.socket.emit('admin.mixer.command', mixer.name, 'fade', [255]);
+              $tbar.slider('value', 0);
+            }
+          }
         });
       }
 
@@ -125,14 +162,18 @@ class Mixers
           let $item = $dropdown.find('.dropdown-item[data-name="' + other.name +'"]');
           if($item.length == 0)
           {
-            $item = $('<a class="dropdown-item other" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.link"></a>')
-              .text('Link with ' + other.name)
-              .attr('data-name', other.name)
-              .data('param', {
+            $item = $('<a></a>', {
+              text: 'Link with ' + other.name,
+              class: 'dropdown-item other',
+              href: '#',
+              'data-toggle': 'modal',
+              'data-target': '#actionModal',
+              'data-command': 'mixer.link',
+              'data-name': other.name
+            }).data('param', {
                 master: other.name,
                 slave: mixer.name
-              })
-              .appendTo($dropdown);
+              }).appendTo($dropdown);
           }
         });
         $dropdown.find('.dropdown-item.noresults').toggle($dropdown.find('.dropdown-item.other').length == 0);
@@ -142,6 +183,8 @@ class Mixers
         .toggleClass('fa-link', isLinked())
         .toggleClass('fa-unlink', !isLinked());
       $tr.toggleClass('mixer-linked', isLinked());
+      let $tbar = $tr.find('.tbar');
+      $tbar.slider('option', 'disabled', isLinked());
       
       let $name = $tr.find('.name').text(mixer.name);
       $tr.find('.previewBus, .programBus').find('.btn').remove();
@@ -194,7 +237,7 @@ class Mixers
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.mixer-entry') }
 }

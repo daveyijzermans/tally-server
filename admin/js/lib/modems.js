@@ -107,7 +107,7 @@ class Modems
     $.each(this._servers, (id, server) =>
     {
       if(server.type != 'huawei') return;
-      let $tr = this.$list.find('[data-name="' + server.name + '"]');
+      let $tr = this.$list.find('.modem-entry[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('modem-entry')
@@ -140,7 +140,7 @@ class Modems
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.modem-entry') }
 }

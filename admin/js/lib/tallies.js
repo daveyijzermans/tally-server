@@ -128,9 +128,9 @@ class Tallies extends EventEmitter
   /**
    * Open the combined mixer in a separate window
    *
-   * @param      {Object}  event   The event
-   *
    * @method     Frontend.UI.Tallies#_popout
+   *
+   * @param      {Object}  event   The event
    */
   _popout = event =>
   {
@@ -143,7 +143,7 @@ class Tallies extends EventEmitter
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.tally-entry') }
 }

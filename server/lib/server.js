@@ -47,6 +47,11 @@ class Server extends EventEmitter
     this.client = null;
 
     Server._instances.push(this);
+    if(typeof Server._callbacks[this.name] == 'object')
+    {
+      Server._callbacks[this.name].forEach((cb) => cb(this));
+      Server._callbacks[this.name] = [];
+    }
   }
   /**
    * Server properties
@@ -67,9 +72,9 @@ class Server extends EventEmitter
     }
   }
   /**
-   * Get all status object for all server instances 
+   * Get all status objects for all server instances 
    *
-   * @return     {Object[]}  Array of status objects
+   * @type     {Object[]}
    */
   static get allStatus()
   {
@@ -77,6 +82,7 @@ class Server extends EventEmitter
   }
   /**
    * The available channels for all Mumble servers
+   * 
    * @type       {string[]}
    */
   static get cycleableChannels()
@@ -90,9 +96,16 @@ class Server extends EventEmitter
 /**
  * Collection of all server instances
  *
- * @type       {Array.<Backend.Server>}
+ * @type       {Backend.Server[]}
  */
 Server._instances = [];
+/**
+ * Holds callbacks that need to be called when Server objects with a certain
+ * name are created
+ *
+ * @type       {Object.<string, function[]>}
+ */
+Server._callbacks = {};
 /**
  * Retrieve servers with certain type from list
  *
@@ -116,6 +129,24 @@ Server.getByName = (name) =>
   if(typeof name == 'undefined') return false;
   let result = Server._instances.filter((a) => a.name == name);
   return result.length == 1 ? result[0] : false;
+}
+/**
+ * Register a callback for when a server is created with a specific name
+ *
+ * @param      {string}      name    The name
+ * @param      {Function}    cb      Callback
+ * @return     {mixed|void}  Callback result if the server was found immediately
+ */
+Server.waitFor = (name, cb) =>
+{
+  if(typeof name != 'string') return;
+  let s = Server.getByName(name);
+  if(s) return cb(s);
+
+  if(typeof Server._callbacks[name] == 'object')
+    Server._callbacks[name].push(cb);
+  else
+    Server._callbacks[name] = [cb];
 }
 
 /**

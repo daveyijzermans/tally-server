@@ -2,7 +2,25 @@ import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
 
-const effects = ['FADE', 'ZOOM', 'WIPE', 'SLIDE', 'FLY', 'CROSSZOOM', 'FLYROTATE', 'CUBE', 'CUBEZOOM', 'VERTICALWIPE', 'VERTICALSLIDE', 'MERGE', 'WIPEREVERSE', 'SLIDEREVERSE', 'VERTICALWIPEREVERSE', 'VERTICALSLIDEREVERSE'];
+const effects = {
+  'FADE': 'FADE',
+  'DIP': 'FADE',
+  'ZOOM': 'ZOOM',
+  'WIPE': 'WIPE',
+  'SLIDE': 'SLIDE',
+  'FLY': 'FLY',
+  'CROSSZOOM': 'CROSSZOOM',
+  'FLYROTATE': 'FLYROTATE',
+  'CUBE': 'CUBE',
+  'CUBEZOOM': 'CUBEZOOM',
+  'VERTICALWIPE': 'VERTICALWIPE',
+  'VERTICALSLIDE': 'VERTICALSLIDE',
+  'MERGE': 'MERGE',
+  'WIPEREVERSE': 'WIPEREVERSE',
+  'SLIDEREVERSE': 'SLIDEREVERSE',
+  'VERTICALWIPEREVERSE': 'VERTICALWIPEREVERSE',
+  'VERTICALSLIDEREVERSE': 'VERTICALSLIDEREVERSE'
+};
 const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
 
 /**
@@ -246,20 +264,48 @@ class Vmix extends Mixer
    * Send transition command to vMix
    *
    * @method     Backend.Vmix#transition
-   * 
+   *
    * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   duration  The duration
    * @param      {string}   effect    The effect
+   * @param      {boolean}  execute   Does this command need to be actually
+   *                                  executed or is it handled by a different
+   *                                  action?
    * @return     {boolean}  Whether the command was successful
    */
-  transition = (duration = 2000, effect = 'FADE') =>
+  transition = (duration = 2000, effect = 'FADE', execute = true) =>
   {
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
-    if(effects.indexOf(effect.toUpperCase()) == -1) return false;
-    this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
+    if(typeof effects[effect] == 'undefined') return false;
+    this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n')
+    if(execute) this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
     this.emit('action', 'transition', [duration, effect]);
+    return true;
+  }
+  /**
+   * Send fade bar position to vMix
+   *
+   * @method     Backend.Vmix#fade
+   *
+   * @fires      Backend.Mixer#event:action
+   *
+   * @param      {number}   n         Tbar position 0-255
+   * @param      {string}   effect    The effect
+   * @param      {boolean}  execute   Does this command need to be actually
+   *                                  executed or is it handled by a different
+   *                                  action?
+   * @return     {boolean}  Whether the command was successful
+   */
+  fade = (n = 255, effect = 'FADE', execute = true) =>
+  {
+    n = parseInt(n);
+    if(isNaN(n)) return false;
+    n = n > 0 ? (n < 255 ? n : 255) : 0;
+    // this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n'); //FIXME: this crashes vMix
+    if(execute) this.client.write('FUNCTION SetFader Value=' + n + '\r\n');
+    this.emit('action', 'fade', [n]);
     return true;
   }
   /**
@@ -309,7 +355,7 @@ class Vmix extends Mixer
    */
   get actions()
   {
-    return ['transition', 'switchInput', 'overlay'];
+    return ['transition', 'switchInput', 'overlay', 'fade'];
   }
 }
 

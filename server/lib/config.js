@@ -76,7 +76,7 @@ class Config extends EventEmitter
   /**
    * Make all users using configuration from JSON file
    *
-   * @method     Backend.Config#getUser
+   * @method     Backend.Config#makeUsers
    *
    * @return     {Backend.User[]}  The users.
    */
@@ -95,7 +95,7 @@ class Config extends EventEmitter
    *
    * @param      {string}        type      The type
    * @param      {Function}      callback  Callback to execute on the matches
-   * @return     {Array.Object}  Array of config items matching the server type
+   * @return     {Object[]}  Array of config items matching the server type
    */
   getServerConfigByType = (type, callback) =>
   {

@@ -1,14 +1,14 @@
-import Server from './server';
+import Router from './router';
 import { Socket } from 'net';
 import readline from 'readline';
 
 /**
  * Class for connecting to Aten matrix.
  *
- * @extends    Backend.Server
+ * @extends    Backend.Router
  * @memberof   Backend
  */
-class Aten extends Server
+class Aten extends Router
 {
   /**
    * Constructs the object.

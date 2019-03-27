@@ -27,9 +27,10 @@ class Mixer extends Server
      *
      * @type       {boolean|Backend.Mixer}
      */
-    this.linked = this.linkTo(opts.linked);
+    this.linked = false;
 
     Mixer._instances.push(this);
+    this.linkTo(opts.linked);
   }
   /**
    * Link this mixer to another mixer
@@ -38,26 +39,24 @@ class Mixer extends Server
    * 
    * @fires      Backend.Mixer#event:linked
    *
-   * @param      {Backend.Mixer|string}  master  The master mixer (or name)
-   * @return     {boolean}               Whether the link was successful
+   * @param      {Backend.Mixer|string}  name  The master mixer (or name)
    */
-  linkTo = (master) =>
+  linkTo = (name) =>
   {
-    let s = master instanceof Mixer ? master : Mixer.getByName(master);
-    if(!s) return false;
-    if(master == this.name || s.linked.name == this.name)
-      throw new Error('Are you trying to collapse the universe?');
-    this.linked = s;
-    this.linked.on('action', this._copyAction)
-               .on('disconnected', this.unlink);
-    
-    /**
-     * Mixer is linked
-     * 
-     * @event      Backend.Mixer#event:linked
-     */
-    this.emit('linked');
-    return this.linked
+    Mixer.waitFor(name, (master) =>
+    {
+      if(master.name == this.name || (master.linked && master.linked.name == this.name))
+        throw new Error('Are you trying to collapse the universe?');
+      this.linked = master;
+      this.linked.on('action', this._copyAction)
+                 .on('disconnected', this.unlink);
+      /**
+       * Mixer is linked
+       * 
+       * @event      Backend.Mixer#event:linked
+       */
+      this.emit('linked');
+    });
   }
   /**
    * Unlink this mixer
@@ -128,9 +127,9 @@ class Mixer extends Server
     }, []);
   }
   /**
-   * Get all status object for all mixer instances 
+   * Get all status objects for all mixer instances 
    *
-   * @return     {Object[]}  Array of status objects
+   * @type     {Object[]}
    */
   static get allStatus()
   {
@@ -150,7 +149,7 @@ class Mixer extends Server
 /**
  * Collection of all mixer instances
  *
- * @type       {Array.<Backend.Mixer>}
+ * @type       {Backend.Mixer[]}
  */
 Mixer._instances = [];
 /**

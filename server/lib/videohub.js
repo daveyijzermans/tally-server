@@ -1,14 +1,14 @@
-import Server from './server';
+import Router from './router';
 import { Socket } from 'net';
 import parser from 'io-videohub/lib/parser';
 
 /**
  * Class for connecting to Blackmagic Videohub.
  *
- * @extends    Backend.Server
+ * @extends    Backend.Router
  * @memberof   Backend
  */
-class Videohub extends Server
+class Videohub extends Router
 {
   /**
    * Constructs the object.
@@ -181,16 +181,12 @@ class Videohub extends Server
    */
   get status()
   {
-    return {
-      type: this.type,
-      hostname: this.hostname,
-      name: this.name,
-      connected: this.connected,
+    return Object.assign(super.status, {
       inputLabels: this._statusObj.inputLabels,
       outputLabels: this._statusObj.outputLabels,
       routing: this._statusObj.video_output_routing,
       lockStatus: this._statusObj.video_output_locks
-    }
+    });
   }
 }
 

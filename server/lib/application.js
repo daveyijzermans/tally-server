@@ -485,7 +485,7 @@ class Application extends EventEmitter
    */
   _mixerCmd = (name, method, args) =>
   {
-    const methods = ['switchInput', 'cut', 'transition'];
+    const methods = ['switchInput', 'cut', 'transition', 'fade'];
     if(methods.indexOf(method) == -1) return false;
     if(name === '*')
     {
@@ -499,8 +499,12 @@ class Application extends EventEmitter
   };
   /**
    * Link a mixer to another mixer
+   *
+   * @method     Backend.Application#_mixerLink
    * 
    * @listens    Socket#event:"admin.mixer.link"
+   * 
+   * @fires      Socket#event:"admin.error"
    */
   _mixerLink = (params) =>
   {
@@ -511,6 +515,8 @@ class Application extends EventEmitter
   }
   /**
    * Unlink a mixer
+   *
+   * @method     Backend.Application#_mixerUnlink
    * 
    * @listens    Socket#event:"admin.mixer.unlink"
    */
@@ -1060,5 +1066,11 @@ class Application extends EventEmitter
  * @type     {Backend.Application}
  */
 Application._instance;
+
+/**
+ * Catch-all for admin commands
+ *
+ * @event      Socket#event:"admin.*"
+ */
 
 export default Application;

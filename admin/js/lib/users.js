@@ -75,7 +75,7 @@ class Users extends EventEmitter
    *
    * @param      {Backend.User[]}  users   Array of users
    * @listens    Socket#event:"admin.users.list"
-   * @fires      Socket#event:"admin.server.command"
+   * @fires      Socket#event:"admin.mixer.command"
    */
   _list = users =>
   {
@@ -83,7 +83,7 @@ class Users extends EventEmitter
 
     $.each(users, (id, user) =>
     {
-      let $u = this.$list.find('[data-username="' + user.username + '"]');
+      let $u = this.$list.find('.user-entry[data-username="' + user.username + '"]');
       let $dropdown = $u.find('.dropdown-menu');
       if($u.length == 0)
       {
@@ -91,14 +91,32 @@ class Users extends EventEmitter
           .show().appendTo(this.$list);
         $dropdown = $u.find('.dropdown-menu');
         $dropdown.attr('aria-labelledby', user.username);
-        $('<a class="dropdown-item edit-user-modal" href="#" data-toggle="modal" data-target="#editUserModal">Edit</a>')
-            .appendTo($dropdown);
-        $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>')
-            .attr('data-param', user.username)
-            .appendTo($dropdown);
-        $('<a class="dropdown-item" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>')
-            .attr('data-param', user.username)
-            .appendTo($dropdown);
+        $('<a></a>', {
+          class: 'dropdown-item edit-user-modal',
+          href: '#',
+          text: 'Edit',
+          'data-toggle': 'modal',
+          'data-target': '#editUserModal',
+        }).appendTo($dropdown);
+        $('<a></a>', {
+          class: 'dropdown-item',
+          href: '#',
+          text: 'Reboot',
+          'data-toggle': 'modal',
+          'data-target': '#actionModal',
+          'data-command': 'reboot',
+          'data-param': user.username
+        }).appendTo($dropdown);
+        
+        $('<a></a>', {
+          class: 'dropdown-item',
+          href: '#',
+          text: 'Shutdown',
+          'data-toggle': 'modal',
+          'data-target': '#actionModal',
+          'data-command': 'shutdown',
+          'data-param': user.username
+        }).appendTo($dropdown);
       }
 
       if(user.talking)
@@ -130,7 +148,7 @@ class Users extends EventEmitter
         .one('click.switch', (event) =>
         {
           let newState = user.status == 0 ? 2 : 1;
-          this.socket.emit('admin.server.command', '*', 'switchInput', [user.camNumber, newState]);
+          this.socket.emit('admin.mixer.command', '*', 'switchInput', [user.camNumber, newState]);
           event.preventDefault();
         });
       $u.find('.channelName').text(user.channelName);
@@ -148,16 +166,16 @@ class Users extends EventEmitter
    */
   _disconnect = username =>
   {
-    let $user = this.$list.find('[data-username="' + username + '"]');
+    let $user = this.$list.find('.user-entry[data-username="' + username + '"]');
     $user.poof(true);
     this.$list.find('.noresults').toggle(this.$list.find('.user-entry').length == 0);
   }
   /**
    * Open the intercom box in a seperate window
    *
-   * @param      {Object}  event   The event
-   *
    * @method     Frontend.UI.Users#_popout
+   *
+   * @param      {Object}  event   The event
    */
   _popout = event =>
   {
@@ -168,7 +186,7 @@ class Users extends EventEmitter
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.user-entry') }
 }

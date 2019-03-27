@@ -213,6 +213,28 @@ html.popout {
   .mixer-label {
     width: 40px;
   }
+
+  .tbar {
+    width: 300px;
+    .tbar-handle {
+      background: #74818d;
+      border: none;
+      color: #ffffff;
+      width: 2em;
+      height: 5.775em;
+      top: 50%;
+      margin-top: -2.8875em;
+      text-align: center;
+      line-height: 5.775em;
+      transition: background-color .2s;
+      &:hover {
+        background: #5d6771;
+      }
+      &:active, &:focus {
+        background: #545b62;
+      }
+    }
+  }
 }
 
 @media (max-width: 767px) {

@@ -88,7 +88,7 @@ class Ups
     $.each(this._servers, (id, server) =>
     {
       if(server.type != 'apc') return;
-      let $tr = this.$list.find('[data-name="' + server.name + '"]');
+      let $tr = this.$list.find('.ups-entry[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
         $tr = this.$tpl.clone().attr('id', '').attr('data-name', server.name).addClass('ups-entry')
@@ -123,7 +123,7 @@ class Ups
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.ups-entry') }
 }

@@ -21,9 +21,12 @@ export default function(removeEl)
         pos = $this.offset(),
         left = pos.left + $this.outerWidth() / 2 - frameSize / 2,
         top = pos.top + $this.outerHeight() / 2 - frameSize / 2,
-        $puff = $('<div class="puff"></div>').css({
-          left: left,
-          top: top
+        $puff = $('<div></div>', {
+          class: 'puff',
+          css: {
+            left: left,
+            top: top
+          }
         }).appendTo('body');
       if(removeEl) $this.remove();
 

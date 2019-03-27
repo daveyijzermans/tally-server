@@ -59,8 +59,7 @@ class EditUserModal
     let channels = ['Cameras','program1','program2','both'];
     channels.forEach(name =>
     {
-      $('<option></option')
-        .text(name)
+      $('<option></option>', { text: name })
         .appendTo(this.$channelName);
     });
   }

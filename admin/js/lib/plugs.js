@@ -58,7 +58,7 @@ class Plugs
 
     $.each(plugs, (id, plug) =>
     {
-      let $p = this.$list.find('[data-hostname="' + plug.hostname + '"]');
+      let $p = this.$list.find('.plug-entry[data-hostname="' + plug.hostname + '"]');
       if($p.length == 0)
       {
         $p = this.$tpl.clone().attr('id', '').attr('data-hostname', plug.hostname).addClass('plug-entry')
@@ -94,6 +94,7 @@ class Plugs
    * Executed when the socket is disconnected. Cleanup the entries from the UI.
    *
    * @method     Frontend.UI.Plugs#_socketDisconnect
+   * 
    * @listens    Socket#event:disconnect
    */
   _socketDisconnect = () =>
@@ -122,7 +123,7 @@ class Plugs
   /**
    * All items in the list
    *
-   * @return     {jQuery}
+   * @type     {jQuery}
    */
   get $items() { return this.$list.find('.plug-entry') }
 }
