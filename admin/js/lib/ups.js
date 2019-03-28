@@ -87,7 +87,7 @@ class Ups
 
     $.each(this._servers, (id, server) =>
     {
-      if(server.type != 'apc') return;
+      if(['apc'].indexOf(server.type) == -1) return;
       let $tr = this.$list.find('.ups-entry[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {

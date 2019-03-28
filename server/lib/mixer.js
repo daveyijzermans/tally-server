@@ -75,6 +75,7 @@ class Mixer extends Server
    *
    * @method     Backend.Mixer#unlink
    * 
+   * @listens    Backend.Mixer#event:disconnected
    * @fires      Backend.Mixer#event:unlinked
    */
   unlink = () =>
@@ -115,6 +116,8 @@ class Mixer extends Server
    * @property   {boolean}         result.connected  Connection status
    * @property   {number[]}        result.tallies    Tally information
    * @property   {boolean|object}  result.linked     Link status
+   * @property   {number}          result.preview    Currently preview input number
+   * @property   {number}          result.program    Currently program input number
    */
   get status()
   {
@@ -135,7 +138,7 @@ class Mixer extends Server
   {
     return Mixer._instances.reduce((a, s) =>
     {
-      for (let i = 0; i < s.tallies.length; i++)
+      for (let i = 1; i < s.tallies.length; i++)
         a[i] = a[i] ? (a[i] == 3 ? 3 : (a[i] == 1 ? 1 : (a[i] == 2 ? 2 : 0))) : s.tallies[i];
       return a
     }, []);

@@ -61,18 +61,19 @@ class Vmix extends Mixer
    *
    * @param      {string}  line    The line
    * @fires      Backend.Vmix#event:tallies
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Vmix#event:action
    */
   _line = line =>
   {
     if(line.indexOf('TALLY OK ') == 0)
     {
-      this.tallies = line.substring(9).split('').map((a, i) =>
+      this.tallies = line.substring(9).split('').reduce((a, c, i) =>
       {
-        let tally = parseInt(a);
+        let tally = parseInt(c);
         if(tally == 1 && i + 1 == this._currentPreviewInput) tally = 3;
-        return tally;
-      });
+        a.push(tally);
+        return a;
+      }, [null]);
       /**
        * Let listeners know that tally information was updated.
        *
@@ -260,7 +261,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#cut
    * 
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Vmix#event:action
    */
   cut = () =>
   {
@@ -272,7 +273,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#transition
    *
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Vmix#event:action
    *
    * @param      {number}   duration  The duration
    * @param      {string}   effect    The effect
@@ -296,7 +297,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#fade
    *
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Vmix#event:action
    *
    * @param      {number}   n         Tbar position 0-255
    * @param      {string}   effect    The effect
@@ -320,7 +321,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#overlay
    * 
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Vmix#event:action
    *
    * @param      {number}   overlayN  The overlay number
    * @param      {number}   input     The input number

@@ -729,7 +729,7 @@ class Application extends EventEmitter
     User._instances.forEach(user =>
     {
       let oldStatus = user.status;
-      let newStatus = combined[user.camNumber - 1];
+      let newStatus = combined[user.camNumber];
       if(newStatus != oldStatus)
       {
         user.status = newStatus;

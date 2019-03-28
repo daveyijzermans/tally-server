@@ -81,18 +81,18 @@ class Tallies extends EventEmitter
       $t.find('.fas').toggle(isLinked);
 
       let $indicators = $t.find('.tally-indicators');
-      for (let i = 0; i < max; i++)
+      for (let i = 1; i < max; i++)
       {
         let state = typeof mixer.tallies[i] == 'number' ? states[mixer.tallies[i]] : states[0];
         let $s = $('<span class="badge badge-pill"></span>')
-          .text(i + 1)
+          .text(i)
           .addClass(state)
           .appendTo($indicators)
           .click((event) =>
           {
             if(isLinked) return;
             let newState = mixer.tallies[i] == 0 ? 2 : 1;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, newState]);
+            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, newState]);
             event.preventDefault();
           });
         combined[i] = combined[i] ? (combined[i] == 3 ? 3 : (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0))) : mixer.tallies[i];
@@ -107,17 +107,17 @@ class Tallies extends EventEmitter
       let $a = $t.find('b').text('Combined result');
 
       let $indicators = $t.find('.tally-indicators');
-      for (let i = 0; i < max; i++)
+      for (let i = 1; i < max; i++)
       {
         let state = typeof combined[i] == 'number' ? states[combined[i]] : states[0];
         let $s = $('<span class="badge badge-pill"></span>')
-          .text(i + 1)
+          .text(i)
           .addClass(state)
           .appendTo($indicators)
           .click((event) =>
           {
             let newState = combined[i] == 0 ? 2 : 1;
-            this.socket.emit('admin.mixer.command', '*', 'switchInput', [i + 1, newState]);
+            this.socket.emit('admin.mixer.command', '*', 'switchInput', [i, newState]);
             event.preventDefault();
           });
       }

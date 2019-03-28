@@ -107,10 +107,10 @@ class Atem extends Mixer
    * @param      {number}  n       Camera number
    * @param      {Object}  state   Object containing state information
    * @fires      Backend.Atem#event:tallies
+   * @fires      Backend.Atem#event:action
    */
   _updated = (err, state) => //TODO: document
   {
-    console.log(state.video.ME[this.ME]);
     let pos = state.video.ME[this.ME].transitionPosition;
     let tbar = Math.ceil(state.video.ME[this.ME].transitionPosition * 255);
     if(pos >= 0.9945) return this.client.changeTransitionPosition(10000); //FIXME
@@ -121,7 +121,11 @@ class Atem extends Mixer
     this.emit('action', 'switchInput', [state.video.ME[this.ME].programInput, 1]);
     this.emit('action', 'switchInput', [state.video.ME[this.ME].previewInput, 2]);
 
-    let newTallies = state.tallys;
+    let newTallies = state.tallys.reduce((a, c, i) =>
+    {
+      a.push(c);
+      return a;
+    }, [null]);
     if (JSON.stringify(this.tallies) != newTallies)
     {
       /**
@@ -156,7 +160,7 @@ class Atem extends Mixer
    *
    * @method     Backend.Atem#cut
    * 
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Atem#event:action
    */
   cut = () =>
   {
@@ -169,7 +173,7 @@ class Atem extends Mixer
    *
    * @method     Backend.Atem#transition
    * 
-   * @fires      Backend.Mixer#event:action
+   * @fires      Backend.Atem#event:action
    *
    * @param      {number}   duration  The duration
    * @param      {string}   effect    The effect
@@ -194,8 +198,6 @@ class Atem extends Mixer
    * Send fade bar position to ATEM
    *
    * @method     Backend.Atem#fade
-   *
-   * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   n         Tbar position 0-255
    * @param      {string}   effect    The effect

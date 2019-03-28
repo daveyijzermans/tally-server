@@ -69,8 +69,7 @@ class Mixers
     $.each(this._mixers, (id, mixer) =>
     {
       let $tr = this.$list.find('.mixer-entry[data-name="' + mixer.name + '"]');
-      if(!mixer.connected)
-        return $tr.remove();
+      if(!mixer.connected) return $tr.remove();
 
       let isLinked = () => typeof this._mixers[id].linked == 'object';
       if($tr.length == 0)
@@ -155,9 +154,15 @@ class Mixers
       } else {
         $.each(this._mixers, (i, other) =>
         {
-          if(other.name == mixer.name) return;
-          if(!other.connected) return $dropdown.find('.dropdown-item[data-name="' + other.name +'"]').remove();
-          if(typeof other.linked == 'object') return;
+          if(other.name == mixer.name) return; /* Don't link to self */
+          if(!other.connected) { /* Exclude if the other mixer isn't connected */
+            $dropdown.find('.dropdown-item[data-name="' + other.name +'"]').remove();
+            return
+          }
+          if(typeof other.linked == 'object' && other.linked.name == mixer.name)
+          { /* Don't allow link if other is linked is to self */
+            return;
+          }
 
           let $item = $dropdown.find('.dropdown-item[data-name="' + other.name +'"]');
           if($item.length == 0)
@@ -179,10 +184,11 @@ class Mixers
         $dropdown.find('.dropdown-item.noresults').toggle($dropdown.find('.dropdown-item.other').length == 0);
       }
       $linkedItem.toggle(isLinked());
-      $tr.find('.linkToggle .fas')
-        .toggleClass('fa-link', isLinked())
-        .toggleClass('fa-unlink', !isLinked());
-      $tr.toggleClass('mixer-linked', isLinked());
+      $tr
+        .toggleClass('mixer-linked', isLinked())
+        .find('.linkToggle .fas')
+          .toggleClass('fa-link', isLinked())
+          .toggleClass('fa-unlink', !isLinked());
       let $tbar = $tr.find('.tbar');
       $tbar.slider('option', 'disabled', isLinked());
       
@@ -191,35 +197,35 @@ class Mixers
       let $prv = $tr.find('.previewBus');
       let $pgm = $tr.find('.programBus');
 
-      for (let i = 0; i < mixer.tallies.length; i++)
+      for (let i = 1; i < mixer.tallies.length; i++)
       {
         /*
          * Populate the preview bus row
          */
-        let prvClass = i + 1 == mixer.preview ? states[2] : states[0];
+        let prvClass = i == mixer.preview ? states[2] : states[0];
         let $prvBtn = $('<button class="btn btn-lg m-1"></button>')
-          .text(i + 1)
+          .text(i)
           .addClass(prvClass)
           .appendTo($prv)
           .one('click', (event) =>
           {
             if(isLinked()) return;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, 2]);
+            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, 2]);
             event.preventDefault();
           });
 
         /*
          * Populate the program bus row
          */
-        let pgmClass = i + 1 == mixer.program ? states[1] : states[0];
+        let pgmClass = i == mixer.program ? states[1] : states[0];
         let $pgmBtn = $('<button class="btn btn-lg m-1"></button>')
-          .text(i + 1)
+          .text(i)
           .addClass(pgmClass)
           .appendTo($pgm)
           .one('click', (event) =>
           {
             if(isLinked()) return;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, 1]);
+            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, 1]);
             event.preventDefault();
           });
       }
