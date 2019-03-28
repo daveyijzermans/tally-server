@@ -191,21 +191,12 @@ class Mixers
       let $prv = $tr.find('.previewBus');
       let $pgm = $tr.find('.programBus');
 
-      /*
-       * If there are not inputs on preview, then the input that's on program is
-       * also on preview. Find that input and make it's preview bus button
-       * green.
-       */
-      let forcePrv = false;
-      if(mixer.tallies.indexOf(2) == -1)
-        forcePrv = mixer.tallies.indexOf(1);
-
       for (let i = 0; i < mixer.tallies.length; i++)
       {
         /*
          * Populate the preview bus row
          */
-        let prvClass = mixer.tallies[i] == 2 || forcePrv === i ? states[2] : states[0];
+        let prvClass = i + 1 == mixer.preview ? states[2] : states[0];
         let $prvBtn = $('<button class="btn btn-lg m-1"></button>')
           .text(i + 1)
           .addClass(prvClass)
@@ -220,7 +211,7 @@ class Mixers
         /*
          * Populate the program bus row
          */
-        let pgmClass = mixer.tallies[i] == 1 ? states[1] : states[0];
+        let pgmClass = i + 1 == mixer.program ? states[1] : states[0];
         let $pgmBtn = $('<button class="btn btn-lg m-1"></button>')
           .text(i + 1)
           .addClass(pgmClass)

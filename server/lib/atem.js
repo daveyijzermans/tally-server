@@ -110,15 +110,18 @@ class Atem extends Mixer
    */
   _updated = (err, state) => //TODO: document
   {
+    console.log(state.video.ME[this.ME]);
     let pos = state.video.ME[this.ME].transitionPosition;
     let tbar = Math.ceil(state.video.ME[this.ME].transitionPosition * 255);
     if(pos >= 0.9945) return this.client.changeTransitionPosition(10000); //FIXME
     this.emit('action', 'fade', [tbar]);
 
+    this._currentProgramInput = [state.video.ME[this.ME].programInput];
+    this._currentPreviewInput = state.video.ME[this.ME].previewInput;
     this.emit('action', 'switchInput', [state.video.ME[this.ME].programInput, 1]);
     this.emit('action', 'switchInput', [state.video.ME[this.ME].previewInput, 2]);
 
-    let newTallies = state.tallys.map((t) => t = t == 3 ? 1 : t);
+    let newTallies = state.tallys;
     if (JSON.stringify(this.tallies) != newTallies)
     {
       /**

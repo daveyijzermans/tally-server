@@ -214,7 +214,7 @@ class Client
    * 
    * @method     Client#_setStatus
    *
-   * @param      {boolean}            status  Status
+   * @param      {number}            status  Status
    * @return     {boolean|undefined}  
    */
   _setStatus = (status) =>

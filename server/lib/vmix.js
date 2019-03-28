@@ -55,7 +55,7 @@ class Vmix extends Mixer
     this._check();
   }
   /**
-   * Parse lines that come from the Aten matrix
+   * Parse lines that come from Vmix
    *
    * @method     Backend.Vmix#_line
    *
@@ -67,7 +67,12 @@ class Vmix extends Mixer
   {
     if(line.indexOf('TALLY OK ') == 0)
     {
-      this.tallies = line.substring(9).split('').map((a) => { return parseInt(a) });
+      this.tallies = line.substring(9).split('').map((a, i) =>
+      {
+        let tally = parseInt(a);
+        if(tally == 1 && i + 1 == this._currentPreviewInput) tally = 3;
+        return tally;
+      });
       /**
        * Let listeners know that tally information was updated.
        *
@@ -80,8 +85,9 @@ class Vmix extends Mixer
     if(line.indexOf('ACTS OK Input ') == 0)
     {
       let val = line.split(' ');
-      if(val[4] == '0') return;
       let input = parseInt(val[3]);
+      if(val[4] == '0') return;
+      this._currentProgramInput = input;
       this.emit('action', 'switchInput', [input, 1]);
       return;
     }
@@ -90,6 +96,7 @@ class Vmix extends Mixer
       let val = line.split(' ');
       if(val[4] == '0') return;
       let input = parseInt(val[3]);
+      this._currentPreviewInput = input;
       this.emit('action', 'switchInput', [input, 2]);
       return;
     }

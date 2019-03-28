@@ -28,6 +28,18 @@ class Mixer extends Server
      * @type       {boolean|Backend.Mixer}
      */
     this.linked = false;
+    /**
+     * Cached value of which input is currently preview.
+     *
+     * @type       {number}
+     */
+    this._currentPreviewInput = 0;
+    /**
+     * Cached value of which input is currently program
+     *
+     * @type       {number}
+     */
+    this._currentProgramInputs = 0;
 
     Mixer._instances.push(this);
     this.linkTo(opts.linked);
@@ -108,7 +120,9 @@ class Mixer extends Server
   {
     return Object.assign(super.status, {
       tallies: this.tallies,
-      linked: this.linked instanceof Mixer ? this.linked.status : false
+      linked: this.linked instanceof Mixer ? this.linked.status : false,
+      preview: this._currentPreviewInput,
+      program: this._currentProgramInput
     });
   }
   /**
@@ -122,7 +136,7 @@ class Mixer extends Server
     return Mixer._instances.reduce((a, s) =>
     {
       for (let i = 0; i < s.tallies.length; i++)
-        a[i] = a[i] ? (a[i] == 1 ? 1 : (a[i] == 2 ? 2 : 0)) : s.tallies[i];
+        a[i] = a[i] ? (a[i] == 3 ? 3 : (a[i] == 1 ? 1 : (a[i] == 2 ? 2 : 0))) : s.tallies[i];
       return a
     }, []);
   }

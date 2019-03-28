@@ -67,7 +67,7 @@ class Tallies extends EventEmitter
       return false;
     this._mixers = data;
     let max = this._mixers.reduce((a, c) => Math.max(a, c.tallies.length), 0);
-    let states = ['badge-secondary', 'badge-danger', 'badge-success'];
+    let states = ['badge-secondary', 'badge-danger', 'badge-success', 'badge-danger'];
 
     this.$list.empty();
     let combined = [];
@@ -95,7 +95,7 @@ class Tallies extends EventEmitter
             this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i + 1, newState]);
             event.preventDefault();
           });
-        combined[i] = combined[i] ? (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0)) : mixer.tallies[i];
+        combined[i] = combined[i] ? (combined[i] == 3 ? 3 : (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0))) : mixer.tallies[i];
       }
     });
 
