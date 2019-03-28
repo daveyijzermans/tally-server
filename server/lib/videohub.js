@@ -135,8 +135,8 @@ class Videohub extends Router
    *
    * @method     Backend.Videohub#setOutputLabel
    *
-   * @param      {Number}   output  The output
-   * @param      {String}   label   The label
+   * @param      {number}   output  The output
+   * @param      {string}   label   The label
    * @return     {boolean}  Result
    */
   setOutputLabel = (output, label) =>
@@ -153,8 +153,8 @@ class Videohub extends Router
    *
    * @method     Backend.Videohub#setInputLabel
    *
-   * @param      {Number}   input   The input
-   * @param      {String}   label   The label
+   * @param      {number}   input   The input
+   * @param      {string}   label   The label
    * @return     {boolean}  Result
    */
   setInputLabel = (input, label) =>

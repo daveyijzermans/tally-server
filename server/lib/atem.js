@@ -234,7 +234,7 @@ class Atem extends Mixer
    * @property   {string}          result.name       The mixer display name
    * @property   {boolean}         result.connected  Connection status
    * @property   {number[]}        result.tallies    Tally information
-   * @property   {boolean|object}  result.linked     Link status
+   * @property   {boolean|Object}  result.linked     Link status
    * @property   {number}          result.fps        FPS setting
    */
   get status()

@@ -480,7 +480,7 @@ class Application extends EventEmitter
    *
    * @param      {string}   name    The mixer name or '*' to target all
    * @param      {string}   method  The method to call
-   * @param      {array}    args    Arguments to pass to the function
+   * @param      {Array}    args    Arguments to pass to the function
    * @return     {boolean}  Whether the command was successful.
    */
   _mixerCmd = (name, method, args) =>

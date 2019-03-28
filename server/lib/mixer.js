@@ -98,7 +98,7 @@ class Mixer extends Server
    * @listens    Backend.Mixer#event:action
    *
    * @param      {string}  method  The method name to call
-   * @param      {array}   args    The arguments to call the method with
+   * @param      {Array}   args    The arguments to call the method with
    * @return     {mixed}   Method return value
    */
   _copyAction = (method, args) =>
@@ -115,7 +115,7 @@ class Mixer extends Server
    * @property   {string}          result.name       The mixer display name
    * @property   {boolean}         result.connected  Connection status
    * @property   {number[]}        result.tallies    Tally information
-   * @property   {boolean|object}  result.linked     Link status
+   * @property   {boolean|Object}  result.linked     Link status
    * @property   {number}          result.preview    Currently preview input number
    * @property   {number}          result.program    Currently program input number
    */
