@@ -148,6 +148,13 @@ class Atem extends Mixer
    */
   switchInput = (input, state = 1) =>
   {
+    /*
+     * Ugly hack to make sure the input doesn't switch after a transition. This
+     * happens if a master's transition finished earlier than the ATEM. Then the
+     * input status is updated and pushed to the slave and the ATEM will swap
+     * the current mix inputs/outputs.
+     */
+    if(this.client.state.video.ME[this.ME].transitionPosition > 0.9) return false;
     input = parseInt(input);
     if(!this.connected || isNaN(input) || input < 1 || !(state === 1 || state === 2))
       return false;
