@@ -1,5 +1,6 @@
 import Server from './server';
 import { Socket } from 'net';
+import log from './logger';
 
 /**
  * Class for connecting to Netgear switch.
@@ -37,6 +38,9 @@ class Netgear extends Server
    * Executed when server is connected
    *
    * @method     Backend.Netgear#_connected
+   *
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:connection
    */
   _connected = () =>
   {
@@ -47,7 +51,7 @@ class Netgear extends Server
     }
     if(this.rebootPending)
     {
-      logger('Rebooting Netgear...');
+      log.info('[' + this.name + '] Rebooting..,');
       this.client.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyy');
     }
     this.emit('connection', this.connected);

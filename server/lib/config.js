@@ -2,6 +2,7 @@ import User from './user';
 import Server from './server';
 import fs from 'fs';
 import EventEmitter from 'events';
+import log from './logger';
 
 /**
  * Class for retrieving and saving configuration.
@@ -64,7 +65,7 @@ class Config extends EventEmitter
     });
     let json = JSON.stringify(save);
     fs.writeFile(this.paths.users, json, 'utf8', (err) => {
-      if (err) return console.error(err);
+      if(err) return log.error(err);
       /**
        * Let listeners know the user configuration was saved.
        * 

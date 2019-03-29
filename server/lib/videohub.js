@@ -1,6 +1,7 @@
 import Router from './router';
 import { Socket } from 'net';
 import parser from 'io-videohub/lib/parser';
+import log from './logger';
 
 /**
  * Class for connecting to Blackmagic Videohub.
@@ -56,9 +57,9 @@ class Videohub extends Router
   _parseData = (obj) =>
   {
     obj = parser(obj.toString());
-    if (!this._statusObj[obj.title])
+    if(!this._statusObj[obj.title])
     {
-      if (obj.array)
+      if(obj.array)
       {
         this._statusObj[obj.title] = [];
       } else {
@@ -68,7 +69,7 @@ class Videohub extends Router
     
     for (var key in obj.data)
     {
-      if (obj.array)
+      if(obj.array)
       {
         this._statusObj[obj.title][parseInt(key, 10)] = obj.data[key];
       } else {
@@ -77,6 +78,7 @@ class Videohub extends Router
     };
 
     this.emit('update', this._statusObj);
+    log.debug('[' + this.name + '] Parsed received data:', this._statusObj);
   };
   /**
    * Setup a new connection to the server and connect
@@ -123,11 +125,12 @@ class Videohub extends Router
    */
   route = (output, input) =>
   {
-    if (!this.connected) return false;
+    if(!this.connected) return false;
 
     let str = ['VIDEO OUTPUT ROUTING:', output + ' ' + input].join('\n');
     str += '\n\n';
     this.client.write(str);
+    log.debug('[' + this.name + '] Routed input ' + input + ' to output ' + output);
     return true;
   }
   /**
@@ -141,11 +144,12 @@ class Videohub extends Router
    */
   setOutputLabel = (output, label) =>
   {
-    if (!this.connected) return false;
+    if(!this.connected) return false;
 
     let str = ['OUTPUT LABELS:', output + ' ' + label].join('\n');
     str += '\n\n';
     this.client.write(str);
+    log.debug('[' + this.name + '] Set output ' + output + ' label:', label);
     return true;
   };
   /**
@@ -159,11 +163,12 @@ class Videohub extends Router
    */
   setInputLabel = (input, label) =>
   {
-    if (!this.connected) return false;
+    if(!this.connected) return false;
 
     var str = ['INPUT LABELS:', input + ' ' + label].join('\n');
     str += '\n\n';
     this.client.write(str);
+    log.debug('[' + this.name + '] Set input ' + input + ' label:', label);
     return true;
   };
   /**

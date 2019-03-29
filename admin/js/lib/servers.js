@@ -122,19 +122,19 @@ class Servers
         if(['vmix', 'atem'].indexOf(server.type) > -1)
         {
           $('<a></a>', {
-            class: 'dropdown-item dropdown-item-unlink',
+            class: 'dropdown-item dropdown-item-unlink d-none',
             href: '#',
             text: 'Unlink',
             'data-toggle': 'modal',
             'data-target': '#actionModal',
             'data-command': 'mixer.unlink',
             'data-param': server.name,
-          }).hide().appendTo($dropdown);
+          }).appendTo($dropdown);
           $('<a></a>', {
-            class: 'dropdown-item dropdown-item-nolinkavail disabled',
+            class: 'dropdown-item dropdown-item-nolinkavail disabled d-none',
             href: '#',
             text: 'No other mixers to link with'
-          }).hide().appendTo($dropdown);
+          }).appendTo($dropdown);
         }
       }
       let sClass = server.connected ? 'bg-success' : 'bg-danger';
@@ -178,9 +178,8 @@ class Servers
           $other.toggle(!(typeof other.linked == 'object' || isLinked));
         });
 
-        $itemUnlink.toggle(isLinked);
-        console.log($dropdown.find('.dropdown-item-other:visible').length);
-        $itemNoLinkAvailble.toggle(!isLinked && $dropdown.find('.dropdown-item-other:visible').length == 0);
+        $itemUnlink.toggleClass('d-none', isLinked);
+        $itemNoLinkAvailble.toggleClass('d-none', !isLinked && $dropdown.find('.dropdown-item-other:visible').length == 0);
       }
     });
   }

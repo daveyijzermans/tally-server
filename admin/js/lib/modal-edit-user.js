@@ -141,7 +141,7 @@ class EditUserModal
    */
   _userSetCallback = result =>
   {
-    if (result.errors == true)
+    if(result.errors == true)
     {
       this.$camNumber.toggleClass('is-invalid', result.camNumber);
       this.$channelName.toggleClass('is-invalid', result.channelName);

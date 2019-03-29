@@ -144,7 +144,6 @@ class ActionModal extends EventEmitter
      */
     this.emit('command.' + this._cmd, this._param);
     this.socket.emit('admin.' + this._cmd, this._param);
-    this.socket.once('admin.error', (msg) => alert(msg));
     this.$modal.modal('hide');
   }
 }

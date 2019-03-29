@@ -66,7 +66,7 @@ class AVSetup extends EventEmitter
     let c = $w.hasClass('visible');
     let v = typeof state == 'boolean' ? state : !c;
 
-    if (c == v) return;
+    if(c == v) return;
     this.isExpanded = v;
     $w.stop(true)
       .toggleClass('animated', animate)

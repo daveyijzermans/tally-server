@@ -167,11 +167,5 @@ Server.waitFor = (name, cb) =>
  *
  * @event      Backend.Server#event:disconnected
  */
-/**
- * Let listeners know of a log message.
- *
- * @event      Backend.Server#event:log
- * @param      {string}  msg     Log message
- */
 
 export default Server;

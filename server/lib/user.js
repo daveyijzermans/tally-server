@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import log from './logger';
 
 /**
  * Class for modeling connected users.
@@ -53,6 +54,7 @@ class User extends EventEmitter
      */
     this.talking = false;
     User._instances.push(this);
+    log.debug('Created user', this);
   }
 }
 

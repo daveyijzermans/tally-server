@@ -1,5 +1,6 @@
 import Mixer from './mixer';
 import API from 'applest-atem';
+import log from './logger';
 
 const effects = {
   'FADE': 0x00,
@@ -55,7 +56,7 @@ class Atem extends Mixer
     this.client.on('connect', this._connected)
       .on('disconnect', this._closed)
       .on('stateChanged', this._updated)
-      .on('error', console.error);
+      .on('error', log.error);
   }
   /**
    * Executed when server is connected
@@ -111,9 +112,14 @@ class Atem extends Mixer
    */
   _updated = (err, state) => //TODO: document
   {
+    log.debug('Received state information from', this.name, state);
     let pos = state.video.ME[this.ME].transitionPosition;
     let tbar = Math.ceil(state.video.ME[this.ME].transitionPosition * 255);
-    if(pos >= 0.9945) return this.client.changeTransitionPosition(10000); //FIXME
+    if(pos >= 0.9945)
+    {
+      log.debug('Tbar state is', pos, 'so I\'m finishing the transition.');
+      return this.client.changeTransitionPosition(10000); //FIXME
+    }
     this.emit('action', 'fade', [tbar]);
 
     this._currentProgramInput = [state.video.ME[this.ME].programInput];
@@ -126,7 +132,7 @@ class Atem extends Mixer
       a.push(c);
       return a;
     }, [null]);
-    if (JSON.stringify(this.tallies) != newTallies)
+    if(JSON.stringify(this.tallies) != newTallies)
     {
       /**
        * Let listeners know that tally information was updated.
@@ -148,18 +154,25 @@ class Atem extends Mixer
    */
   switchInput = (input, state = 1) =>
   {
+    if(!this.connected) return false;
     /*
      * Ugly hack to make sure the input doesn't switch after a transition. This
      * happens if a master's transition finished earlier than the ATEM. Then the
      * input status is updated and pushed to the slave and the ATEM will swap
      * the current mix inputs/outputs.
      */
-    if(this.client.state.video.ME[this.ME].transitionPosition > 0.9) return false;
+    if(this.linked instanceof Mixer && this.client.state.video.ME[this.ME].transitionPosition > 0.9)
+    {
+      log.debug('[' + this.name + '][switchInput] Tbar state is too far, assuming this switch ' +
+        'is caused by a transition finishing on a master. Ignoring this switch command.');
+      return false;
+    }
     input = parseInt(input);
     if(!this.connected || isNaN(input) || input < 1 || !(state === 1 || state === 2))
       return false;
     let fnc = state === 1 ? 'changeProgramInput' : 'changePreviewInput';
     this.client[fnc](input, this.ME);
+    log.debug('[' + this.name + '][switchInput] Set input', input, 'to state', state);
     return true;
   }
   /**
@@ -173,6 +186,7 @@ class Atem extends Mixer
   {
     if(!this.connected) return false;
     this.client.cutTransition(this.ME);
+    log.debug('[' + this.name + '][cut]');
     this.emit('action', 'cut');
   }
   /**
@@ -191,6 +205,7 @@ class Atem extends Mixer
    */
   transition = (duration = 2000, effect = 'FADE', execute = true) =>
   {
+    if(!this.connected) return false;
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
     if(typeof effects[effect] == 'undefined') return false;
@@ -198,6 +213,7 @@ class Atem extends Mixer
     this.client.changeTransitionMix(duration / (1000 / this.fps), this.ME);
     if(execute) this.client.changeTransitionPosition(0);
     if(execute) this.client.autoTransition(this.ME);
+    log.debug('[' + this.name + '][transition] Args:', duration, effect, execute);
     this.emit('action', 'transition', [duration, effect, false]);
     return true;
   }
@@ -215,11 +231,13 @@ class Atem extends Mixer
    */
   fade = (n = 255, effect = 'FADE', execute = true) =>
   {
+    if(!this.connected) return false;
     n = parseInt(n);
     if(isNaN(n)) return false;
     n = n > 0 ? (n < 255 ? n : 255) : 0;
     // this.client.changeTransitionType(effects[effect]); //FIXME: see other fixme, cache this value in mixer obj
     if(execute) this.client.changeTransitionPosition(n * Math.floor(10000/255), this.ME);
+    log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
     return true;
   }
   /**

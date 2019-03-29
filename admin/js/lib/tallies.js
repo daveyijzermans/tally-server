@@ -99,7 +99,7 @@ class Tallies extends EventEmitter
       }
     });
 
-    let mixersOnline = this._mixers.length > 0;
+    let mixersOnline = this._mixers.filter((m) => m.connected).length > 0;
     if(mixersOnline)
     {
       let $t = this.$tpl.clone().attr('id', '').addClass('tally-entry')

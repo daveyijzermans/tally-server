@@ -23,7 +23,9 @@ const gulp = require('gulp'),
 
       // Server
       Monitor = require('forever-monitor').Monitor,
-      forever = new Monitor('dist/index.js')
+      forever = new Monitor('dist/index.js', {
+        args: ['--color']
+      })
         .on('restart', (child) => console.error('Forever restarting script for ' + child.times + ' time'))
         .on('exit:code', (code) => console.error('Forever detected script exited with code ' + code));
 

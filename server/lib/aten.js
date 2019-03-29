@@ -1,6 +1,7 @@
 import Router from './router';
 import { Socket } from 'net';
 import readline from 'readline';
+import log from './logger';
 
 /**
  * Class for connecting to Aten matrix.
@@ -43,6 +44,7 @@ class Aten extends Router
    */
   _line = line =>
   {
+    log.debug('[' + this.name + '][_line]:', line);
     if(line.indexOf('Connection to VM0808HA is established') == 0)
     {
       this.connected = true;

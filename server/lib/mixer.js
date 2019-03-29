@@ -1,4 +1,5 @@
 import Server from './server';
+import log from './logger';
 
 /**
  * Base class for mixers.
@@ -39,7 +40,7 @@ class Mixer extends Server
      *
      * @type       {number}
      */
-    this._currentProgramInputs = 0;
+    this._currentProgramInput = 0;
 
     Mixer._instances.push(this);
     this.linkTo(opts.linked);
@@ -68,6 +69,7 @@ class Mixer extends Server
        * @event      Backend.Mixer#event:linked
        */
       this.emit('linked');
+      log.info('Mixer ' + this.name + ' linked to ' + this.linked.name);
     });
   }
   /**
@@ -80,6 +82,7 @@ class Mixer extends Server
    */
   unlink = () =>
   {
+    if(!(this.linked instanceof Mixer)) return false;
     this.linked.off('action', this._copyAction)
                .off('disconnected', this.unlink);
     this.linked = false;
@@ -89,6 +92,7 @@ class Mixer extends Server
      * @event      Backend.Mixer#event:unlinked
      */
     this.emit('unlinked');
+    log.info('Mixer ' + this.name + ' unlinked');
   }
   /**
    * Copy a received action from the master to this mixer

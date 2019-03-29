@@ -32,6 +32,7 @@ import Socket from 'socket.io';
 import { exec } from 'child_process';
 import wol from 'wol';
 import EventEmitter from 'events';
+import log from './logger';
 
 /**
  * Server application
@@ -48,25 +49,6 @@ class Application extends EventEmitter
    */
   _plugs = []
   /**
-   * Logger function. Will relay log to console.log and will use the first
-   * parameter as a string to log to connected admin clients.
-   *
-   * @method     Backend.Application#logger
-   * 
-   * @param      {string}  msg     First parameter
-   */
-  logger = function(msg)
-  {
-    console.log.apply(console, arguments);
-    /**
-     * Send a log message to admin clients
-     *
-     * @event      Socket#event:"admin.log"
-     * @param      {string}  msg     The message.
-     */
-    this._io.to('admins').emit('admin.log', msg);
-  };
-  /**
    * Constructs the object or returns the instance if it already exists.
    *
    * @param      {Object}  opts    The options
@@ -76,6 +58,7 @@ class Application extends EventEmitter
     super();
     if(Application._instance) return Application._instance;
     Application._instance = this;
+
     /**
      * Configuration instance
      *
@@ -83,11 +66,55 @@ class Application extends EventEmitter
      * @listens    Backend.Config#event:"saved.users"
      */
     this.config = new Config(opts.paths)
-      .on('saved.users', () => this.logger('Users.json file has been saved!'));
+      .on('saved.users', () => log.info('Users.json file has been saved!'));
 
-    /*
-     * Kick-off server connections
+    /* Socket.IO */
+    /**
+     * Express application
      */
+    this._app = express();
+    /**
+     * http.Server instance
+     */
+    this._server = HttpServer(this._app);
+    /**
+     * Socket.IO server
+     * 
+     * @type {Socket}
+     */
+    this._io = Socket(this._server);
+
+    const port = 8080;
+    this._server.listen(port);
+    this._app.use(express.static('dist/www'));
+    this._app.use('/docs', express.static('dist/docs'));
+    log.debug('[Application] Express server listening on port', port);
+
+    /**
+     * Redirect log messages to admins
+     *
+     * @inner      Backend.Application#Application~socketLog
+     *
+     * @param      {string}  msg     The message
+     * @listens    Backend.Logger#event:info
+     * @listens    Backend.Logger#event:warn
+     * @listens    Backend.Logger#event:error
+     */
+    let socketLog = (msg) =>
+    {
+      /**
+       * Send a log message to admin clients
+       *
+       * @event      Socket#event:"admin.log"
+       * @param      {string}  msg     The message.
+       */
+      this._io.to('admins').emit('admin.log', msg);
+    }
+    log.on('info', socketLog);
+    log.on('warn', socketLog);
+    log.on('error', socketLog);
+
+    /* Kick-off server connections */
     this.config.getServerConfigByType('mumble', this._createMumble);
     this.config.getServerConfigByType('vmix', this._createVmix);
     this.config.getServerConfigByType('videohub', this._createVideohub);
@@ -100,6 +127,7 @@ class Application extends EventEmitter
     /*
      * Create all users
      */
+    log.debug('[Application] Creating all users from config...');
     this.config.makeUsers();
 
     /**
@@ -138,26 +166,7 @@ class Application extends EventEmitter
     this.on('broadcast', this._broadcastUsers);
     this.on('broadcast', this._broadcastPlugs);
 
-    /* Socket.IO */
-    /**
-     * Express application
-     */
-    this._app = express();
-    /**
-     * http.Server instance
-     */
-    this._server = HttpServer(this._app);
-    /**
-     * Socket.IO server
-     * 
-     * @type {Socket}
-     */
-    this._io = Socket(this._server);
-
-    this._server.listen(8080);
-    this._app.use(express.static('dist/www'));
-    this._app.use('/docs', express.static('dist/docs'));
-
+    log.debug('[Application] Initializing web API...');
     /**
      * Web API class instance
      * 
@@ -200,20 +209,21 @@ class Application extends EventEmitter
   _onSocketConnection = socket => {
     let username = socket.handshake.query.username;
     if(username == 's')
-    {
       return socket.disconnect(); // disallow username 'users'
-    }
 
     if(username)
     {
-      if (!User.getByUsername(username))
+      if(!User.getByUsername(username))
+      {
+        log.warning(username + ' tried to connect, but is not in config. Disconnecting...');
         return socket.disconnect(); // user not in config
+      }
 
       socket.join('users');
       this.emit('broadcast.users');
       let room = socket.join(username);
 
-      this.logger(username + ' has connected!');
+      log.info(username + ' has connected!');
 
       /* User-only commands */
       /**
@@ -241,7 +251,10 @@ class Application extends EventEmitter
     if(typeof password != 'undefined')
     {
       if(password != this.config.admin.adminPass)
+      {
+        log.warning('Administrator tried to connect with wrong password. Disconnecting...');
         return socket.disconnect();
+      }
 
       /**
        * Let the admin know the authentication was successful
@@ -249,7 +262,7 @@ class Application extends EventEmitter
        * @event      Socket#event:authenticated
        */
       socket.join('admins').emit('authenticated');
-      this.logger('An admin has connected!');
+      log.info('An admin has connected!');
 
       /* Admin-only commands */
       /**
@@ -379,7 +392,7 @@ class Application extends EventEmitter
    */
   _userRequest = (username) =>
   {
-    this.logger(username + ' sent an update request.');
+    log.debug('[Application] ' + username + ' sent an update request.');
     /**
      * Broadcast user status to user
      *
@@ -398,6 +411,7 @@ class Application extends EventEmitter
    */
   _userCycle = (username) =>
   {
+    log.debug('[Application] ' + username + ' sent an a user cycle request.');
     Mumble.cycleUser(username);
   }
   /**
@@ -411,7 +425,7 @@ class Application extends EventEmitter
    */
   _userDisconnect = (username) =>
   {
-    this.logger(username + ' has disconnected.');
+    log.info(username + ' has disconnected.');
     /**
      * Let admins know that user was disconnected
      * 
@@ -436,6 +450,7 @@ class Application extends EventEmitter
    */
   _adminUserSet = (data, cb) =>
   {
+    log.debug('[Application] Editing user with new data:', data)
     let user = User.getByUsername(data.username);
     let newName = !data.name ? '' :
                   data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
@@ -444,18 +459,22 @@ class Application extends EventEmitter
                      data.channelName.replace(/[^\w\s]/gi, '').substring(0, 30);
     let r = { errors: false, camNumber: false, channelName: false };
 
-    if (isNaN(newNumber) || newNumber < 1 || newNumber > 99)
+    if(isNaN(newNumber) || newNumber < 1 || newNumber > 99)
     {
       r.camNumber = true;
       r.errors = true;
     }
-    if (Mumble.cycleableChannels.indexOf(newChannel) == -1)
+    if(Mumble.cycleableChannels.indexOf(newChannel) == -1)
     {
       r.channelName = true;
       r.errors = true;
     }
 
-    if(r.errors) return cb(r);
+    if(r.errors)
+    {
+      log.debug('[Application] Errors is new data:', r.errors)
+      return cb(r);
+    }
 
     user.name = newName;
     user.camNumber = newNumber;
@@ -487,9 +506,10 @@ class Application extends EventEmitter
   {
     const methods = ['switchInput', 'cut', 'transition', 'fade'];
     if(methods.indexOf(method) == -1) return false;
+    log.debug('[Application] Executing mixer command', method, 'on mixer', name, 'with arguments', args);
     if(name === '*')
     {
-      Mixer._instances.filter((s) => s.linked === false)
+      Mixer._instances.filter((s) => !(s.linked instanceof Mixer))
         .forEach((s) => s[method] ? s[method].apply(s, args) : false);
       return true;
     }
@@ -503,15 +523,13 @@ class Application extends EventEmitter
    * @method     Backend.Application#_mixerLink
    * 
    * @listens    Socket#event:"admin.mixer.link"
-   * 
-   * @fires      Socket#event:"admin.error"
    */
   _mixerLink = (params) =>
   {
     let s = Mixer.getByName(params.slave);
     if(s && s.linkTo)
       try { return s.linkTo(params.master); }
-      catch(e) { this._io.to('admins').emit('admin.error', e.message); return false }
+      catch(e) { log.error(e.message); return false }
   }
   /**
    * Unlink a mixer
@@ -594,17 +612,21 @@ class Application extends EventEmitter
   _adminReboot = (p) =>
   {
     if(p.indexOf('user') == 0)
+    {
+      log.info('Rebooting user ' + p);
       return this._io.to(p).emit('reboot');
+    }
     let server = Server.getByName(p);
     if(server)
     {
       if(server.type == 'vmix')
       {
+        log.info('Rebooting server ' + server.name);
         // Reboot windows pc
         return exec('/usr/bin/net rpc shutdown -r -I ' + server.hostname + ' -U ' + server.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
       }
       if(server.type == 'netgear')
-        server.rebootPending = true; // will reboot on next ping
+        return server.rebootPending = true; // will reboot on next ping
     }
   }
   /**
@@ -624,7 +646,7 @@ class Application extends EventEmitter
       {
         // Wake windows pc
         let mac = server.wol;
-        wol.wake(mac, () => this.logger('WOL sent to ' + mac + '.'));
+        wol.wake(mac, () => log.info('WOL sent to ' + mac + '.'));
       }
     }
   }
@@ -640,13 +662,19 @@ class Application extends EventEmitter
   _adminShutdown = (p) =>
   {
     if(p.indexOf('user') == 0)
+    {
+      log.info('Shutdown user ' + p);
       return this._io.to(p).emit('shutdown');
+    }
     let server = Server.getByName(p);
     if(server)
     {
       // Shutdown windows pc
       if(server.type == 'vmix')
+      {
+        log.info('Shutting down server ' + server.name);
         return exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + server.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
+      }
     }
   }
   /**
@@ -659,15 +687,17 @@ class Application extends EventEmitter
    */
   _adminShutdownAll = () =>
   {
+    log.info('Shutdown all users');
     this._io.to('users').emit('shutdown');
     Server._instances.forEach((server) =>
     {
       // Shutdown windows pc
+      log.info('Shutting down server ' + server.name);
       exec('/usr/bin/net rpc shutdown -I ' + server.hostname + ' -U ' + server.winUserPass + ' -f -t 5 -C "Shutdown by administration interface"');
     });
     // Shutdown self
     exec('/usr/bin/sudo /sbin/shutdown 1');
-    this.logger('Bye bye!');
+    log.info('Self-shutdown set for one minute. Use sudo shutdown -c to cancel. Bye bye!');
   }
   /**
    * Executed when a new smartplug is found
@@ -679,7 +709,7 @@ class Application extends EventEmitter
    */
   _smartPlugHandler = (device) =>
   {
-    this.logger('Found smartplug ' + device.alias + ' on the network!');
+    log.info('Found smartplug ' + device.alias + ' on the network!');
     let index = this._plugs.push(device) - 1;
 
     /*
@@ -695,7 +725,7 @@ class Application extends EventEmitter
         setTimeout(poll, 5000);
       }).catch(error =>
       {
-        this.logger('No connection to smartplug ' + device.alias + ' or an error occured.');
+        log.info('No connection to smartplug ' + device.alias + ' or an error occured.');
         delete this._plugs[index];
         /**
          * Let admins know a smartplug was disconnected
@@ -740,6 +770,7 @@ class Application extends EventEmitter
          * @param      {Backend.User}  user    User object
          */
         this._io.to(user.username).emit('status', user);
+        log.trace('[Application] Broadcasted user status', user);
       }
     });
     /**
@@ -756,6 +787,7 @@ class Application extends EventEmitter
      * @param      {Object[]}        result            Array of mixers.
      */
     this._io.to('admins').emit('admin.status.mixers', Mixer.allStatus);
+    log.trace('[Application] Broadcasted server and mixer information', Server.allStatus, Mixer.allStatus);
   }
   /**
    * Broadcast user updates
@@ -793,6 +825,7 @@ class Application extends EventEmitter
        * @param      {Backend.User[]} result Array of users
        */
       this._io.to('admins').emit('admin.users.list', result);
+      log.trace('[Application] Broadcasted user information', result);
     });
   }
   /**
@@ -837,6 +870,7 @@ class Application extends EventEmitter
      *                                             on
      */
     this._io.to('admins').emit('admin.plugs.list', result);
+    log.trace('[Application] Broadcasted smartplug information', result);
   }
   /**
    * Bind some standard behavior to all servers
@@ -854,11 +888,11 @@ class Application extends EventEmitter
   {
     return server.on('connection', (c) =>
     {
-      if(!c) this.logger('No connection to ' + server.name + '.');
+      if(!c) log.info('No connection to ' + server.name + '.');
     })
     .on('connected', () =>
     {
-      this.logger('Connected to ' + server.name + '!');
+      log.info('Connected to ' + server.name + '!');
       this.emit('broadcast.servers');
     })
     .on('disconnected', () =>

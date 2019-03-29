@@ -1,6 +1,7 @@
 import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
+import log from './logger';
 
 const effects = {
   'FADE': 'FADE',
@@ -65,6 +66,7 @@ class Vmix extends Mixer
    */
   _line = line =>
   {
+    log.debug('[' + this.name + '] Got line from TCP API:', line);
     if(line.indexOf('TALLY OK ') == 0)
     {
       this.tallies = line.substring(9).split('').reduce((a, c, i) =>
@@ -250,11 +252,13 @@ class Vmix extends Mixer
    */
   switchInput = (input, state = 1) =>
   {
+    if(!this.connected) return false;
     input = parseInt(input);
     if(!this.connected || isNaN(input) || input < 1 || !(state === 1 || state === 2))
       return false;
     let fnc = state === 1 ? 'ActiveInput' : 'PreviewInput';
     this.client.write('FUNCTION ' + fnc + ' Input=' + input + '\r\n');
+    log.debug('[' + this.name + '][switchInput] Set input', input, 'to state', state);
   }
   /**
    * Send cut command to vMix
@@ -265,7 +269,9 @@ class Vmix extends Mixer
    */
   cut = () =>
   {
+    if(!this.connected) return false;
     this.client.write('FUNCTION CUT\r\n');
+    log.debug('[' + this.name + '][cut]');
     this.emit('action', 'cut');
   }
   /**
@@ -284,11 +290,13 @@ class Vmix extends Mixer
    */
   transition = (duration = 2000, effect = 'FADE', execute = true) =>
   {
+    if(!this.connected) return false;
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
     if(typeof effects[effect] == 'undefined') return false;
     this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n')
     if(execute) this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
+    log.debug('[' + this.name + '][transition] Args:', duration, effect, execute);
     this.emit('action', 'transition', [duration, effect]);
     return true;
   }
@@ -308,11 +316,13 @@ class Vmix extends Mixer
    */
   fade = (n = 255, effect = 'FADE', execute = true) =>
   {
+    if(!this.connected) return false;
     n = parseInt(n);
     if(isNaN(n)) return false;
     n = n > 0 ? (n < 255 ? n : 255) : 0;
     // this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n'); //FIXME: this crashes vMix
     if(execute) this.client.write('FUNCTION SetFader Value=' + n + '\r\n');
+    log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
     this.emit('action', 'fade', [n]);
     return true;
   }
@@ -330,11 +340,13 @@ class Vmix extends Mixer
    */
   overlay = (overlayN, input, state = true) =>
   {
+    if(!this.connected) return false;
     overlayN = parseInt(overlayN);
     input = parseInt(input);
     if(isNaN(overlayN) || isNaN(input)) return false;
     let stateCmd = state == true ? 'In' : 'Out';
     this.client.write('FUNCTION OverlayInput' + overlayN + stateCmd + ' INPUT=' + input + '\r\n');
+    log.debug('[' + this.name + '][overlay] Args:', overlayN, input, state);
     if(!state) this.emit('action', 'overlay', [overlayN, input, false]);
   }
   /**

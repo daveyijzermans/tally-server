@@ -12,12 +12,14 @@
   "dependencies": {
     "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
     "applest-atem": "github:daveyijzermans/node-applest-atem",
+    "chalk": "^2.4.2",
     "express": "^4.16.4",
     "grandiose": "github:daveyijzermans/grandiose",
     "io-videohub": "github:daveyijzermans/io-videohub",
     "mumble": "^0.3.19",
     "p4d-huawei-router": "github:daveyijzermans/p4d-huawei-router",
     "socket.io": "^2.2.0",
+    "strip-ansi": "^5.2.0",
     "tplink-smarthome-api": "^1.2.0",
     "wol": "^1.0.5"
   },

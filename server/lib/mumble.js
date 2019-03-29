@@ -1,6 +1,7 @@
 import Server from './server';
 import API from 'mumble';
 import fs from 'fs';
+import log from './logger';
 
 /**
  * Class for connecting to Mumble servers.
@@ -107,12 +108,11 @@ class Mumble extends Server
    */
   _getChannelForAllUsers = () =>
   {
-    let r = {};
-    this.client.users().map((u) =>
+    return this.client.users().reduce((a, c) =>
     {
-      r[u.name] = u.channel.name;
-    });
-    return r;
+      a[c.name] = c.channel.name;
+      return a;
+    }, {});
   }
   /**
    * Executed when user is moved
@@ -134,6 +134,7 @@ class Mumble extends Server
      * @param      {string}  channelName  The channel that the user was moved to
      */
     this.emit('user-move', u.name, u.channel.name);
+    log.info('[' + this.name + '] User ' + u.name + ' moved to ' + u.channel.name);
   }
   /**
    * Executed when user is disconnected
@@ -146,6 +147,7 @@ class Mumble extends Server
   _userDisconnect = (u) =>
   {
     this.emit('user-move', u.name, '');
+    log.info('[' + this.name + '] User ' + u.name + ' disconnected.');
   }
   /**
    * Executed when voice data is received. Indicates if a user is talking.
@@ -166,6 +168,7 @@ class Mumble extends Server
      * @param      {boolean}  talking   Whether the user is now talking
      */
     this.emit('user-talk', data.name, data.talking);
+    log.debug('[' + this.name + '] Received voice data:', data);
   }
   /**
    * Setup a new connection to the server and connect
@@ -207,7 +210,6 @@ class Mumble extends Server
  * Cycle a specific user to the next channel set in opts.cycleChannels
  *
  * @param      {string}   username  The username
- * @fires      Backend.Server#event:log
  * @return     {boolean}  Whether the move was executed
  */
 Mumble.cycleUser = (username) =>
@@ -225,10 +227,10 @@ Mumble.cycleUser = (username) =>
       // Figure out the next channel, or reset to the 0th one.
       index = index + 1 >= mumble.cycleChannels.length ? 0 : index + 1;
       let newChannel = mumble.client.channelByName(mumble.cycleChannels[index]);
-      mumble.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
+      log.debug('[' + mumble.name + '] Found ' + username + ' in channel ' + curChannel + '. Moving to channel ' + newChannel.name + '.');
       user.moveToChannel(newChannel);
     } else
-      mumble.emit('log', 'Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
+      log.debug('[' + mumble.name + '] Found ' + username + ' in channel ' + curChannel + '. Channel not in cycle list.');
   });
 }
 

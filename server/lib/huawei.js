@@ -1,5 +1,6 @@
 import Server from './server';
 import Router from 'p4d-huawei-router';
+import log from './logger';
 
 /**
  * Class for connecting to Huawei dongle.
@@ -73,7 +74,7 @@ class Huawei extends Server
     }
     if(this.rebootPending)
     {
-      logger('Rebooting Huawei...');
+      log.info('Rebooting ' + this.name);
       // this.client.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyy');
     }
     this.emit('connection', this.connected);
@@ -92,6 +93,7 @@ class Huawei extends Server
       this.client.getNetwork()
     ]).then((data) =>
     {
+      log.debug('[' + this.name + '][_check] Got data:', data);
       this.CurrentNetworkTypeEx = parseInt(data[0].CurrentNetworkTypeEx);
       this.SignalIcon = parseInt(data[0].SignalIcon);
       this.cellroam = parseInt(data[0].cellroam);
