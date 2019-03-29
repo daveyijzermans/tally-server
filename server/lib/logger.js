@@ -10,15 +10,15 @@ const styles = [
   ['bgBlue'],
   ['bgMagenta'],
   ['bgCyan'],
-  ['bgWhite'],
+  ['bgWhite', 'black'],
   ['bgBlackBright'],
   ['bgRedBright'],
-  ['bgGreenBright'],
-  ['bgYellowBright'],
+  ['bgGreenBright', 'black'],
+  ['bgYellowBright', 'black'],
   ['bgBlueBright'],
   ['bgMagentaBright'],
-  ['bgCyanBright'],
-  ['bgWhiteBright']
+  ['bgCyanBright', 'black'],
+  ['bgWhiteBright', 'black']
 ];
 
 /**
@@ -41,11 +41,26 @@ class Logger extends EventEmitter
     super();
     this._availableLevels.forEach(m => this[m] = this._funcFactory(m));
   }
+  /**
+   * Gets the next style.
+   * 
+   * @method     Backend.Logger#_getNextStyle
+   *
+   * @return     {array}  The next style.
+   */
   _getNextStyle = () =>
   {
-    this._i = this._i >= styles.length ? 0 : this._i + 1;
+    this._i = this._i >= styles.length - 1 ? 0 : this._i + 1;
     return styles[this._i];
   }
+  /**
+   * Create a logging function
+   *
+   * @method     Backend.Logger#_funcFactory
+   *
+   * @param      {string}  name    The method name
+   * @return     {function}  Generated function
+   */
   _funcFactory = (name) =>
   {
     return function()
@@ -69,6 +84,52 @@ class Logger extends EventEmitter
     }
   }
 }
+
+/**
+ * Log with 'trace' level
+ *
+ * @method     Backend.Logger#trace
+ *
+ * @param      {...*}  [arguments]  Zero or more items to log.
+ * 
+ * @fires      Backend.Logger#event:trace
+ */
+/**
+ * Log with 'debug' level
+ *
+ * @method     Backend.Logger#debug
+ *
+ * @param      {...*}  [arguments]  Zero or more items to log.
+ * 
+ * @fires      Backend.Logger#event:debug
+ */
+/**
+ * Log with 'info' level
+ *
+ * @method     Backend.Logger#info
+ *
+ * @param      {...*}  [arguments]  Zero or more items to log.
+ * 
+ * @fires      Backend.Logger#event:info
+ */
+/**
+ * Log with 'warn' level
+ *
+ * @method     Backend.Logger#warn
+ *
+ * @param      {...*}  [arguments]  Zero or more items to log.
+ * 
+ * @fires      Backend.Logger#event:warn
+ */
+/**
+ * Log with 'error' level
+ *
+ * @method     Backend.Logger#error
+ *
+ * @param      {...*}  [arguments]  Zero or more items to log.
+ * 
+ * @fires      Backend.Logger#event:error
+ */
 
 /**
  * Send a trace message

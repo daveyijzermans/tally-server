@@ -89,30 +89,9 @@ class Application extends EventEmitter
     this._app.use(express.static('dist/www'));
     this._app.use('/docs', express.static('dist/docs'));
     log.debug('[Application] Express server listening on port', port);
-
-    /**
-     * Redirect log messages to admins
-     *
-     * @inner      Backend.Application#Application~socketLog
-     *
-     * @param      {string}  msg     The message
-     * @listens    Backend.Logger#event:info
-     * @listens    Backend.Logger#event:warn
-     * @listens    Backend.Logger#event:error
-     */
-    let socketLog = (msg) =>
-    {
-      /**
-       * Send a log message to admin clients
-       *
-       * @event      Socket#event:"admin.log"
-       * @param      {string}  msg     The message.
-       */
-      this._io.to('admins').emit('admin.log', msg);
-    }
-    log.on('info', socketLog);
-    log.on('warn', socketLog);
-    log.on('error', socketLog);
+    log.on('info', this._socketLog);
+    log.on('warn', this._socketLog);
+    log.on('error', this._socketLog);
 
     /* Kick-off server connections */
     this.config.getServerConfigByType('mumble', this._createMumble);
@@ -194,6 +173,26 @@ class Application extends EventEmitter
      */
     this._io.on('connection', this._onSocketConnection);
     this._uptimeInterval = setInterval(() => this._io.to('admins').emit('uptime', process.uptime()), 5000);
+  }
+  /**
+   * Redirect log messages to admins
+   *
+   * @method      Backend.Application#_socketLog
+   *
+   * @param      {string}  msg     The message
+   * @listens    Backend.Logger#event:info
+   * @listens    Backend.Logger#event:warn
+   * @listens    Backend.Logger#event:error
+   */
+  _socketLog = (msg) =>
+  {
+    /**
+     * Send a log message to admin clients
+     *
+     * @event      Socket#event:"admin.log"
+     * @param      {string}  msg     The message.
+     */
+    this._io.to('admins').emit('admin.log', msg);
   }
   /**
    * Executed when a client connects to socket.io
