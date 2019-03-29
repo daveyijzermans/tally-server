@@ -31,13 +31,26 @@
     "password": "password"
   },
   {
-    "type": "atem",
-    "hostname": "192.168.10.240",
-    "name": "ATEM TV Studio"
-  },
-  {
     "type": "netgear",
     "hostname": "netgear.local",
-    "name": "Netgear Switch"
+    "name": "Netgear Switch",
+    "username": "admin",
+    "password": "password"
+  },
+  {
+    "type": "huawei",
+    "hostname": "192.168.8.1",
+    "name": "4G dongle",
+    "url": "http://192.168.8.1"
+  },
+  {
+    "type": "apc",
+    "hostname": "apc.local",
+    "name": "APC UPS"
+  },
+  {
+    "type": "atem",
+    "hostname": "192.168.10.240",
+    "name": "ATEM TVS"
   }
 ]
