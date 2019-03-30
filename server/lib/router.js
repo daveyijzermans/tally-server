@@ -16,6 +16,12 @@ class Router extends Server
   constructor(opts)
   {
     super(opts);
+    /**
+     * Server connections
+     * 
+     * @type       {Object}
+     */
+    this.connections = opts.connections;
 
     Router._instances.push(this);
   }
@@ -35,6 +41,7 @@ class Router extends Server
   get status()
   {
     return Object.assign(super.status, {
+      connections: this.connections,
       inputLabels: this.inputLabels,
       outputLabels: this.outputLabels,
       routing: this.routing,

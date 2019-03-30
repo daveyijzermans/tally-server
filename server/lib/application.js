@@ -103,9 +103,7 @@ class Application extends EventEmitter
     this.config.getServerConfigByType('huawei', this._createHuawei);
     this.config.getServerConfigByType('apc', this._createApc);
 
-    /*
-     * Create all users
-     */
+    /* Create all users */
     log.debug('[Application] Creating all users from config...');
     this.config.makeUsers();
 
@@ -565,9 +563,7 @@ class Application extends EventEmitter
       if(cmd == 'off')
         return device.setPowerState(false);
     }
-    /* 
-     * Target all plugs that are discovered.
-     */
+    /* Target all plugs that are discovered. */
     if(hosts === '*')
       return Promise.all(this._plugs.map((d) => execute(d)));
 

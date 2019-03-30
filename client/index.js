@@ -75,10 +75,12 @@ class Client
    * @method     Client#_connect
    *
    * @listens      Socket#event:connect
+   * @fires        Socket#event:request
    */
   _connect = () =>
   {
     console.log('Connected to server!');
+    this.socket.emit('request');
   }
   /**
    * Subsequent reconnections are established

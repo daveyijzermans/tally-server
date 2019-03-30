@@ -11,6 +11,12 @@ import EventEmitter from 'events';
 class AVSetup extends EventEmitter
 {
   /**
+   * Map of server connections
+   *
+   * @type       {Object}
+   */
+  connections = {};
+  /**
    * Constructs the object.
    *
    * @param      {Object}  opts    The options
@@ -59,7 +65,23 @@ class AVSetup extends EventEmitter
         console.log($source, $target);
       }
     });
+    this.on('servers', (servers) =>
+    {
+      servers.forEach((s) =>
+      {
+        if(s.connections) this.connections[s.name] = s.connections;
+      });
+      console.log(this.connections);
+    });
   }
+  /**
+   * Show or hide the AV panel
+   * 
+   * @method     Frontend.UI.AVSetup#_togglePane
+   *
+   * @param      {boolean}  animate  Animation?
+   * @param      {boolean|void}  state    Toggle (undefined), on (true) or off (false)
+   */
   _togglePane = (animate, state) =>
   {
     let $w = this.$box.find('.box-wrapper');

@@ -187,6 +187,7 @@ class Admin
     this.loginModal.on('authenticated', this._authenticated)
                    .on('error', this._loginError);
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
+    this.socket.once('admin.status.servers', (servers) => this.avSetup.emit('servers', servers));
 
     /*
      * Get stored password from cookie and attempt a login if it exists. Else show
