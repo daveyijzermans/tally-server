@@ -93,7 +93,7 @@ class Huawei extends Server
       this.client.getNetwork()
     ]).then((data) =>
     {
-      log.debug('[' + this.name + '][_check] Got data:', data);
+      log.trace('[' + this.name + '][_check] Got data:', data);
       this.CurrentNetworkTypeEx = parseInt(data[0].CurrentNetworkTypeEx);
       this.SignalIcon = parseInt(data[0].SignalIcon);
       this.cellroam = parseInt(data[0].cellroam);

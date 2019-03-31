@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-ui-touch-punch';
 import EventEmitter from 'events';
 
 /**
@@ -71,7 +72,6 @@ class AVSetup extends EventEmitter
       {
         if(s.connections) this.connections[s.name] = s.connections;
       });
-      console.log(this.connections);
     });
   }
   /**

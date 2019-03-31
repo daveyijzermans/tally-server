@@ -29,7 +29,8 @@ class Users extends EventEmitter
      */
     this.socket = opts.socket
       .on('admin.user.disconnect', this._disconnect)
-      .on('admin.users.list', this._list);
+      .on('admin.users.list', this._list)
+      .on('admin.config', this._configUpdate);
     /**
      * jQuery object of the modal container
      * 
@@ -50,12 +51,20 @@ class Users extends EventEmitter
      */
     this.$tpl = opts.$tpl;
     /**
+     * Checkbox object
+     *
+     * @type       {jQuery}
+     */
+    this.$chkUpdateInput = opts.$chkUpdateInput;
+    if(this.$chkUpdateInput)
+      this.$chkUpdateInput.click(this._toggleUpdateInput);
+    /**
      * User popout button
      * 
      * @type       {jQuery}
      */
     this.$btnPopout = opts.$btnPopout
-    if(opts.$btnPopout)
+    if(this.$btnPopout)
         this.$btnPopout.click(this._popout);
     /**
      * Edit user modal instance
@@ -91,32 +100,7 @@ class Users extends EventEmitter
           .show().appendTo(this.$list);
         $dropdown = $u.find('.dropdown-menu');
         $dropdown.attr('aria-labelledby', user.username);
-        $('<a></a>', {
-          class: 'dropdown-item edit-user-modal',
-          href: '#',
-          text: 'Edit',
-          'data-toggle': 'modal',
-          'data-target': '#editUserModal',
-        }).appendTo($dropdown);
-        $('<a></a>', {
-          class: 'dropdown-item',
-          href: '#',
-          text: 'Reboot',
-          'data-toggle': 'modal',
-          'data-target': '#actionModal',
-          'data-command': 'reboot',
-          'data-param': user.username
-        }).appendTo($dropdown);
-        
-        $('<a></a>', {
-          class: 'dropdown-item',
-          href: '#',
-          text: 'Shutdown',
-          'data-toggle': 'modal',
-          'data-target': '#actionModal',
-          'data-command': 'shutdown',
-          'data-param': user.username
-        }).appendTo($dropdown);
+        $dropdown.find('a').attr('data-param', user.username);
       }
 
       if(user.talking)
@@ -141,12 +125,13 @@ class Users extends EventEmitter
       $u.find('.username').text(user.username);
       $u.find('.camNumber')
         .text(user.camNumber)
-        .toggleClass('avatar-danger', user.status == 1)
+        .toggleClass('avatar-danger', user.status == 1 || user.status == 3)
         .toggleClass('avatar-success', user.status == 2)
         .toggleClass('avatar-secondary', user.status == 0)
         .off('click.switch')
         .one('click.switch', (event) =>
         {
+          if(user.status == 1 || user.status == 3) return;
           let newState = user.status == 0 ? 2 : 1;
           this.socket.emit('admin.mixer.command', '*', 'switchInput', [user.camNumber, newState]);
           event.preventDefault();
@@ -171,6 +156,17 @@ class Users extends EventEmitter
     this.$list.find('.noresults').toggle(this.$list.find('.user-entry').length == 0);
   }
   /**
+   * Send command to server to toggle updateMixerNames option
+   *
+   * @param      {Object}  event   The event
+   * @fires      Socket#event:"admin.config.toggle"
+   */
+  _toggleUpdateInput = (event) =>
+  {
+    event.preventDefault();
+    this.socket.emit('admin.config.toggle', 'updateMixerNames')
+  }
+  /**
    * Open the intercom box in a seperate window
    *
    * @method     Frontend.UI.Users#_popout
@@ -182,6 +178,16 @@ class Users extends EventEmitter
     let t = event.currentTarget.href;
     window.open(t, 'Users', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=350,height=500');
     event.preventDefault();
+  }
+  /**
+   * Parse server config options
+   *
+   * @param      {Object}  config  The configuration
+   * @listens    Socket#event:"admin.config"
+   */
+  _configUpdate = (config) =>
+  {
+    this.$chkUpdateInput.prop('checked', config.updateMixerNames);
   }
   /**
    * All items in the list

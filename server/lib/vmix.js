@@ -67,9 +67,23 @@ class Vmix extends Mixer
   _line = line =>
   {
     log.debug('[' + this.name + '] Got line from TCP API:', line);
+    if(line.indexOf('XMLTEXT OK ') == 0)
+    {
+      let p = parseInt(line.substring('XMLTEXT OK '.length));
+      if(this._currentPreviewInput == 0)
+      {
+        this._currentPreviewInput = p;
+        this.client.write('XMLTEXT vmix/active\r\n');
+        return;
+      }
+      if(this._currentProgramInput == 0)
+      {
+        this._currentProgramInput = p;
+      }
+    }
     if(line.indexOf('TALLY OK ') == 0)
     {
-      this.tallies = line.substring(9).split('').reduce((a, c, i) =>
+      this.tallies = line.substring('TALLY OK '.length).split('').reduce((a, c, i) =>
       {
         let tally = parseInt(c);
         if(tally == 1 && i + 1 == this._currentPreviewInput) tally = 3;
@@ -205,7 +219,7 @@ class Vmix extends Mixer
     });
     this.readline.on('line', this._line);
 
-    this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\n');
+    this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\nXMLTEXT vmix/preview\r\n');
   }
   /**
    * Setup a new connection to the server and connect
@@ -348,6 +362,18 @@ class Vmix extends Mixer
     this.client.write('FUNCTION OverlayInput' + overlayN + stateCmd + ' INPUT=' + input + '\r\n');
     log.debug('[' + this.name + '][overlay] Args:', overlayN, input, state);
     if(!state) this.emit('action', 'overlay', [overlayN, input, false]);
+  }
+  /**
+   * Sets the input label on the inputs of the mixer.
+   *
+   * @param      {number}  input   The input number
+   * @param      {string}  label   The label
+   */
+  setInputLabel = (input, label) =>
+  {
+    input = parseInt(input);
+    label = encodeURIComponent(label);
+    this.client.write('FUNCTION SetInputName INPUT=' + input + '&VALUE=' + label + '\r\n');
   }
   /**
    * Get vMix server properties

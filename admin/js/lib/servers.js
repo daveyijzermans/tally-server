@@ -63,6 +63,7 @@ class Servers
     this.$list.find('.noresults').toggle(this._servers.length == 0);
     $.each(this._servers, (id, server) =>
     {
+      let isLinked = () => typeof this._servers[id].linked == 'object';
       let $tr = this.$list.find('.server-entry[data-name="' + server.name + '"]');
       if($tr.length == 0)
       {
@@ -71,72 +72,18 @@ class Servers
 
         let $actions = $tr.find('.actions');
         let $dropdown = $actions.find('.dropdown-menu');
+
         if(server.wol || ['netgear', 'vmix', 'atem'].indexOf(server.type) > -1)
-        {
-          $('<a></a>', {
-            href: '#',
-            class: 'icon text-black-25',
-            role: 'button',
-            html: '<i class="fas fa-cog"></i>',
-            'data-toggle': 'dropdown',
-            'aria-haspopup': 'true',
-            'aria-expanded': 'false'
-          }).appendTo($actions);
-        }
+          $actions.find('[data-toggle="dropdown"]').removeClass('d-none');
         if(server.wol)
-        {
-          $('<a></a>', {
-            class: 'dropdown-item',
-            href: '#',
-            text: 'Wake',
-            'data-toggle': 'modal',
-            'data-target': '#actionModal',
-            'data-command': 'wake',
-            'data-param': server.name
-          }).appendTo($dropdown);
-        }
+          $dropdown.find('[data-command="wake"]').removeClass('d-none');
         if(server.wol || server.type == 'netgear')
-        {
-          $('<a></a>', {
-            class: 'dropdown-item',
-            href: '#',
-            text: 'Reboot',
-            'data-toggle': 'modal',
-            'data-target': '#actionModal',
-            'data-command': 'reboot',
-            'data-param': server.name
-          }).appendTo($dropdown);
-        }
+          $dropdown.find('[data-command="reboot"]').removeClass('d-none');
         if(server.wol)
-        {
-          $('<a></a>', {
-            class: 'dropdown-item',
-            href: '#',
-            text: 'Shutdown',
-            'data-toggle': 'modal',
-            'data-target': '#actionModal',
-            'data-command': 'shutdown',
-            'data-param': server.name
-          }).appendTo($dropdown);
-        }
-        if(['vmix', 'atem'].indexOf(server.type) > -1)
-        {
-          $('<a></a>', {
-            class: 'dropdown-item dropdown-item-unlink d-none',
-            href: '#',
-            text: 'Unlink',
-            'data-toggle': 'modal',
-            'data-target': '#actionModal',
-            'data-command': 'mixer.unlink',
-            'data-param': server.name,
-          }).appendTo($dropdown);
-          $('<a></a>', {
-            class: 'dropdown-item dropdown-item-nolinkavail disabled d-none',
-            href: '#',
-            text: 'No other mixers to link with'
-          }).appendTo($dropdown);
-        }
+          $dropdown.find('[data-command="shutdown"]').removeClass('d-none');
+        $actions.find('a').attr('data-param', server.name);
       }
+      
       let sClass = server.connected ? 'bg-success' : 'bg-danger';
       let $name = $tr.find('.name').text(server.name);
       let $type = $tr.find('.type').text(server.type);
@@ -147,40 +94,42 @@ class Servers
       $tr.find('.status-text')
         .text(server.connected ? 'Connected' : 'Disconnected');
 
+      if(['vmix', 'atem'].indexOf(server.type) == -1) return;
+
       let $dropdown = $tr.find('.actions .dropdown-menu');
       let $itemUnlink = $dropdown.find('.dropdown-item-unlink');
       let $itemNoLinkAvailble = $dropdown.find('.dropdown-item-nolinkavail');
-      if(['vmix', 'atem'].indexOf(server.type) > -1)
+
+      $dropdown.find('.dropdown-item.other').remove();
+      if(isLinked())
       {
-        //FIXME
-        let isLinked = typeof server.linked == 'object';
+        $itemNoLinkAvailble.addClass('d-none');
+      } else {
         $.each(this._servers, (i, other) =>
         {
-          if(['vmix', 'atem'].indexOf(other.type) == -1 ||
-             other.name == server.name) return;
+          if(['vmix', 'atem'].indexOf(other.type) == -1) return; /* Mixers only! */
+          if(other.name == server.name) return; /* Don't link to self */
+          if(!other.connected) return; /* Exclude if the other mixer isn't connected */
 
-          let $other = $dropdown.find('.dropdown-item-other[data-name="' + other.name +'"]');
-          if($other.length == 0)
-          {
-            $other = $('<a></a>', {
-              class: 'dropdown-item dropdown-item-other',
-              href: '#',
-              text: 'Link with ' + other.name,
-              'data-toggle': 'modal',
-              'data-target': '#actionModal',
-              'data-command': 'mixer.link',
-              'data-name': other.name
-            }).data('param', {
-                master: other.name,
-                slave: server.name
-              }).appendTo($dropdown);
-          }
-          $other.toggle(!(typeof other.linked == 'object' || isLinked));
+          /* Don't allow link if other is linked is to self */
+          if(typeof other.linked == 'object' && other.linked.name == server.name) return;
+
+          $('<a></a>', {
+            class: 'dropdown-item other',
+            href: '#',
+            text: 'Link with ' + other.name,
+            'data-toggle': 'modal',
+            'data-target': '#actionModal',
+            'data-command': 'mixer.link',
+            'data-name': other.name
+          }).data('param', {
+            master: other.name,
+            slave: server.name
+          }).appendTo($dropdown);
         });
-
-        $itemUnlink.toggleClass('d-none', isLinked);
-        $itemNoLinkAvailble.toggleClass('d-none', !isLinked && $dropdown.find('.dropdown-item-other:visible').length == 0);
+        $itemNoLinkAvailble.toggleClass('d-none', $dropdown.find('.dropdown-item.other').length > 0);
       }
+      $itemUnlink.toggleClass('d-none', !isLinked());
     });
   }
   /**

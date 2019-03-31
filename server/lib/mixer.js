@@ -176,8 +176,8 @@ Mixer._instances = [];
 /**
  * Retrieve mixers with certain type from list
  *
- * @param      {string}  type    Which type to retrieve
- * @return     {Backend.Mixer[]}   Array of mixers with given type
+ * @param      {string}           type    Which type to retrieve
+ * @return     {Backend.Mixer[]}  Array of mixers with given type
  */
 Mixer.getByType = (type) =>
 {
@@ -187,15 +187,43 @@ Mixer.getByType = (type) =>
 /**
  * Retrieve mixer by name
  *
- * @param      {string}                  name    Mixer display name
- * @return     {boolean|Backend.Mixer}  The mixer or false if it was not
- *                                       found.
+ * @param      {string}                 name    Mixer display name
+ * @return     {boolean|Backend.Mixer}  The mixer or false if it was not found.
  */
 Mixer.getByName = (name) =>
 {
   if(typeof name == 'undefined') return false;
   let result = Mixer._instances.filter((a) => a.name == name);
   return result.length == 1 ? result[0] : false;
+}
+/**
+ * Update mixer input names based on user names
+ *
+ * @param      {Backend.User[]}  users   The users
+ * @return     {boolean|void}    Whether it was successful
+ */
+Mixer.updateMixerNames = (users) =>
+{
+  if(typeof users != 'object') return false;
+  let connected = Mixer._instances.filter((a) => a.connected);
+  let inputs = users.reduce((a, user) => 
+  {
+    if(typeof user.camNumber == 'number')
+    {
+      if(a[user.camNumber]) a[user.camNumber].push(user.name)
+      else a[user.camNumber] = [user.name]
+    }
+    return a;
+  }, {});
+  log.debug('[Mixers][updateMixerNames] Setting:', inputs)
+  connected.forEach((mixer) =>
+  {
+    Object.keys(inputs).forEach((input) =>
+    {
+      let names = inputs[input];
+      mixer.setInputLabel(input, names.join(', '));
+    });
+  });
 }
 
 /**

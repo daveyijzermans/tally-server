@@ -1,3 +1,4 @@
 {
-  "adminPass": "md5password"
+  "adminPass": "md5password",
+  "updateMixerNames": true
 }

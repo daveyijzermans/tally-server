@@ -111,6 +111,7 @@ class Admin
       $btnPopout: $('.usersPopout'),
       $tpl: $('#tplUser'),
       $modal: $('#editUserModal'),
+      $chkUpdateInput: $('#chkUpdateInput'),
       socket: this.socket
     });
     /**

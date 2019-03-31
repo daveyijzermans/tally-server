@@ -70,8 +70,30 @@ class Config extends EventEmitter
        * Let listeners know the user configuration was saved.
        * 
        * @event      Backend.Config#event:"saved.users"
+       * @param      {Object} config Settings that were saved
        */
-      this.emit('saved.users');
+      this.emit('saved.users', save);
+    });
+  }
+  /**
+   * Save admin config back to JSON file
+   *
+   * @method     Backend.Config#saveAdmin
+   * 
+   * @fires      Backend.Config#event:"saved.admin"
+   */
+  saveAdmin = () =>
+  {
+    let json = JSON.stringify(this.admin);
+    fs.writeFile(this.paths.admin, json, 'utf8', (err) => {
+      if(err) return log.error(err);
+      /**
+       * Let listeners know the admin configuration was saved.
+       * 
+       * @event      Backend.Config#event:"saved.admin"
+       * @param      {Object} config Settings that were saved
+       */
+      this.emit('saved.admin', this.admin);
     });
   }
   /**
@@ -104,6 +126,20 @@ class Config extends EventEmitter
     let matches = this.servers.filter((a) => a.type == type);
     if(typeof callback == 'function') matches.forEach(callback);
     return matches;
+  }
+  /**
+   * Toggle admin config item
+   *
+   * @param      {string}  item    The item
+   * @listens    Socket#event:"admin.config.toggle"
+   */
+  adminToggle = (item) =>
+  {
+    if(typeof this.admin[item] == 'boolean')
+    {
+      this.admin[item] = !this.admin[item];
+      this.saveAdmin();
+    }
   }
 }
 

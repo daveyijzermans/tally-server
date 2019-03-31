@@ -20,7 +20,18 @@
         <tr style="display:none" id="tplServer">
           <td><span class="status-icon"></span> <span class="name"></span></td>
           <td class="hostname"></td>
-          <td class="actions"><div class="dropdown-menu"></div></td>
+          <td class="actions">
+            <div class="dropdown-menu">
+              <a class="dropdown-item d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="wake">Wake</a>
+              <a class="dropdown-item d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="reboot">Reboot</a>
+              <a class="dropdown-item d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="shutdown">Shutdown</a>
+              <a class="dropdown-item dropdown-item-unlink d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.unlink">Unlink</a>
+              <a class="dropdown-item dropdown-item-nolinkavail disabled d-none" href="#">No other mixers to link with</a>
+            </div>
+            <a href="#" class="icon text-black-25 d-none" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-cog"></i>
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>

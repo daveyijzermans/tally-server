@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import 'jquery-ui/ui/widgets/slider';
+import 'jquery-ui-touch-punch';
 
 /**
  * Class for Mixers UI.
@@ -146,44 +147,37 @@ class Mixers
 
       let $dropdown = $tr.find('.dropdown-menu');
       let $linkedItem = $dropdown.find('.dropdown-item.linked');
+      let $noresultsItem = $dropdown.find('.dropdown-item.noresults');
+      $dropdown.find('.dropdown-item.other').remove();
       if(isLinked())
       {
-        $dropdown.find('.dropdown-item.other').remove();
-        $dropdown.find('.dropdown-item.noresults').hide();
+        $noresultsItem.addClass('d-none');
         $linkedItem.find('span').text(mixer.linked.name);
       } else {
         $.each(this._mixers, (i, other) =>
         {
           if(other.name == mixer.name) return; /* Don't link to self */
-          if(!other.connected) { /* Exclude if the other mixer isn't connected */
-            $dropdown.find('.dropdown-item[data-name="' + other.name +'"]').remove();
-            return
-          }
-          if(typeof other.linked == 'object' && other.linked.name == mixer.name)
-          { /* Don't allow link if other is linked is to self */
-            return;
-          }
+          if(!other.connected) return; /* Exclude if the other mixer isn't connected */
 
-          let $item = $dropdown.find('.dropdown-item[data-name="' + other.name +'"]');
-          if($item.length == 0)
-          {
-            $item = $('<a></a>', {
-              text: 'Link with ' + other.name,
-              class: 'dropdown-item other',
-              href: '#',
-              'data-toggle': 'modal',
-              'data-target': '#actionModal',
-              'data-command': 'mixer.link',
-              'data-name': other.name
-            }).data('param', {
-                master: other.name,
-                slave: mixer.name
-              }).appendTo($dropdown);
-          }
+          /* Don't allow link if other is linked is to self */
+          if(typeof other.linked == 'object' && other.linked.name == mixer.name) return;
+
+          $('<a></a>', {
+            text: 'Link with ' + other.name,
+            class: 'dropdown-item other',
+            href: '#',
+            'data-toggle': 'modal',
+            'data-target': '#actionModal',
+            'data-command': 'mixer.link',
+            'data-name': other.name
+          }).data('param', {
+              master: other.name,
+              slave: mixer.name
+            }).appendTo($dropdown);
         });
-        $dropdown.find('.dropdown-item.noresults').toggle($dropdown.find('.dropdown-item.other').length == 0);
+        $noresultsItem.toggleClass('d-none', $dropdown.find('.dropdown-item.other').length > 0);
       }
-      $linkedItem.toggle(isLinked());
+      $linkedItem.toggleClass('d-none', !isLinked());
       $tr
         .toggleClass('mixer-linked', isLinked())
         .find('.linkToggle .fas')

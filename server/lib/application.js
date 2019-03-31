@@ -66,7 +66,14 @@ class Application extends EventEmitter
      * @listens    Backend.Config#event:"saved.users"
      */
     this.config = new Config(opts.paths)
-      .on('saved.users', () => log.info('Users.json file has been saved!'));
+      .on('saved.users', () => log.info('Users.json file has been saved!'))
+      .on('saved.admin', (config) =>
+      {
+        log.info('Admin.json file has been saved!');
+        if(config.updateMixerNames)
+          Mixer.updateMixerNames(User._instances);
+        this.emit('broadcast.config');
+      });
 
     /* Socket.IO */
     /**
@@ -135,6 +142,12 @@ class Application extends EventEmitter
      */
     this.on('broadcast.plugs', this._broadcastPlugs);
     /**
+     * Broadcast config to admin clients
+     *
+     * @event      Backend.Application#event:"broadcast.config"
+     */
+    this.on('broadcast.config', this._broadcastConfig);
+    /**
      * Broadcast all component statuses to admin clients and users
      *
      * @event      Backend.Application#event:broadcast
@@ -142,6 +155,7 @@ class Application extends EventEmitter
     this.on('broadcast', this._broadcastServers);
     this.on('broadcast', this._broadcastUsers);
     this.on('broadcast', this._broadcastPlugs);
+    this.on('broadcast', this._broadcastConfig);
 
     log.debug('[Application] Initializing web API...');
     /**
@@ -252,6 +266,7 @@ class Application extends EventEmitter
         log.warning('Administrator tried to connect with wrong password. Disconnecting...');
         return socket.disconnect();
       }
+      log.info('An admin has connected!');
 
       /**
        * Let the admin know the authentication was successful
@@ -259,7 +274,6 @@ class Application extends EventEmitter
        * @event      Socket#event:authenticated
        */
       socket.join('admins').emit('authenticated');
-      log.info('An admin has connected!');
 
       /* Admin-only commands */
       /**
@@ -305,7 +319,12 @@ class Application extends EventEmitter
        * @event      Socket#event:"admin.mixer.unlink"
        */
       socket.on('admin.mixer.unlink', this._mixerUnlink);
-
+      /**
+       * Toggle config value
+       * 
+       * @event      Socket#event:"admin.config.toggle"
+       */
+      socket.on('admin.config.toggle', this.config.adminToggle);
       /**
        * Logout admin user
        * 
@@ -473,7 +492,11 @@ class Application extends EventEmitter
       return cb(r);
     }
 
-    user.name = newName;
+    if(user.name != newName)
+    {
+      user.name = newName;
+      this.config.admin.updateMixerNames && Mixer.updateMixerNames(User._instances);
+    }
     user.camNumber = newNumber;
     Server.getByType('mumble').forEach((m) =>
     {
@@ -868,6 +891,21 @@ class Application extends EventEmitter
     log.trace('[Application] Broadcasted smartplug information', result);
   }
   /**
+   * Broadcast config options
+   *
+   * @method     Backend.Application#_broadcastConfig
+   * 
+   * @listens Backend.Application#event:"broadcast.config"
+   * @listens Backend.Application#event:broadcast
+   * @fires   Socket#event:"admin.config"
+   */
+  _broadcastConfig = () =>
+  {
+    let safe = Object.assign({}, this.config.admin);
+    delete safe.adminPass;
+    this._io.to('admins').emit('admin.config', safe);
+  }
+  /**
    * Bind some standard behavior to all servers
    *
    * @method     Backend.Application#_defaultServerHandlers
@@ -963,6 +1001,11 @@ class Application extends EventEmitter
   _createVmix = (opts) =>
   {
     return this._defaultServerHandlers(new Vmix(opts))
+      .on('connected', () =>
+      {
+        if(this.config.admin.updateMixerNames)
+          Mixer.updateMixerNames(User._instances);
+      })
       .on('disconnected', () =>
       {
         this.emit('broadcast.servers');
@@ -1023,6 +1066,11 @@ class Application extends EventEmitter
   _createAtem = (opts) =>
   {
     return this._defaultServerHandlers(new Atem(opts))
+      .on('connected', () =>
+      {
+        if(this.config.admin.updateMixerNames)
+          Mixer.updateMixerNames(User._instances);
+      })
       .on('disconnected', () =>
       {
         this.emit('broadcast.servers');

@@ -64,6 +64,7 @@ class UsersPopout
       $list: $('#users'),
       $tpl: $('#tplUser'),
       $modal: $('#editUserModal'),
+      $chkUpdateInput: $('#chkUpdateInput'),
       socket: this.socket
     });
     /**
