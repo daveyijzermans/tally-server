@@ -173,6 +173,7 @@ class Apc extends Server
        * Also fire the connected method to update connection status
        */
       this._connected();
+      clearTimeout(this._timeout);
       this._timeout = setTimeout(this._check, 5000);
     });
   }
@@ -193,6 +194,7 @@ class Apc extends Server
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
+    clearTimeout(this._timeout);
     this._timeout = setTimeout(this._check, 5000);
   }
   /**

@@ -78,7 +78,7 @@ class Videohub extends Router
     };
 
     this.emit('update', this._statusObj);
-    log.debug('[' + this.name + '] Parsed received data:', this._statusObj);
+    log.trace('[' + this.name + '] Parsed received data:', this._statusObj);
   };
   /**
    * Setup a new connection to the server and connect
