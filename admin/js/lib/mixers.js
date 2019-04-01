@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import 'jquery-ui/ui/effect';
 import 'jquery-ui/ui/widgets/slider';
 import 'jquery-ui-touch-punch';
 
@@ -104,9 +105,15 @@ class Mixers
           let duration = 2000;
           this.socket.emit('admin.mixer.command', mixer.name, 'transition', [duration]);
           $spanPrg.stop(true, true)
-            .animate({width: '100%'}, duration, 'linear', () =>
+            .animate({
+              width: '100%',
+              backgroundColor: '#ff0000'
+            }, duration, 'linear', () =>
               {
-                $spanPrg.css({width: '0%'});
+                $spanPrg.css({
+                  width: '0%',
+                  backgroundColor: ''
+                });
                 $tbar.slider('value', 0);
               });
           event.preventDefault();
@@ -124,15 +131,30 @@ class Mixers
           change: (event, ui) =>
           {
             $handle.text(ui.value);
+            let hue = ((1-ui.value/254)*120).toString(10);
+            let bg = ui.value == 0 ? '' : 'hsl(' + hue + ', 100%, 50%)';
+            
+            $handle.css({background: bg});
             $spanPrg.stop(true, true)
-              .css({width: Math.ceil(ui.value / 254 * 100) + '%'})
+              .css({
+                width: Math.ceil(ui.value / 254 * 100) + '%',
+                background: bg
+              })
           },
           slide: (event, ui) =>
           {
             this.socket.emit('admin.mixer.command', mixer.name, 'fade', [ui.value]);
-            $handle.text(ui.value);
+
+            let hue = ((1-ui.value/254)*120).toString(10);
+            let bg = 'hsl(' + hue + ', 100%, 50%)';
+
+            $handle.text(ui.value)
+              .css({background: bg});
             $spanPrg.stop(true, true)
-              .css({width: Math.ceil(ui.value / 254 * 100) + '%'})
+              .css({
+                width: Math.ceil(ui.value / 254 * 100) + '%',
+                background: bg
+              })
           },
           stop: (event, ui) =>
           {
