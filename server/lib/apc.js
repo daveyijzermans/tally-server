@@ -158,41 +158,22 @@ class Apc extends Server
    */
   _check = () =>
   {
-    let updateTimeout = 0;
-    let callback = (err, result) =>
+    this.client.getAll((err, results) =>
     {
       if(err) return this._closed(err);
-      if(result.prop && this.hasOwnProperty(result.prop))
-        this[result.prop] = result.value;
+      properties.forEach((prop) => this[prop] = results[prop]);
 
-      /*
-       * Delay sending the update event to combine updates from multiple calls
+      /**
+       * APC status was updated
+       *
+       * @event      Backend.Apc#event:updated
        */
-      clearTimeout(updateTimeout);
-      updateTimeout = setTimeout(() =>
-      {
-        /**
-         * APC status was updated
-         *
-         * @event      Backend.Apc#event:updated
-         */
-        this.emit('updated');
-      }, 500);
+      this.emit('updated');
       /*
        * Also fire the connected method to update connection status
        */
       this._connected();
-      clearTimeout(this._timeout);
       this._timeout = setTimeout(this._check, 5000);
-    }
-
-    properties.forEach((prop) =>
-    {
-      let method = 'get' + prop.charAt(0).toUpperCase() + prop.substring(1);
-      this.client[method]((err, value) =>
-      {
-        return callback(err, { prop: prop, value: value });
-      });
     });
   }
   /**
@@ -282,7 +263,13 @@ class Apc extends Server
       name: this.name,
       connected: this.connected
     }
-    properties.forEach((prop) => r[prop] = this[prop]);
+    properties.forEach((prop) =>
+    {
+      let val = this[prop];
+      if(prop == 'batteryRunTime')
+        val = val / 6000;
+      return r[prop] = val;
+    });
     return r;
   }
 }

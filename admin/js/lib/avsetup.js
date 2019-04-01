@@ -63,7 +63,13 @@ class AVSetup extends EventEmitter
       {
         let $target = $(event.target);
         let $source = ui.draggable;
-        console.log($source, $target);
+        let sourceName = $source.data('name');
+        let targetName = $target.data('name');
+        let possibilities = []
+        let pSource = Object.keys(this.connections).filter((i) => this.connections[i][sourceName]);
+        let tSource = Object.keys(this.connections).filter((i) => this.connections[i][targetName]);
+        
+        console.log(pSource, tSource);
       }
     });
     this.on('servers', (servers) =>

@@ -112,7 +112,7 @@ class Atem extends Mixer
    */
   _updated = (err, state) => //TODO: document
   {
-    log.debug('Received state information from', this.name, state);
+    log.trace('Received state information from', this.name, state);
     let pos = state.video.ME[this.ME].transitionPosition;
     let tbar = Math.ceil(state.video.ME[this.ME].transitionPosition * 255);
     if(pos >= 0.9945)
