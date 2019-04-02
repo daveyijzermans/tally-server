@@ -1,4 +1,6 @@
 {
+  "serverName": "Administration",
+  "serverHost": "hostname.local",
   "adminPass": "md5password",
   "updateMixerNames": true
 }
