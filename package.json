@@ -74,6 +74,7 @@
     "popper.js": "^1.14.7",
     "postcss-custom-properties": "^8.0.9",
     "postcss-flexbugs-fixes": "^4.1.0",
+    "spoken": "^1.1.17",
     "vinyl-named": "^1.1.0",
     "webpack": "^4.29.5",
     "webpack-stream": "^5.2.1",
