@@ -226,7 +226,7 @@ class Application extends EventEmitter
     {
       if(!User.getByUsername(username))
       {
-        log.warning(username + ' tried to connect, but is not in config. Disconnecting...');
+        log.warn(username + ' tried to connect, but is not in config. Disconnecting...');
         return socket.disconnect(); // user not in config
       }
 
@@ -263,7 +263,7 @@ class Application extends EventEmitter
     {
       if(password != this.config.admin.adminPass)
       {
-        log.warning('Administrator tried to connect with wrong password. Disconnecting...');
+        log.warn('Administrator tried to connect with wrong password. Disconnecting...');
         return socket.disconnect();
       }
       log.info('An admin has connected!');
