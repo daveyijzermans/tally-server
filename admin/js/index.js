@@ -10,7 +10,6 @@ import Tallies from './lib/tallies';
 import Plugs from './lib/plugs';
 import LoginModal from './lib/modal-login';
 import ActionModal from './lib/modal-action';
-import AVSetup from './lib/avsetup';
 import poof from './lib/jquery-poof';
 $.fn.poof = poof;
 import { toggleFullscreen } from './lib/fullscreen';
@@ -173,22 +172,10 @@ class Admin
       $modal: $('#actionModal'),
       socket: this.socket
     });
-    /**
-     * AV setup instance
-     *
-     * @type       {Frontend.UI.AVSetup}
-     */
-    this.avSetup = new AVSetup({
-      $box: $('#boxAV'),
-      $sources: $('#boxAV').find('.avSource'),
-      $targets: $('#boxAV').find('.avTarget'),
-      isExpanded: Cookies.get('avExpanded') === 'true'
-    }).on('toggle', (s) => Cookies.set('avExpanded', s));
 
     this.loginModal.on('authenticated', this._authenticated)
                    .on('error', this._loginError);
     this.actionModal.on('command.logout', () => Cookies.remove('adminPass'));
-    this.socket.once('admin.status.servers', (servers) => this.avSetup.emit('servers', servers));
 
     /*
      * Get stored password from cookie and attempt a login if it exists. Else show
