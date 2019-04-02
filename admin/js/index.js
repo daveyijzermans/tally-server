@@ -202,6 +202,11 @@ class Admin
       let formatted = moment.utc(uptime*1000).format('HH:mm:ss');
       $uptime.text(formatted);
     });
+    this.socket.on('admin.config', (config) =>
+    {
+      $('#serverTitle, title').text(config.serverName);
+      $('#serverHost').text(config.serverHost);
+    });
   }
 }
 
