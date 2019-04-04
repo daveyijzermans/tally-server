@@ -241,6 +241,18 @@ class Atem extends Mixer
     return true;
   }
   /**
+   * Sets the input label on the inputs of the mixer.
+   *
+   * @param      {number}  input   The input number
+   * @param      {string}  label   The label
+   */
+  setInputLabel = (input, label) =>
+  {
+    input = parseInt(input);
+    label = encodeURIComponent(label);
+    
+  }
+  /**
    * Return which actions that are executed by a master can be mirrored on this
    * mixer
    *

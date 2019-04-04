@@ -28,7 +28,77 @@
     "hostname": "aten.local",
     "name": "ATEN Matrix",
     "username": "administrator",
-    "password": "password"
+    "password": "password",
+    "matrix": [
+      [
+        {
+          "name": "Input 1"
+        },
+        {
+          "name": "Input 2"
+        },
+        {
+          "name": "Input 3"
+        },
+        {
+          "name": "Input 4",
+          "nc": true
+        }
+      ],
+      [
+        {
+          "name": "Output 1",
+          "nc": true
+        },
+        {
+          "name": "Output 2"
+        },
+        {
+          "name": "Output 3"
+        },
+        {
+          "name": "Output 4"
+        }
+      ]
+    ]
+  },
+
+  {
+    "type": "videohub",
+    "hostname": "192.168.10.112",
+    "name": "Videohub",
+    "matrix": [
+      [
+        {
+          "name": "Input 1"
+        },
+        {
+          "name": "Input 2"
+        },
+        {
+          "name": "Input 3"
+        },
+        {
+          "name": "Input 4",
+          "nc": true
+        }
+      ],
+      [
+        {
+          "name": "Output 1",
+          "nc": true
+        },
+        {
+          "name": "Output 2"
+        },
+        {
+          "name": "Output 3"
+        },
+        {
+          "name": "Output 4"
+        }
+      ]
+    ]
   },
   {
     "type": "netgear",

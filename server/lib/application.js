@@ -2,6 +2,7 @@ import Config from './config';
 
 import Server from './server';
 import Mixer from './mixer';
+import Router from './router';
 import Mumble from './mumble';
 import Vmix from './vmix';
 import Videohub from './videohub';
@@ -319,6 +320,13 @@ class Application extends EventEmitter
        * @event      Socket#event:"admin.mixer.unlink"
        */
       socket.on('admin.mixer.unlink', this._mixerUnlink);
+
+      /**
+       * Send route a router
+       *
+       * @event      Socket#event:"admin.router.route"
+       */
+      socket.on('admin.router.route', this._routerRoute);
       /**
        * Toggle config value
        * 
@@ -564,6 +572,22 @@ class Application extends EventEmitter
     return s.unlink ? s.unlink() : false;
   }
   /**
+   * Route an input to an output
+   *
+   * @method     Backend.Application#_routerRoute
+   *
+   * @param      {string}  name    The router name
+   * @param      {number}  input   The input number
+   * @param      {number}  output  The output number
+   * 
+   * @listens    Socket#event:"admin.router.route"
+   */
+  _routerRoute = (name, input, output) =>
+  {
+    let r = Router.getByName(name)
+    return r.route ? r.route(input, output) : false;
+  }
+  /**
    * Toggle a smartplug power state
    *
    * @method     Backend.Application#_plugCmd
@@ -766,6 +790,7 @@ class Application extends EventEmitter
    * @fires      Socket#event:status
    * @fires      Socket#event:"admin.status.servers"
    * @fires      Socket#event:"admin.status.mixers"
+   * @fires      Socket#event:"admin.status.routers"
    */
   _broadcastServers = () =>
   {
@@ -805,6 +830,13 @@ class Application extends EventEmitter
      * @param      {Object[]}        result            Array of mixers.
      */
     this._io.to('admins').emit('admin.status.mixers', Mixer.allStatus);
+    /**
+     * Broadcast an array on router information
+     *
+     * @event      Socket#event:"admin.status.routers"
+     * @param      {Object[]}        result            Array of routers.
+     */
+    this._io.to('admins').emit('admin.status.routers', Router.allStatus);
     log.trace('[Application] Broadcasted server and mixer information', Server.allStatus, Mixer.allStatus);
   }
   /**
@@ -1032,10 +1064,15 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Videohub}  The server instance that was created
+   * @listens    Backend.Huawei#event:updated
    */
   _createVideohub = (opts) =>
   {
     return this._defaultServerHandlers(new Videohub(opts))
+    .on('updated', () =>
+    {
+      this.emit('broadcast.servers');
+    });
   }
   /**
    * Initialize a Aten server object
