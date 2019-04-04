@@ -1,8 +1,10 @@
 import $ from 'jquery';
 import Cookies from 'js-cookie';
+import 'slidereveal';
 
 import LoginModal from './lib/modal-login';
 import Mixers from './lib/mixers';
+import Routers from './lib/routers';
 import ActionModal from './lib/modal-action';
 import poof from './lib/jquery-poof';
 $.fn.poof = poof;
@@ -67,6 +69,16 @@ class MixerPopout
       socket: this.socket
     });
     /**
+     * Routers class instance
+     *
+     * @type       {Frontend.UI.Routers}
+     */
+    this.routers = new Routers({
+      $list: $('#routers'),
+      $tpl: $('#tplRouter'),
+      socket: this.socket
+    });
+    /**
      * Action modal instance
      *
      * @type       {Frontend.UI.ActionModal}
@@ -91,6 +103,24 @@ class MixerPopout
     } else {
       this.loginModal.$modal.modal();
     }
+
+    let $sldTrigger = $('#routerTrigger');
+    let $slideout = $('#routerSlideout').slideReveal({
+      trigger: $sldTrigger,
+      width: '50%',
+      show: (panel) =>
+      {
+        $sldTrigger.find('i')
+          .toggleClass('fa-chevron-right', false)
+          .toggleClass('fa-chevron-left', true);
+      },
+      hide: (panel) => 
+      {
+        $sldTrigger.find('i')
+          .toggleClass('fa-chevron-right', true)
+          .toggleClass('fa-chevron-left', false);
+      }
+    }).slideReveal('show');
   }
 }
 

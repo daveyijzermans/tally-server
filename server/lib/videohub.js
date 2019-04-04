@@ -1,6 +1,5 @@
 import Router from './router';
 import { Socket } from 'net';
-import parser from 'io-videohub/lib/parser';
 import log from './logger';
 
 /**
@@ -19,12 +18,6 @@ class Videohub extends Router
   constructor(opts)
   {
     super(opts);
-    /**
-     * Status information from API
-     * 
-     * @type       {Object}
-     */
-    this._statusObj = [];
     this._check();
   }
   /**
@@ -56,29 +49,52 @@ class Videohub extends Router
    */
   _parseData = (obj) =>
   {
-    obj = parser(obj.toString());
-    if(!this._statusObj[obj.title])
-    {
-      if(obj.array)
-      {
-        this._statusObj[obj.title] = [];
-      } else {
-        this._statusObj[obj.title] = {};
-      };
-    };
-    
-    for (var key in obj.data)
-    {
-      if(obj.array)
-      {
-        this._statusObj[obj.title][parseInt(key, 10)] = obj.data[key];
-      } else {
-        this._statusObj[obj.title][key] = obj.data[key];
-      };
-    };
+    let split = obj.toString().split('\n');
 
-    this.emit('update', this._statusObj);
-    log.trace('[' + this.name + '] Parsed received data:', this._statusObj);
+    switch(split[0])
+    {
+      case 'INPUT LABELS:':
+      case 'OUTPUT LABELS:':
+        let arr = split[0] == 'INPUT LABELS:' ? this.inputs : this.outputs
+        for (var i = 1; i < split.length; i++)
+        {
+          let s = split[i].split(' ');
+          let index = s[0];
+          let int = parseInt(index);
+          if(isNaN(int)) break;
+          let label = split[i].substring(index.length + 1);
+          arr[int + 1].name = label
+        }
+        break;
+      case 'VIDEO OUTPUT LOCKS:':
+        for (var i = 1; i < split.length; i++)
+        {
+          let s = split[i].split(' ');
+          let index = s[0];
+          let int = parseInt(index);
+          if(isNaN(int)) break;
+          this.inputs[int + 1].locked = s[1] != 'U';
+        }
+        break;
+      case 'VIDEO OUTPUT ROUTING:':
+        for (var i = 1; i < split.length; i++)
+        {
+          let s = split[i].split(' ');
+          let index = s[0];
+          let int = parseInt(index);
+          if(isNaN(int)) break;
+          let input = parseInt(s[1]);
+          this.outputs[int + 1].input = input + 1;
+        }
+        break;
+    }
+    /**
+     * Videohub status was updated
+     *
+     * @event      Backend.Videohub#event:updated
+     */
+    this.emit('updated', this.status);
+    log.trace('[' + this.name + '] Parsed received data:', obj);
   };
   /**
    * Setup a new connection to the server and connect
@@ -108,7 +124,6 @@ class Videohub extends Router
     if(this.connected)
     {
       this.connected = false;
-      this._statusObj = [];
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
@@ -119,18 +134,21 @@ class Videohub extends Router
    *
    * @method     Backend.Videohub#route
    *
-   * @param      {number|string}  output  The output number, zero-indexed
-   * @param      {number|string}  input   The input number, zero-indexed
+   * @param      {number|string}  input   The input number
+   * @param      {number|string}  output  The output number
    * @return     {boolean}        Result
    */
-  route = (output, input) =>
+  route = (input, output) =>
   {
     if(!this.connected) return false;
+    input = parseInt(input);
+    output = parseInt(output);
+    if(isNaN(input) || isNaN(output)) return false;
 
-    let str = ['VIDEO OUTPUT ROUTING:', output + ' ' + input].join('\n');
+    let str = ['VIDEO OUTPUT ROUTING:', (output - 1) + ' ' + (input - 1)].join('\n');
     str += '\n\n';
     this.client.write(str);
-    log.debug('[' + this.name + '] Routed input ' + input + ' to output ' + output);
+    log.debug('[' + this.name + '][route] Routed input ' + input + ' to output ' + output);
     return true;
   }
   /**
@@ -171,28 +189,6 @@ class Videohub extends Router
     log.debug('[' + this.name + '] Set input ' + input + ' label:', label);
     return true;
   };
-  /**
-   * Get Videohub server properties
-   *
-   * @type       {Object}
-   * @property   {string}    result.type          The server type
-   * @property   {string}    result.hostname      The server hostname
-   * @property   {string}    result.name          The server display name
-   * @property   {boolean}   result.connected     Connection status
-   * @property   {string[]}  result.inputLabels   Input labels
-   * @property   {string[]}  result.outputLabels  Output labels
-   * @property   {string[]}  result.routing       Routing status
-   * @property   {string[]}  result.lockStatus    Genlock status
-   */
-  get status()
-  {
-    return Object.assign(super.status, {
-      inputLabels: this._statusObj.inputLabels,
-      outputLabels: this._statusObj.outputLabels,
-      routing: this._statusObj.video_output_routing,
-      lockStatus: this._statusObj.video_output_locks
-    });
-  }
 }
 
 export default Videohub;
