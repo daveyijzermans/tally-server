@@ -71,5 +71,7 @@ config.json
 *.sublime-project
 *.sublime-workspace
 
+admin/images/logo-sm.png
 dist/
 admin/vendor/fontawesome-pro-5.7.2-web
+admin/scss/_vendor.scss
