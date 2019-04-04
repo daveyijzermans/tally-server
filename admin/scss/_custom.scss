@@ -10,6 +10,37 @@
   border-bottom-color: #f7f7f7;
 }
 
+.slideout-right {
+  box-shadow: 5px 0 15px -6px #000 inset;
+}
+
+.slideout-left {
+  box-shadow: -5px 0 15px -6px #000 inset;
+}
+
+.slideout {
+  background: darken($black-color, 0.8);
+}
+
+.slideoutHandle {
+  background-color: rgba(0, 0, 0, 0.9);
+  padding: 10px 15px;
+  position: absolute;
+  top: 0px;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.slideoutHandle-left {
+  left: 0;
+  border-bottom-right-radius: 4px;
+}
+
+.slideoutHandle-right {
+  right: 0;
+  border-bottom-left-radius: 4px;
+}
+
 .content-header-scene {
   padding-top: 120px;
   margin-bottom: -130px;
@@ -24,6 +55,12 @@
   padding: 0 3px;
   max-width: 30px;
   font-size: 9px;
+}
+
+.btn-xs {
+  padding: 2px 7px;
+  max-width: 30px;
+  font-size: 12px;
 }
 
 .btn-xl, .btn-group-xl > .btn {
@@ -186,6 +223,10 @@ a.text-white {
   }
 }
 
+.wrapper {
+  position: relative;
+}
+
 html.popout {
   &, body {
     height: 100%;
@@ -206,7 +247,7 @@ html.popout {
 .mixer-popout {
   .content-header-scene {
     padding-top: 120px;
-    margin-bottom: -210px;
+    margin-bottom: -180px;
   }
 
   .bg-mixer {
@@ -236,6 +277,12 @@ html.popout {
         background: #545b62;
       }
     }
+  }
+}
+
+#routers {
+  .output-label {
+    width: 57px;
   }
 }
 

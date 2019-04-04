@@ -31,7 +31,7 @@ class Aten extends Router
      * @type       {string}
      */
     this.password = opts.password;
-    this._check();
+    this._timeout = setTimeout(this._check, 100);
   }
   /**
    * Parse lines that come from the Aten matrix
@@ -50,6 +50,37 @@ class Aten extends Router
       this.connected = true;
       this.emit('connected');
       this.emit('connection', this.connected);
+      this._refresh();
+      return;
+    }
+    if(line.indexOf('Input Port ') == 0)
+    {
+      let split = line.split(' ');
+      let input = parseInt(split[2]);
+      let output = parseInt(split[split.length - 2]);
+      
+      this.outputs[output].input = input;
+      this.emit('updated', this.status);
+      return;
+    }
+    if(line.indexOf('Switch input ') == 0)
+    {
+      let split = line.split(' ');
+      let input = parseInt(split[2]);
+      let output = parseInt(split[split.length - 1]);
+      
+      this.outputs[output].input = input;
+      this.emit('updated', this.status);
+      return;
+    }
+    if(line.indexOf('No port is connected to Output Port ') == 0)
+    {
+      let split = line.split(' ');
+      let output = parseInt(split[split.length - 2]);
+      
+      this.outputs[output].input = 0;
+      this.emit('updated', this.status);
+      return;
     }
   }
   /**
@@ -82,6 +113,17 @@ class Aten extends Router
     this.client.connect(23, this.hostname, this._connected);
   }
   /**
+   * Refresh Aten status
+   *
+   * @method     Backend.Aten#_refresh
+   */
+  _refresh = () =>
+  {
+    for (let i = 1; i < this.outputs.length; i++)
+      this.client.write('RO ' + i + '\r\n');
+    this._timeout = setTimeout(this._refresh, 5000);
+  }
+  /**
    * Executed when server connection is closed
    *
    * @method     Backend.Aten#_closed
@@ -98,7 +140,28 @@ class Aten extends Router
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
+    clearTimeout(this._timeout);
     this._timeout = setTimeout(this._check, 10000);
+  }
+  /**
+   * Set a route on the Aten
+   *
+   * @method     Backend.Aten#route
+   *
+   * @param      {number|string}  input   The input number
+   * @param      {number|string}  output  The output number
+   * @return     {boolean}        Result
+   */
+  route = (input, output) =>
+  {
+    if(!this.connected) return false;
+    input = parseInt(input);
+    output = parseInt(output);
+    if(isNaN(input) || isNaN(output)) return false;
+
+    this.client.write('SS ' + input + ',' + output + '\r\n');
+    log.debug('[' + this.name + '][route] Routed input ' + input + ' to output ' + output);
+    return true;
   }
 }
 

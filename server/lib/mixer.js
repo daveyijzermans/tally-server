@@ -166,6 +166,15 @@ class Mixer extends Server
   {
     return [];
   }
+  /**
+   * Matrix size
+   *
+   * @type       {number[]}
+   */
+  get matrix()
+  {
+    return [0, 0];
+  }
 }
 /**
  * Collection of all mixer instances

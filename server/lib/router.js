@@ -22,7 +22,33 @@ class Router extends Server
      * @type       {Object}
      */
     this.connections = opts.connections;
+    /**
+     * Current inputs
+     * 
+     * @type       {Object[]}
+     */
+    this.inputs = [null];
+    /**
+     * Current outputs and routing
+     * 
+     * @type       {Object[]}
+     */
+    this.outputs = [null];
 
+    let inputs = opts.matrix[0];
+    let outputs = opts.matrix[1];
+    for (let i = 0; i < inputs.length; i++)
+      this.inputs.push({
+        name: (inputs[i] && inputs[i].name) || '',
+        nc: inputs[i] && inputs[i].nc === true,
+        locked: false
+      });
+    for (let i = 0; i < outputs.length; i++)
+      this.outputs.push({
+        name: (outputs[i] && outputs[i].name) || '',
+        nc: outputs[i] && outputs[i].nc === true,
+        input: 0
+      });
     Router._instances.push(this);
   }
   /**
@@ -35,17 +61,13 @@ class Router extends Server
    * @property   {boolean}    result.connected     Connection status
    * @property   {string[]}   result.inputLabels   Input labels for this router
    * @property   {string[]}   result.outputLabels  Output labels for this router
-   * @property   {number[]}   result.routing       Routing
-   * @property   {boolean[]}  result.lockStatus    Lock status for each input
    */
   get status()
   {
     return Object.assign(super.status, {
       connections: this.connections,
-      inputLabels: this.inputLabels,
-      outputLabels: this.outputLabels,
-      routing: this.routing,
-      lockStatus: this.lockStatus
+      inputs: this.inputs,
+      outputs: this.outputs
     });
   }
   /**
