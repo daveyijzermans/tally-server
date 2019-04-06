@@ -1,8 +1,10 @@
 import $ from 'jquery';
 import Cookies from 'js-cookie';
+import 'slidereveal';
 
 import Log from './lib/log';
 import Servers from './lib/servers';
+import Routers from './lib/routers';
 import Modems from './lib/modems';
 import Ups from './lib/ups';
 import Users from './lib/users';
@@ -124,6 +126,16 @@ class Admin
       socket: this.socket
     });
     /**
+     * Routers class instance
+     *
+     * @type       {Frontend.UI.Routers}
+     */
+    this.routers = new Routers({
+      $list: $('#routers'),
+      $tpl: $('#tplRouter'),
+      socket: this.socket
+    });
+    /**
      * Modems class instance
      *
      * @type       {Frontend.UI.Modems}
@@ -206,6 +218,26 @@ class Admin
     {
       $('#serverTitle, title').text(config.serverName);
       $('#serverHost').text(config.serverHost);
+    });
+
+    /* Router slideout */
+    let $sldTrigger = $('#routerTrigger');
+    let $slideout = $('#routerSlideout').slideReveal({
+      trigger: $sldTrigger,
+      width: '50%',
+      push: false,
+      show: (panel) =>
+      {
+        $sldTrigger.find('i')
+          .toggleClass('fa-chevron-right', false)
+          .toggleClass('fa-chevron-left', true);
+      },
+      hide: (panel) => 
+      {
+        $sldTrigger.find('i')
+          .toggleClass('fa-chevron-right', true)
+          .toggleClass('fa-chevron-left', false);
+      }
     });
   }
 }

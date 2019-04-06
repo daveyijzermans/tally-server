@@ -12,33 +12,34 @@
 
 .slideout-right {
   box-shadow: 5px 0 15px -6px #000 inset;
+  .slideout-handle {
+    right: 0;
+    border-bottom-left-radius: 4px;
+    margin-left: -40px;
+  }
 }
 
 .slideout-left {
   box-shadow: -5px 0 15px -6px #000 inset;
+  .slideout-handle {
+    left: 0;
+    border-bottom-right-radius: 4px;
+    margin-left: 100%;
+  }
 }
 
 .slideout {
   background: darken($black-color, 0.8);
+  z-index: 20
 }
 
-.slideoutHandle {
+.slideout-handle {
   background-color: rgba(0, 0, 0, 0.9);
   padding: 10px 15px;
   position: absolute;
   top: 0px;
   cursor: pointer;
   color: #ffffff;
-}
-
-.slideoutHandle-left {
-  left: 0;
-  border-bottom-right-radius: 4px;
-}
-
-.slideoutHandle-right {
-  right: 0;
-  border-bottom-left-radius: 4px;
 }
 
 .content-header-scene {

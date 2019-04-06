@@ -104,6 +104,7 @@ class MixerPopout
       this.loginModal.$modal.modal();
     }
 
+    /* Router slideout */
     let $sldTrigger = $('#routerTrigger');
     let $slideout = $('#routerSlideout').slideReveal({
       trigger: $sldTrigger,
