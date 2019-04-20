@@ -36,8 +36,9 @@ const gulp = require('gulp'),
 const resources = {
   scss: ['admin/scss/**/*.scss'],
   js: ['admin/js/**/*.*'],
-  fonts: ['admin/fonts/**/*.*', 'admin/vendor/fontawesome-pro-5.7.2-web/webfonts/*.*'],
+  fonts: ['admin/fonts/**/*.*', 'admin/externals/fontawesome-pro-5.7.2-web/webfonts/*.*'],
   images: ['admin/images/**/*.*'],
+  favicons: ['admin/externals/index/*.*', 'admin/externals/mixers/*.*', 'admin/externals/users/*.*'],
   html: ['admin/html/*.*'],
   htmlIncludes: ['admin/html/includes/*.html'],
   client: ['client/config.json', 'client/package.client.json', 'client/update.sh'],
@@ -149,6 +150,18 @@ const images = () =>
 };
 
 /*
+* Favicons task
+*
+* Description: just moving to /dist/www folder.
+*/
+const favicons = () =>
+{
+  return gulp.src(resources.favicons, { base: 'admin/externals' } )
+    .pipe(gulp.dest('dist/www/assets'))
+    .pipe(browserSync.reload({stream: true}));
+};
+
+/*
 * Client task
 *
 * Description: just moving to /dist/www folder.
@@ -191,6 +204,7 @@ const watch = () =>
   gulp.watch(resources.scss, scss);
   gulp.watch(resources.js, js);
   gulp.watch(resources.images, images);
+  gulp.watch(resources.favicons, favicons);
   gulp.watch(resources.html, html);
   gulp.watch(resources.client, client);
   gulp.watch(resources.htmlIncludes, html);
@@ -267,7 +281,7 @@ const docs = done =>
 /**
  * Build all
  */
-const build = gulp.series(gulp.parallel(scss, js, fonts, images, html, client), buildClient, buildServer);
+const build = gulp.series(gulp.parallel(scss, js, fonts, images, favicons, html, client), buildClient, buildServer);
 
 /*
 * Start server task

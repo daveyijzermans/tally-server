@@ -114,7 +114,7 @@ class Ups
       {
         info += '<p><strong>' + prop + ':</strong> ' + server[prop] + '</p>';
       });
-      info += '<a class="btn btn-primary btn-block" href="http://' + server.hostname + '" role="button">UPS admin</a>';
+      info += '<a class="btn btn-primary btn-block" href="' + server.url + '" role="button">UPS admin</a>';
       this._upsInfo[server.name] = info;
       let popId = $tr.find('a').attr('aria-describedby');
       $('#' + popId).find('.popover-body').html(info);

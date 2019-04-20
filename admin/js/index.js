@@ -206,7 +206,7 @@ class Admin
     {
       toggleFullscreen();
       event.preventDefault();
-    });
+    }).toggle(!window.navigator.standalone);
 
     let $uptime = $('#uptime');
     this.socket.on('uptime', (uptime) =>

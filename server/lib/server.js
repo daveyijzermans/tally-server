@@ -40,6 +40,12 @@ class Server extends EventEmitter
      */
     this.connected = false;
     /**
+     * Server admin URL
+     * 
+     * @type       {boolean|string}
+     */
+    this.url = typeof opts.url == 'string' ? opts.url : false;
+    /**
      * Server client interaction object
      * 
      * @type       {mixed}
@@ -61,6 +67,7 @@ class Server extends EventEmitter
    * @property   {string}          result.hostname   The server hostname
    * @property   {string}          result.name       The server display name
    * @property   {boolean}         result.connected  Connection status
+   * @property   {string}          result.url        The server admin URL
    */
   get status()
   {
@@ -68,7 +75,8 @@ class Server extends EventEmitter
       type: this.type,
       hostname: this.hostname,
       name: this.name,
-      connected: this.connected
+      connected: this.connected,
+      url: this.url
     }
   }
   /**

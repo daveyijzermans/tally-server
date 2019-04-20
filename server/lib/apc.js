@@ -259,20 +259,13 @@ class Apc extends Server
    */
   get status()
   {
-    let r = {
-      type: this.type,
-      hostname: this.hostname,
-      name: this.name,
-      connected: this.connected
-    }
-    properties.forEach((prop) =>
+    return Object.assign(super.status, properties.reduce((a, prop) =>
     {
-      let val = this[prop];
+      a[prop] = this[prop];
       if(prop == 'batteryRunTime')
-        val = val / 6000;
-      return r[prop] = val;
-    });
-    return r;
+        a[prop] = this[prop] / 6000;
+      return a;
+    }, {}));
   }
 }
 

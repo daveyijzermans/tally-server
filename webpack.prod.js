@@ -8,5 +8,10 @@ module.exports = {
 				exclude: /node_modules/
 			},
 		]
-    }
+    },
+  plugins: [
+    new webpack.ProvidePlugin({
+      jQuery: 'jquery'
+    })
+  ]
 }

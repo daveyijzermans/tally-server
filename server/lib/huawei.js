@@ -42,12 +42,7 @@ class Huawei extends Server
      * @type       {string}
      */
     this.FullName = '';
-    /**
-     * Nice URL that others in the LAN can access the modem page
-     * 
-     * @type       {string}
-     */
-    this.url = opts.url;
+
     this.client = new Router({
       host: this.hostname,
       username: 'admin',
@@ -153,17 +148,12 @@ class Huawei extends Server
    */
   get status()
   {
-    return {
-      type: this.type,
-      hostname: this.hostname,
-      name: this.name,
-      connected: this.connected,
+    return Object.assign(super.status, {
       CurrentNetworkTypeEx: this.CurrentNetworkTypeEx,
       SignalIcon: this.SignalIcon,
       cellroam: this.cellroam,
       FullName: this.FullName,
-      url: this.url
-    }
+    });
   }
 }
 

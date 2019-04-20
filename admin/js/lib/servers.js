@@ -86,6 +86,7 @@ class Servers
       
       let sClass = server.connected ? 'bg-success' : 'bg-danger';
       let $name = $tr.find('.name').text(server.name);
+      if(server.url) $name.wrapInner($('<a></a>', { href: server.url }));
       let $type = $tr.find('.type').text(server.type);
       let $hostname = $tr.find('.hostname').text(server.hostname);
       $tr.find('.status-icon')
