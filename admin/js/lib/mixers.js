@@ -81,6 +81,24 @@ class Mixers
 
         let $dropdown = $tr.find('.dropdown-menu');
         $dropdown.find('.dropdown-item.unlink').attr('data-param', mixer.name);
+        if(mixer.type == 'vmix')
+        {
+          $tr.find('.buttons-vmix').show();
+          $tr.find('.btn-fullscreen')
+            .toggleClass('btn-primary', mixer.fullscreen)
+            .toggleClass('btn-secondary', !mixer.fullscreen);
+          $tr.find('.btn-external')
+            .toggleClass('btn-primary', mixer.external)
+            .toggleClass('btn-secondary', !mixer.external);
+          $tr.find('.btn-record')
+            .toggleClass('btn-primary', mixer.recording)
+            .toggleClass('btn-secondary', !mixer.recording);
+          $tr.find('.btn-stream')
+            .toggleClass('btn-primary', mixer.streaming)
+            .toggleClass('btn-secondary', !mixer.streaming);
+        }
+        let $transitions = $tr.find('.transition-select');
+        let $duration = $tr.find('.transition-duration');
         let $btnCut = $tr.find('.btnCut');
         let $btnAuto = $tr.find('.btnAuto');
         let $spanPrg = $btnAuto.find('span.progress');
@@ -102,8 +120,8 @@ class Mixers
         $btnAuto.click((event) =>
         {
           if(isLinked()) return;
-          let duration = 2000;
-          this.socket.emit('admin.mixer.command', mixer.name, 'transition', [duration]);
+          let duration = parseInt($duration.val());
+          this.socket.emit('admin.mixer.command', mixer.name, 'transition', [duration, $transitions.val()]);
           $spanPrg.stop(true, true)
             .animate({
               width: '100%',
@@ -143,7 +161,7 @@ class Mixers
           },
           slide: (event, ui) =>
           {
-            this.socket.emit('admin.mixer.command', mixer.name, 'fade', [ui.value]);
+            this.socket.emit('admin.mixer.command', mixer.name, 'fade', [ui.value, $transitions.val()]);
 
             let hue = ((1-ui.value/254)*120).toString(10);
             let bg = 'hsl(' + hue + ', 100%, 50%)';
@@ -160,13 +178,37 @@ class Mixers
           {
             if(ui.value >= 254)
             {
-              this.socket.emit('admin.mixer.command', mixer.name, 'fade', [255]);
+              this.socket.emit('admin.mixer.command', mixer.name, 'fade', [255, $transitions.val()]);
               $tbar.slider('value', 0);
             }
           }
         });
+
+        $.each(mixer.effects, (name, effect) =>
+        {
+          $transitions.append($('<option></option>', {
+            value: name,
+            text: name
+          }));
+        });
+        $transitions.on('change', (event) =>
+        {
+          this.socket.emit('admin.mixer.command', mixer.name, 'setTransition', [$transitions.val()]);
+        });
+        $duration.on('change', (event) =>
+        {
+          this.socket.emit('admin.mixer.command', mixer.name, 'setDuration', [1, $duration.val()]);
+        });
       }
 
+      let $transitions = $tr.find('.transition-select')
+      $transitions
+        .prop('disabled', isLinked())
+        .val(mixer.transition);
+      let $duration = $tr.find('.transition-duration');
+      $duration
+        .prop('disabled', isLinked())
+        .val(mixer.autoDuration);
       let $dropdown = $tr.find('.dropdown-menu');
       let $linkedItem = $dropdown.find('.dropdown-item.linked');
       let $noresultsItem = $dropdown.find('.dropdown-item.noresults');

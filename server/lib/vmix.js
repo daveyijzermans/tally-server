@@ -3,25 +3,6 @@ import { Socket } from 'net';
 import readline from 'readline';
 import log from './logger';
 
-const effects = {
-  'FADE': 'FADE',
-  'DIP': 'FADE',
-  'ZOOM': 'ZOOM',
-  'WIPE': 'WIPE',
-  'SLIDE': 'SLIDE',
-  'FLY': 'FLY',
-  'CROSSZOOM': 'CROSSZOOM',
-  'FLYROTATE': 'FLYROTATE',
-  'CUBE': 'CUBE',
-  'CUBEZOOM': 'CUBEZOOM',
-  'VERTICALWIPE': 'VERTICALWIPE',
-  'VERTICALSLIDE': 'VERTICALSLIDE',
-  'MERGE': 'MERGE',
-  'WIPEREVERSE': 'WIPEREVERSE',
-  'SLIDEREVERSE': 'SLIDEREVERSE',
-  'VERTICALWIPEREVERSE': 'VERTICALWIPEREVERSE',
-  'VERTICALSLIDEREVERSE': 'VERTICALSLIDEREVERSE'
-};
 const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
 
 /**
@@ -53,6 +34,48 @@ class Vmix extends Mixer
      * @type       {string}
      */
     this.winUserPass = opts.winUserPass;
+    /**
+     * vMix version
+     * 
+     * @type       {string}
+     */
+    this.version = 0;
+    /**
+     * Recording status
+     * 
+     * @type       {boolean}
+     */
+    this.recording = false;
+    /**
+     * Streaming status
+     * 
+     * @type       {boolean}
+     */
+    this.streaming = false;
+    /**
+     * Fullscreen status
+     * 
+     * @type       {boolean}
+     */
+    this.fullscreen = false;
+    /**
+     * External output status
+     * 
+     * @type       {boolean}
+     */
+    this.external = false;
+    /**
+     * Multicorder status
+     * 
+     * @type       {boolean}
+     */
+    this.multiCorder = false;
+    /**
+     * Fade to black status
+     * 
+     * @type       {boolean}
+     */
+    this.fadeToBlack = false;
     this._check();
   }
   /**
@@ -67,19 +90,10 @@ class Vmix extends Mixer
   _line = line =>
   {
     log.debug('[' + this.name + '] Got line from TCP API:', line);
-    if(line.indexOf('XMLTEXT OK ') == 0)
+    if(line.indexOf('VERSION OK ') == 0) 
     {
-      let p = parseInt(line.substring('XMLTEXT OK '.length));
-      if(this._currentPreviewInput == 0)
-      {
-        this._currentPreviewInput = p;
-        this.client.write('XMLTEXT vmix/active\r\n');
-        return;
-      }
-      if(this._currentProgramInput == 0)
-      {
-        this._currentProgramInput = p;
-      }
+      this.version = line.substring('VERSION OK '.length);
+      return;
     }
     if(line.indexOf('TALLY OK ') == 0)
     {
@@ -190,6 +204,7 @@ class Vmix extends Mixer
         {
           let state = val[1] == '1';
           let method = val[0].charAt(0).toLowerCase() + val[0].substring(1);
+          this[method] = state;
           this.emit('action', method, [state]);
           break;
         }
@@ -219,7 +234,90 @@ class Vmix extends Mixer
     });
     this.readline.on('line', this._line);
 
-    this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\nXMLTEXT vmix/preview\r\n');
+    this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\n');
+    this._getXmlParams();
+  }
+  /**
+   * Request and parse XML parameters for retrieving first time state.
+   *
+   * @method     Backend.Vmix#_getXmlParams
+   */
+  _getXmlParams = () =>
+  {
+    const params = [
+      {
+        method: 'vmix/preview',
+        type: 'number',
+        param: '_currentPreviewInput'
+      },
+      {
+        method: 'vmix/active',
+        type: 'number',
+        param: '_currentProgramInput'
+      },
+      {
+        method: 'vmix/recording',
+        type: 'boolean',
+        param: 'recording'
+      },
+      {
+        method: 'vmix/streaming',
+        type: 'boolean',
+        param: 'streaming'
+      },
+      {
+        method: 'vmix/fullscreen',
+        type: 'boolean',
+        param: 'fullscreen'
+      },
+      {
+        method: 'vmix/external',
+        type: 'boolean',
+        param: 'external'
+      },
+      {
+        method: 'vmix/multiCorder',
+        type: 'boolean',
+        param: 'multiCorder'
+      },
+      {
+        method: 'vmix/fadeToBlack',
+        type: 'boolean',
+        param: 'fadeToBlack'
+      },
+      {
+        method: 'vmix/transitions/transition[1]/@effect',
+        param: '_currentTransition',
+        transform: 'uppercase'
+      },
+      {
+        method: 'vmix/transitions/transition[1]/@duration',
+        type: 'number',
+        param: '_autoDuration'
+      }
+    ];
+
+    let next = (i = 0) =>
+    {
+      let param = params[i];
+      if(typeof param != 'object') return;
+      let parseParam = (line) =>
+      {
+        if(line.indexOf('XMLTEXT OK ') == 0)
+        {
+          let r = line.substring('XMLTEXT OK '.length);
+          let p = param.type == 'number' ? parseInt(r) : (param.type == 'boolean' ? r == 'True' : r);
+          if (param.transform == 'uppercase')
+            p = p.toUpperCase();
+          this[param.param] = p;
+          this.readline.off('line', parseParam);
+          next(i+1);
+        }
+      }
+      this.readline.on('line', parseParam);
+      this.client.write('XMLTEXT ' + param.method + '\r\n');
+    };
+    next();
   }
   /**
    * Setup a new connection to the server and connect
@@ -307,8 +405,7 @@ class Vmix extends Mixer
     if(!this.connected) return false;
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
-    if(typeof effects[effect] == 'undefined') return false;
-    this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n')
+    if(typeof this.effects[effect] == 'undefined') return false;
     if(execute) this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
     log.debug('[' + this.name + '][transition] Args:', duration, effect, execute);
     this.emit('action', 'transition', [duration, effect]);
@@ -334,10 +431,14 @@ class Vmix extends Mixer
     n = parseInt(n);
     if(isNaN(n)) return false;
     n = n > 0 ? (n < 255 ? n : 255) : 0;
-    // this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + effects[effect] + '\r\n'); //FIXME: this crashes vMix
+    if(this.effects[effect] && this._currentTransition !== effect)
+    {
+      this.client.write('FUNCTION SetTransitionEffect1 VALUE=' + this.effects[effect] + '\r\n');
+      this._currentTransition = effect;
+    }
     if(execute) this.client.write('FUNCTION SetFader Value=' + n + '\r\n');
     log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
-    this.emit('action', 'fade', [n]);
+    this.emit('action', 'fade', [n, effect]);
     return true;
   }
   /**
@@ -366,6 +467,8 @@ class Vmix extends Mixer
   /**
    * Sets the input label on the inputs of the mixer.
    *
+   * @method     Backend.Vmix#setInputLabel
+   *
    * @param      {number}  input   The input number
    * @param      {string}  label   The label
    */
@@ -376,21 +479,69 @@ class Vmix extends Mixer
     this.client.write('FUNCTION SetInputName INPUT=' + input + '&VALUE=' + label + '\r\n');
   }
   /**
+   * Set transition effect
+   *
+   * @method     Backend.Vmix#setTransition
+   *
+   * @param      {string}          effect  The effect
+   * @param      {number}          n       Transition number
+   */
+  setTransition = (effect = 'FADE', n = 1) =>
+  {
+    n = parseInt(n);
+    if(this.effects[effect] && this._currentTransition !== effect)
+    {
+      this.client.write('FUNCTION SetTransitionEffect' + n + ' VALUE=' + this.effects[effect] + '\r\n');
+      this._currentTransition = effect;
+      this.emit('action', 'setTransition', [effect, n]);
+    }
+  }
+  /**
+   * Set transition effect duration
+   *
+   * @method     Backend.Vmix#setDuration
+   *
+   * @param      {number}          n         Transition number
+   * @param      {number}          duration  Transition length in ms
+   */
+  setDuration = (n = 1, duration = 2000) =>
+  {
+    n = parseInt(n);
+    duration = parseInt(duration);
+    this.client.write('FUNCTION SetTransitionDuration' + n + ' VALUE=' + duration + '\r\n');
+    if(n == 1)
+      this._autoDuration = duration;
+    this.emit('action', 'setDuration', [n, duration]);
+  }
+  /**
    * Get vMix server properties
    *
    * @type       {Object}
-   * @property   {string}          result.type       The mixer type
-   * @property   {string}          result.hostname   The mixer hostname
-   * @property   {string}          result.name       The mixer display name
-   * @property   {boolean}         result.connected  Connection status
-   * @property   {number[]}        result.tallies    Tally information
-   * @property   {boolean|Object}  result.linked     Link status
-   * @property   {string|boolean}  result.wol        WOL address
+   * @property   {string}          result.type         The mixer type
+   * @property   {string}          result.hostname     The mixer hostname
+   * @property   {string}          result.name         The mixer display name
+   * @property   {boolean}         result.connected    Connection status
+   * @property   {number[]}        result.tallies      Tally information
+   * @property   {boolean|Object}  result.linked       Link status
+   * @property   {string|boolean}  result.wol          WOL address
+   * @property   {boolean}         result.recording    Recording status
+   * @property   {boolean}         result.streaming    Streaming status
+   * @property   {boolean}         result.fullscreen   Fullscreen status
+   * @property   {boolean}         result.external     External status
+   * @property   {boolean}         result.multiCorder  Multicorder status
+   * @property   {boolean}         result.fadeToBlack  Fade to black status
    */
   get status()
   {
     return Object.assign(super.status, {
-      wol: this.wol
+      wol: this.wol,
+      version: this.version,
+      recording: this.recording,
+      streaming: this.streaming,
+      fullscreen: this.fullscreen,
+      external: this.external,
+      multiCorder: this.multiCorder,
+      fadeToBlack: this.fadeToBlack
     });
   }
   /**
@@ -401,7 +552,30 @@ class Vmix extends Mixer
    */
   get actions()
   {
-    return ['transition', 'switchInput', 'overlay', 'fade'];
+    return ['transition', 'switchInput', 'overlay', 'fade', 'setTransition', 'setDuration'];
+  }
+
+  get effects()
+  {
+    return {
+      'FADE': 'FADE',
+      'DIP': 'FADE',
+      'ZOOM': 'ZOOM',
+      'WIPE': 'WIPE',
+      'SLIDE': 'SLIDE',
+      'FLY': 'FLY',
+      'CROSSZOOM': 'CROSSZOOM',
+      'FLYROTATE': 'FLYROTATE',
+      'CUBE': 'CUBE',
+      'CUBEZOOM': 'CUBEZOOM',
+      'VERTICALWIPE': 'VERTICALWIPE',
+      'VERTICALSLIDE': 'VERTICALSLIDE',
+      'MERGE': 'MERGE',
+      'WIPEREVERSE': 'WIPEREVERSE',
+      'SLIDEREVERSE': 'SLIDEREVERSE',
+      'VERTICALWIPEREVERSE': 'VERTICALWIPEREVERSE',
+      'VERTICALSLIDEREVERSE': 'VERTICALSLIDEREVERSE'
+    }
   }
 }
 

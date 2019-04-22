@@ -2,26 +2,6 @@ import Mixer from './mixer';
 import API from 'applest-atem';
 import log from './logger';
 
-const effects = {
-  'FADE': 0x00,
-  'DIP': 0x01,
-  'ZOOM': 0x00,
-  'WIPE': 0x02,
-  'SLIDE': 0x02,
-  'FLY': 0x02,
-  'CROSSZOOM': 0x02,
-  'FLYROTATE': 0x02,
-  'CUBE': 0x02,
-  'CUBEZOOM': 0x02,
-  'VERTICALWIPE': 0x02,
-  'VERTICALSLIDE': 0x02,
-  'MERGE': 0x00,
-  'WIPEREVERSE': 0x02,
-  'SLIDEREVERSE': 0x02,
-  'VERTICALWIPEREVERSE': 0x02,
-  'VERTICALSLIDEREVERSE': 0x02
-};
-
 /**
  * Class for connecting to Atem switchers.
  *
@@ -208,8 +188,8 @@ class Atem extends Mixer
     if(!this.connected) return false;
     duration = parseInt(duration);
     if(isNaN(duration)) return false;
-    if(typeof effects[effect] == 'undefined') return false;
-    this.client.changeTransitionType(effects[effect]);
+    if(typeof this.effects[effect] == 'undefined') return false;
+    this.client.changeTransitionType(this.effects[effect]);
     this.client.changeTransitionMix(duration / (1000 / this.fps), this.ME);
     if(execute) this.client.changeTransitionPosition(0);
     if(execute) this.client.autoTransition(this.ME);
@@ -235,7 +215,7 @@ class Atem extends Mixer
     n = parseInt(n);
     if(isNaN(n)) return false;
     n = n > 0 ? (n < 255 ? n : 255) : 0;
-    // this.client.changeTransitionType(effects[effect]); //FIXME: see other fixme, cache this value in mixer obj
+    // this.client.changeTransitionType(this.effects[effect]); //FIXME: see other fixme, cache this value in mixer obj
     if(execute) this.client.changeTransitionPosition(n * Math.floor(10000/255), this.ME);
     log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
     return true;
@@ -261,6 +241,29 @@ class Atem extends Mixer
   get actions()
   {
     return ['fade', 'transition', 'switchInput', 'overlay'];
+  }
+
+  get effects()
+  {
+    return {
+      'FADE': 0x00,
+      'DIP': 0x01,
+      'ZOOM': 0x00,
+      'WIPE': 0x02,
+      'SLIDE': 0x02,
+      'FLY': 0x02,
+      'CROSSZOOM': 0x02,
+      'FLYROTATE': 0x02,
+      'CUBE': 0x02,
+      'CUBEZOOM': 0x02,
+      'VERTICALWIPE': 0x02,
+      'VERTICALSLIDE': 0x02,
+      'MERGE': 0x00,
+      'WIPEREVERSE': 0x02,
+      'SLIDEREVERSE': 0x02,
+      'VERTICALWIPEREVERSE': 0x02,
+      'VERTICALSLIDEREVERSE': 0x02
+    }
   }
   /**
    * Get ATEM server properties

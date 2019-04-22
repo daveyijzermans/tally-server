@@ -41,16 +41,8 @@
                 </div>
                 <a class="box-actions-item text-white linkToggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-unlink"></i></a>
               </div>
-              <div class="box-body p-4 text-white">
-                <div class="d-flex align-items-center flex-row overflow-x">
-                  <div>
-                    <div class="d-flex align-items-center flex-row previewBus">
-                      <div class="m-1 font-weight-bold mixer-label">PRV</div>
-                    </div>
-                    <div class="d-flex align-items-center flex-row programBus">
-                      <div class="m-1 font-weight-bold mixer-label">PGM</div>
-                    </div>
-                  </div>
+              <div class="box-body p-4">
+                <div class="d-flex align-items-center flex-row mb-1">
                   <div>
                     <button class="btn btn-xl m-1 btn-primary btnCut">CUT</button>
                   </div>
@@ -59,6 +51,43 @@
                   </div>
                   <div class="p-3">
                     <div class="tbar"><div class="ui-slider-handle tbar-handle"></div></div>
+                  </div>
+                  <div>
+                    <div class="d-flex align-items-center flex-row">
+                      <select class="form-control form-control-lg mb-1 transition-select"></select>
+                    </div>
+                    <div class="d-flex align-items-center flex-row">
+                      <div class="input-group input-group-lg mt-1">
+                        <div class="input-group-icon">Duration</div>
+                        <input type="number" class="form-control transition-duration">
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display:none" class="buttons-vmix">
+                    <div class="d-flex align-items-center flex-row">
+                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-fullscreen">Fullscreen</button>
+                    </div>
+                    <div class="d-flex align-items-center flex-row">
+                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-external">External</button>
+                    </div>
+                  </div>
+                  <div style="display:none" class="buttons-vmix">
+                    <div class="d-flex align-items-center flex-row">
+                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-record">Record</button>
+                    </div>
+                    <div class="d-flex align-items-center flex-row">
+                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-stream">Stream</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center flex-row overflow-x text-white">
+                  <div>
+                    <div class="d-flex align-items-center flex-row previewBus">
+                      <div class="m-1 font-weight-bold mixer-label">PRV</div>
+                    </div>
+                    <div class="d-flex align-items-center flex-row programBus">
+                      <div class="m-1 font-weight-bold mixer-label">PGM</div>
+                    </div>
                   </div>
                 </div>
               </div>

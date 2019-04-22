@@ -77,6 +77,20 @@ class Tallies extends EventEmitter
       let $t = this.$tpl.clone().attr('id', '').attr('data-name', mixer.name).addClass('tally-entry')
         .show().appendTo(this.$list);
       let $a = $t.find('b').text(mixer.name);
+      if(mixer.type == 'vmix')
+      {
+        $t.find('.badge-status').show();
+        $t.find('.badge-fullscreen')
+          .toggleClass('badge-outline-primary', !mixer.fullscreen)
+          .toggleClass('badge-primary', mixer.fullscreen);
+        $t.find('.badge-recording')
+          .toggleClass('badge-outline-danger', !mixer.recording)
+          .toggleClass('badge-danger', mixer.recording);
+        $t.find('.badge-streaming')
+          .toggleClass('badge-outline-warning', !mixer.streaming)
+          .toggleClass('badge-warning', mixer.streaming);
+      }
+
       let isLinked = typeof mixer.linked == 'object';
       $t.find('.fas').toggle(isLinked);
 

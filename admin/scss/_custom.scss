@@ -10,6 +10,20 @@
   border-bottom-color: #f7f7f7;
 }
 
+.form-control.form-control-lg {
+  height: 42px;
+  padding: 8px 13px;
+}
+
+.input-group-lg .form-control {
+  padding: 20px 13px;
+}
+
+.input-group-lg .input-group-icon {
+  height: 42px;
+  padding: 12px 13px;
+}
+
 .slideout-right {
   box-shadow: 5px 0 15px -6px #000 inset;
   .slideout-handle {

@@ -532,7 +532,7 @@ class Application extends EventEmitter
    */
   _mixerCmd = (name, method, args) =>
   {
-    const methods = ['switchInput', 'cut', 'transition', 'fade'];
+    const methods = ['switchInput', 'cut', 'transition', 'fade', 'setTransition', 'setDuration'];
     if(methods.indexOf(method) == -1) return false;
     log.debug('[Application] Executing mixer command', method, 'on mixer', name, 'with arguments', args);
     if(name === '*')

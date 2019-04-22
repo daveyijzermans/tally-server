@@ -41,6 +41,18 @@ class Mixer extends Server
      * @type       {number}
      */
     this._currentProgramInput = 0;
+    /**
+     * Current default transition
+     * 
+     * @type       {string}
+     */
+    this._currentTransition = 'FADE';
+    /**
+     * Current auto transition duration
+     * 
+     * @type       {number}
+     */
+    this._autoDuration = 1000;
 
     Mixer._instances.push(this);
     this.linkTo(opts.linked);
@@ -129,7 +141,10 @@ class Mixer extends Server
       tallies: this.tallies,
       linked: this.linked instanceof Mixer ? this.linked.status : false,
       preview: this._currentPreviewInput,
-      program: this._currentProgramInput
+      program: this._currentProgramInput,
+      transition: this._currentTransition,
+      autoDuration: this._autoDuration,
+      effects: this.effects
     });
   }
   /**
@@ -165,15 +180,6 @@ class Mixer extends Server
   get actions()
   {
     return [];
-  }
-  /**
-   * Matrix size
-   *
-   * @type       {number[]}
-   */
-  get matrix()
-  {
-    return [0, 0];
   }
 }
 /**
