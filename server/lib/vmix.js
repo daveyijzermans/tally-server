@@ -2,8 +2,9 @@ import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
 import log from './logger';
+import XMLParser from 'fast-xml-parser';
 
-const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i
+const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i; 
 
 /**
  * Class for connecting to vMix API via TCP.
@@ -76,6 +77,24 @@ class Vmix extends Mixer
      * @type       {boolean}
      */
     this.fadeToBlack = false;
+
+    this.inputs = [null];
+    this.outputs = [null, {
+      name: 'Master',
+      level: 0
+    },{
+      name: 'Bus A',
+      level: 0
+    },{
+      name: 'Bus B',
+      level: 0
+    }];
+    /**
+     * XML retrieving timeout
+     * 
+     * @type       {number}
+     */
+    this.xmlTimeout = 0;
     this._check();
   }
   /**
@@ -89,7 +108,7 @@ class Vmix extends Mixer
    */
   _line = line =>
   {
-    log.debug('[' + this.name + '] Got line from TCP API:', line);
+    log.trace('[' + this.name + '][_line]', line);
     if(line.indexOf('VERSION OK ') == 0) 
     {
       this.version = line.substring('VERSION OK '.length);
@@ -235,89 +254,113 @@ class Vmix extends Mixer
     this.readline.on('line', this._line);
 
     this.client.write('SUBSCRIBE TALLY\r\nSUBSCRIBE ACTS\r\n');
-    this._getXmlParams();
+    this._getXmlParams(this._assignFirstXml);
   }
   /**
-   * Request and parse XML parameters for retrieving first time state.
+   * Request and parse XML parameters for retrieving info not available through activators.
    *
    * @method     Backend.Vmix#_getXmlParams
+   * 
+   * @param      {Function} callback Callback to call with the result
    */
-  _getXmlParams = () =>
+  _getXmlParams = (callback = null) =>
   {
-    const params = [
-      {
-        method: 'vmix/preview',
-        type: 'number',
-        param: '_currentPreviewInput'
-      },
-      {
-        method: 'vmix/active',
-        type: 'number',
-        param: '_currentProgramInput'
-      },
-      {
-        method: 'vmix/recording',
-        type: 'boolean',
-        param: 'recording'
-      },
-      {
-        method: 'vmix/streaming',
-        type: 'boolean',
-        param: 'streaming'
-      },
-      {
-        method: 'vmix/fullscreen',
-        type: 'boolean',
-        param: 'fullscreen'
-      },
-      {
-        method: 'vmix/external',
-        type: 'boolean',
-        param: 'external'
-      },
-      {
-        method: 'vmix/multiCorder',
-        type: 'boolean',
-        param: 'multiCorder'
-      },
-      {
-        method: 'vmix/fadeToBlack',
-        type: 'boolean',
-        param: 'fadeToBlack'
-      },
-      {
-        method: 'vmix/transitions/transition[1]/@effect',
-        param: '_currentTransition',
-        transform: 'uppercase'
-      },
-      {
-        method: 'vmix/transitions/transition[1]/@duration',
-        type: 'number',
-        param: '_autoDuration'
-      }
-    ];
-
-    let next = (i = 0) =>
+    let capture = false;
+    let xml = [];
+    let parseParam = (line) =>
     {
-      let param = params[i];
-      if(typeof param != 'object') return;
-      let parseParam = (line) =>
+      if(line.indexOf('XML ') == 0)
       {
-        if(line.indexOf('XMLTEXT OK ') == 0)
+        capture = parseInt(line.substring(4)) - 1;
+        return;
+      }
+      if(typeof capture == 'number')
+      {
+        xml.push(line);
+        let join = xml.join('\r\n');
+        if(join.length == capture)
         {
-          let r = line.substring('XMLTEXT OK '.length);
-          let p = param.type == 'number' ? parseInt(r) : (param.type == 'boolean' ? r == 'True' : r);
-          if (param.transform == 'uppercase')
-            p = p.toUpperCase();
-          this[param.param] = p;
           this.readline.off('line', parseParam);
-          next(i+1);
+
+          let json = XMLParser.parse(join, {
+            attributeNamePrefix: '',
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            parseAttributeValue: true,
+            parseTrueNumberOnly: true
+          });
+          callback(json.vmix);
+          capture = false;
+          xml = '';
         }
       }
-      this.readline.on('line', parseParam);
-      this.client.write('XMLTEXT ' + param.method + '\r\n');
-    };
-    next();
+    }
+    this.readline.on('line', parseParam);
+    this.client.write('XML\r\n');
+  }
+  /**
+   * Parse first time info, then start the timeout for getting input audio level data
+   * 
+   * @method     Backend.Vmix#_assignFirstXml
+   *
+   * @param      {Object}   params  The parameters
+   */
+  _assignFirstXml = (params) =>
+  {
+    this._currentPreviewInput = params.preview;
+    this._currentProgramInput = params.active;
+    this.recording = params.recording == 'True';
+    this.streaming = params.streaming == 'True';
+    this.fullscreen = params.fullscreen == 'True';
+    this.external = params.external == 'True';
+    this.multiCorder = params.multiCorder == 'True';
+    this.fadeToBlack = params.fadeToBlack == 'True';
+    this._currentTransition = params.transitions.transition[0].effect
+    this._autoDuration = params.transitions.transition[0].duration
+
+    this.xmlTimeout = setTimeout(this._getLevelsXml, 100);
+  }
+  /**
+   * Gets the audio levels xml.
+   * 
+   * @method     Backend.Vmix#_getLevelsXml
+   */
+  _getLevelsXml = () =>
+  {
+    this._getXmlParams(this._assignInputXml);
+  }
+  /**
+   * Parse input data XML result
+   * 
+   * @method     Backend.Vmix#_assignInputXml
+   * 
+   * @param      {Object} params XML data
+   */
+  _assignInputXml = (params) =>
+  {
+    /* Set output level meters */
+    this.outputs[1].level = params.audio.master.meterF1;
+    this.outputs[2].level = params.audio.busA.meterF1;
+    this.outputs[3].level = params.audio.busB.meterF1;
+    [1, 2, 3].forEach(i => this.emit('level', 'outputs', i, this.outputs[i].level));
+
+    /* Set input level meters */
+    let inputs = params.inputs.input;
+    for (var i = 0; i < inputs.length; i++)
+    {
+      let input = inputs[i];
+      if(!this.inputs[input.number])
+      {
+        this.inputs[input.number] = { name: input['#text'], level: 0 };
+      }
+      let newLevel = input.meterF1;
+      if(this.inputs[input.number].level != newLevel)
+      {
+        this.inputs[input.number].level = newLevel;
+        this.emit('level', 'inputs', input.number, newLevel);
+      }
+    }
+    this.xmlTimeout = setTimeout(this._getLevelsXml, 100);
   }
   /**
    * Setup a new connection to the server and connect
@@ -344,6 +387,7 @@ class Vmix extends Mixer
    */
   _closed = (error) =>
   {
+    clearTimeout(this.xmlTimeout);
     if(this.connected)
     {
       this.connected = false;
@@ -400,7 +444,7 @@ class Vmix extends Mixer
    *                                  action?
    * @return     {boolean}  Whether the command was successful
    */
-  transition = (duration = 2000, effect = 'FADE', execute = true) =>
+  transition = (duration = 2000, effect = 'Fade', execute = true) =>
   {
     if(!this.connected) return false;
     duration = parseInt(duration);
@@ -425,7 +469,7 @@ class Vmix extends Mixer
    *                                  action?
    * @return     {boolean}  Whether the command was successful
    */
-  fade = (n = 255, effect = 'FADE', execute = true) =>
+  fade = (n = 255, effect = 'Fade', execute = true) =>
   {
     if(!this.connected) return false;
     n = parseInt(n);
@@ -486,7 +530,7 @@ class Vmix extends Mixer
    * @param      {string}          effect  The effect
    * @param      {number}          n       Transition number
    */
-  setTransition = (effect = 'FADE', n = 1) =>
+  setTransition = (effect = 'Fade', n = 1) =>
   {
     n = parseInt(n);
     if(this.effects[effect] && this._currentTransition !== effect)
@@ -541,7 +585,9 @@ class Vmix extends Mixer
       fullscreen: this.fullscreen,
       external: this.external,
       multiCorder: this.multiCorder,
-      fadeToBlack: this.fadeToBlack
+      fadeToBlack: this.fadeToBlack,
+      inputs: this.inputs,
+      outputs: this.outputs
     });
   }
   /**
@@ -558,25 +604,34 @@ class Vmix extends Mixer
   get effects()
   {
     return {
-      'FADE': 'FADE',
-      'DIP': 'FADE',
-      'ZOOM': 'ZOOM',
-      'WIPE': 'WIPE',
-      'SLIDE': 'SLIDE',
-      'FLY': 'FLY',
-      'CROSSZOOM': 'CROSSZOOM',
-      'FLYROTATE': 'FLYROTATE',
-      'CUBE': 'CUBE',
-      'CUBEZOOM': 'CUBEZOOM',
-      'VERTICALWIPE': 'VERTICALWIPE',
-      'VERTICALSLIDE': 'VERTICALSLIDE',
-      'MERGE': 'MERGE',
-      'WIPEREVERSE': 'WIPEREVERSE',
-      'SLIDEREVERSE': 'SLIDEREVERSE',
-      'VERTICALWIPEREVERSE': 'VERTICALWIPEREVERSE',
-      'VERTICALSLIDEREVERSE': 'VERTICALSLIDEREVERSE'
+      'Fade': 'Fade',
+      'Dip': 'Fade',
+      'Zoom': 'Zoom',
+      'Wipe': 'Wipe',
+      'Slide': 'Slide',
+      'Fly': 'Fly',
+      'CrossZoom': 'CrossZoom',
+      'FlyRotate': 'FlyRotate',
+      'Cube': 'Cube',
+      'CubeZoom': 'CubeZoom',
+      'VerticalWipe': 'VerticalWipe',
+      'VerticalSlide': 'VerticalSlide',
+      'Merge': 'Merge',
+      'WipeReverse': 'WipeReverse',
+      'SlideReverse': 'SlideReverse',
+      'VerticalWipeReverse': 'VerticalWipeReverse',
+      'VerticalSlideReverse': 'VerticalSlideReverse'
     }
   }
 }
+
+/**
+ * Audio level information is updated
+ *
+ * @event      Backend.Vmix#event:level
+ * @param      {string}  w         'inputs' or 'outputs'
+ * @param      {number}  i         Input number, 1-indexed
+ * @param      {number}  newLevel  New level
+ */
 
 export default Vmix;

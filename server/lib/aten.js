@@ -44,7 +44,7 @@ class Aten extends Router
    */
   _line = line =>
   {
-    log.debug('[' + this.name + '][_line]:', line);
+    log.trace('[' + this.name + '][_line]:', line);
     if(line.indexOf('Connection to VM0808HA is established') == 0)
     {
       this.connected = true;

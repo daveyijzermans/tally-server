@@ -79,16 +79,19 @@ class Tallies extends EventEmitter
       let $a = $t.find('b').text(mixer.name);
       if(mixer.type == 'vmix')
       {
+        let out = mixer.fullscreen || mixer.external;
+        let rec = mixer.recording || mixer.multiCorder;
+        let stream = mixer.streaming;
         $t.find('.badge-status').show();
-        $t.find('.badge-fullscreen')
-          .toggleClass('badge-outline-primary', !mixer.fullscreen)
-          .toggleClass('badge-primary', mixer.fullscreen);
-        $t.find('.badge-recording')
-          .toggleClass('badge-outline-danger', !mixer.recording)
-          .toggleClass('badge-danger', mixer.recording);
-        $t.find('.badge-streaming')
-          .toggleClass('badge-outline-warning', !mixer.streaming)
-          .toggleClass('badge-warning', mixer.streaming);
+        $t.find('.badge-out')
+          .toggleClass('badge-outline-primary', !out)
+          .toggleClass('badge-primary', out);
+        $t.find('.badge-rec')
+          .toggleClass('badge-outline-danger', !rec)
+          .toggleClass('badge-danger', rec);
+        $t.find('.badge-stream')
+          .toggleClass('badge-outline-warning', !stream)
+          .toggleClass('badge-warning', stream);
       }
 
       let isLinked = typeof mixer.linked == 'object';

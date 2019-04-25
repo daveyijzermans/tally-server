@@ -1,3 +1,20 @@
+::-webkit-scrollbar-track
+{
+  background-color: darken($black-color, 9%);
+}
+
+::-webkit-scrollbar
+{
+  width: 10px;
+  height: 10px;
+  background-color: darken($black-color, 9%);
+}
+
+::-webkit-scrollbar-thumb
+{
+  background-color: darken($black-color, 100%);
+}
+
 .content {
   padding-top: 0
 }
@@ -10,18 +27,21 @@
   border-bottom-color: #f7f7f7;
 }
 
-.form-control.form-control-lg {
-  height: 42px;
-  padding: 8px 13px;
+.form-control.form-control-lg, .input-group-lg .input-group-icon {
+  padding: 12px 13px;
 }
 
 .input-group-lg .form-control {
   padding: 20px 13px;
 }
 
-.input-group-lg .input-group-icon {
+.form-control.form-control-lg, .input-group-lg .input-group-icon, .input-group-lg .form-control {
+  line-height: 16px;
   height: 42px;
-  padding: 12px 13px;
+}
+
+.text-white .input-group-icon {
+  color: #3b454e;
 }
 
 .slideout-right {
@@ -43,12 +63,18 @@
 }
 
 .slideout {
-  background: darken($black-color, 0.8);
-  z-index: 20
+  background: $black-color;
+  z-index: 20;
+}
+
+.slideout-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%
 }
 
 .slideout-handle {
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: darken($black-color, 100%);
   padding: 10px 15px;
   position: absolute;
   top: 0px;
@@ -243,12 +269,6 @@ a.text-white {
 }
 
 html.popout {
-  &, body {
-    height: 100%;
-  }
-  .wrapper {
-    min-height: 100%;
-  }
   .box {
     box-shadow: none;
     border-radius: none;
@@ -258,8 +278,91 @@ html.popout {
     display: none
   }
 }
+html.users-popout {
+  &, body {
+    height: 100%;
+  }
+  .wrapper {
+    min-height: 100%;
+  }
+}
 
-.mixer-popout {
+html.mixer-popout {
+  & {
+    position: relative;
+    min-height: 100%;
+  }
+  body {
+    margin-bottom: 190px;
+    position: static !important;
+  }
+  .audio-mixers {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: darken($black-color, 16%);
+    
+    &, #audiomixers {
+      height: 190px;
+    }
+    .name, .label {
+      text-transform: uppercase;
+      font-size: 0.8em;
+      overflow: hidden;
+    }
+    .name, .label {
+      font-weight: bold;
+    }
+    .label, .control-label {
+      text-align: center;
+    }
+    .control-label {
+      font-size: 0.6em;
+      white-space: nowrap;
+    }
+    .input-container {
+      background-color: darken($black-color, 8%);
+      .input-entry {
+        &:nth-child(odd) {
+          background-color: darken($black-color, 12%);
+        }
+      }
+    }
+    .output-container {
+      background-color: darken($black-color, 20%);
+      .output-entry {
+        &:nth-child(odd) {
+          background-color: darken($black-color, 15%);
+        }
+      }
+    }
+    .input-entry, .output-entry {
+      width: 75px;
+    }
+    .gain-slider {
+      height: 100%;
+    }
+
+    .level-meter {
+      width: 6px;
+      height: 100%;
+      background-color: #ffffff;
+      border: 1px solid #c5c5c5;
+      position: relative;
+      &, .level-value {
+        border-radius: 3px;
+      }
+      .level-value {
+        position: absolute;
+        background-color: green;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 0%;
+      }
+    }
+  }
+
   .content-header-scene {
     padding-top: 120px;
     margin-bottom: -180px;
@@ -297,7 +400,7 @@ html.popout {
 
 #routers {
   .output-label {
-    width: 57px;
+    width: 55px;
   }
 }
 

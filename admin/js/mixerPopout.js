@@ -5,6 +5,7 @@ import 'slidereveal';
 import LoginModal from './lib/modal-login';
 import Mixers from './lib/mixers';
 import Routers from './lib/routers';
+import Audiomixers from './lib/audiomixers';
 import ActionModal from './lib/modal-action';
 import poof from './lib/jquery-poof';
 $.fn.poof = poof;
@@ -59,6 +60,16 @@ class MixerPopout
       socket: this.socket
     });
     /**
+     * Audiomixers class instance
+     *
+     * @type       {Frontend.UI.Audiomixers}
+     */
+    this.audiomixers = new Audiomixers({
+      $list: $('#audiomixers'),
+      $tpl: $('#tplAudiomixer'),
+      socket: this.socket
+    });
+    /**
      * Mixers class instance
      *
      * @type       {Frontend.UI.Mixers}
@@ -67,7 +78,8 @@ class MixerPopout
       $list: $('#mixers'),
       $tpl: $('#tplMixer'),
       socket: this.socket
-    });
+    }).on('slide.start', () => this.audiomixers.updateLevels = false)
+      .on('slide.stop', () => this.audiomixers.updateLevels = true);
     /**
      * Routers class instance
      *
@@ -105,10 +117,11 @@ class MixerPopout
     }
 
     /* Router slideout */
-    let $sldTrigger = $('#routerTrigger');
+    let $sldTrigger = $('#routerTrigger').tooltip();
     let $slideout = $('#routerSlideout').slideReveal({
       trigger: $sldTrigger,
-      width: '50%',
+      width: '370px',
+      push: false,
       show: (panel) =>
       {
         $sldTrigger.find('i')

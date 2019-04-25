@@ -183,7 +183,7 @@ class Atem extends Mixer
    *                                  action?
    * @return     {boolean}  Whether the command was successful
    */
-  transition = (duration = 2000, effect = 'FADE', execute = true) =>
+  transition = (duration = 2000, effect = 'Fade', execute = true) =>
   {
     if(!this.connected) return false;
     duration = parseInt(duration);
@@ -209,7 +209,7 @@ class Atem extends Mixer
    *                                  action?
    * @return     {boolean}  Whether the command was successful
    */
-  fade = (n = 255, effect = 'FADE', execute = true) =>
+  fade = (n = 255, effect = 'Fade', execute = true) =>
   {
     if(!this.connected) return false;
     n = parseInt(n);
@@ -222,6 +222,8 @@ class Atem extends Mixer
   }
   /**
    * Sets the input label on the inputs of the mixer.
+   * 
+   * @method     Backend.Atem#setInputLabel
    *
    * @param      {number}  input   The input number
    * @param      {string}  label   The label
@@ -246,23 +248,23 @@ class Atem extends Mixer
   get effects()
   {
     return {
-      'FADE': 0x00,
-      'DIP': 0x01,
-      'ZOOM': 0x00,
-      'WIPE': 0x02,
-      'SLIDE': 0x02,
-      'FLY': 0x02,
-      'CROSSZOOM': 0x02,
-      'FLYROTATE': 0x02,
-      'CUBE': 0x02,
-      'CUBEZOOM': 0x02,
-      'VERTICALWIPE': 0x02,
-      'VERTICALSLIDE': 0x02,
-      'MERGE': 0x00,
-      'WIPEREVERSE': 0x02,
-      'SLIDEREVERSE': 0x02,
-      'VERTICALWIPEREVERSE': 0x02,
-      'VERTICALSLIDEREVERSE': 0x02
+      'Fade': 0x00,
+      'Dip': 0x01,
+      'Zoom': 0x00,
+      'Wipe': 0x02,
+      'Slide': 0x02,
+      'Fly': 0x02,
+      'CrossZoom': 0x02,
+      'FlyRotate': 0x02,
+      'Cube': 0x02,
+      'CubeZoom': 0x02,
+      'VerticalWipe': 0x02,
+      'VerticalSlide': 0x02,
+      'Merge': 0x00,
+      'WipeReverse': 0x02,
+      'SlideReverse': 0x02,
+      'VerticalWipeReverse': 0x02,
+      'VerticalSlideReverse': 0x02
     }
   }
   /**

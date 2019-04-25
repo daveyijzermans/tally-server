@@ -38,8 +38,20 @@ class Videohub extends Router
     this.emit('connection', this.connected);
 
     this.client.setTimeout(0);
-    this.client.on('data', this._parseData);
+    this.client.on('data', this._onData);
   }
+  /**
+   * Parse raw data that come from the video hub
+   *
+   * @method     Backend.Videohub#_onData
+   *
+   * @param      {Buffer}  data    The data
+   */
+  _onData = data =>
+  {
+    let split = data.toString().split('\n\n');
+    split.forEach(this._parseData);
+  };
   /**
    * Parse data coming from the video hub
    *
@@ -49,7 +61,7 @@ class Videohub extends Router
    */
   _parseData = (obj) =>
   {
-    let split = obj.toString().split('\n');
+    let split = obj.split('\n');
 
     switch(split[0])
     {

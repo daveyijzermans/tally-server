@@ -37,18 +37,24 @@ class Router extends Server
 
     let inputs = opts.matrix[0];
     let outputs = opts.matrix[1];
-    for (let i = 0; i < inputs.length; i++)
+    if(typeof inputs == 'number')
+      this.inputs = Array.from({ length: inputs + 1 }, () => new Object());
+    else for (let i = 0; i < inputs.length; i++)
       this.inputs.push({
         name: (inputs[i] && inputs[i].name) || '',
         nc: inputs[i] && inputs[i].nc === true,
         locked: false
       });
-    for (let i = 0; i < outputs.length; i++)
+
+    if(typeof outputs == 'number')
+      this.outputs = Array.from({ length: outputs + 1 }, () => new Object());
+    else for (let i = 0; i < outputs.length; i++)
       this.outputs.push({
         name: (outputs[i] && outputs[i].name) || '',
         nc: outputs[i] && outputs[i].nc === true,
         input: 0
       });
+
     Router._instances.push(this);
   }
   /**
@@ -59,8 +65,8 @@ class Router extends Server
    * @property   {string}     result.hostname      The router hostname
    * @property   {string}     result.name          The router display name
    * @property   {boolean}    result.connected     Connection status
-   * @property   {string[]}   result.inputLabels   Input labels for this router
-   * @property   {string[]}   result.outputLabels  Output labels for this router
+   * @property   {string[]}   result.inputs        Input status for this router
+   * @property   {string[]}   result.outputs       Output status for this router
    */
   get status()
   {
@@ -119,4 +125,18 @@ Router.getByName = (name) =>
  * @param      {array}   args    The arguments to call the method with
  */
 
+/**
+ * Router information is updated
+ * 
+ * @event      Backend.Router#event:updated
+ */
+
+/**
+ * Audio level information is updated
+ *
+ * @event      Backend.Router#event:level
+ * @param      {string}  w         'inputs' or 'outputs'
+ * @param      {number}  i         Input number, 1-indexed
+ * @param      {number}  newLevel  New level
+ */
 export default Router;

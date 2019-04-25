@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="popout">
+<html lang="en" class="popout mixer-popout">
 <head>
   <meta charset="UTF-8">
   <title>Mixer</title>
@@ -22,7 +22,7 @@
 
   <link rel="stylesheet" href="/assets/css/main.css">
 </head>
-<body class="bg-secondary mixer-popout">
+<body class="bg-secondary">
   <div class="wrapper theme-inverse">
     <main class="content">
       <div class="container-fluid" id="mixers">
@@ -35,29 +35,32 @@
             <div class="box bg-mixer transition-dark-bottom">
               <div class="box-header">
                 <h3 class="name text-white"></h3>
-                <div class="dropdown-menu dropdown-menu-right">
-                  <a class="dropdown-item noresults disabled d-none" href="#">No other mixers to link with</a>
-                  <a class="dropdown-item linked unlink d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.unlink">This mixer is linked to <span></span>. Click to unlink.</a>
+                <div class="box-actions">
+                  <span class="box-actions-item version"></span>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item noresults disabled d-none" href="#">No other mixers to link with</a>
+                    <a class="dropdown-item linked unlink d-none" href="#" data-toggle="modal" data-target="#actionModal" data-command="mixer.unlink">This mixer is linked to <span></span>. Click to unlink.</a>
+                  </div>
+                  <a class="box-actions-item text-white linkToggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-unlink"></i></a>
                 </div>
-                <a class="box-actions-item text-white linkToggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-unlink"></i></a>
               </div>
               <div class="box-body p-4">
-                <div class="d-flex align-items-center flex-row mb-1">
+                <div class="d-flex align-items-center flex-row mb-1 overflow-x">
                   <div>
-                    <button class="btn btn-xl m-1 btn-primary btnCut">CUT</button>
+                    <button type="button" class="btn btn-xl m-1 btn-primary btnCut">CUT</button>
                   </div>
                   <div>
-                    <button class="btn btn-xl m-1 btn-secondary btn-progress btnAuto"><span class="progress"></span>AUTO</button>
+                    <button type="button" class="btn btn-xl m-1 btn-secondary btn-progress btnAuto"><span class="progress"></span>AUTO</button>
                   </div>
                   <div class="p-3">
                     <div class="tbar"><div class="ui-slider-handle tbar-handle"></div></div>
                   </div>
                   <div>
-                    <div class="d-flex align-items-center flex-row">
-                      <select class="form-control form-control-lg mb-1 transition-select"></select>
+                    <div class="d-flex align-items-center flex-row mt-2 mb-2 ml-1 mr-1">
+                      <select class="form-control form-control-lg transition-select"></select>
                     </div>
-                    <div class="d-flex align-items-center flex-row">
-                      <div class="input-group input-group-lg mt-1">
+                    <div style="width:185px" class="d-flex align-items-center flex-row mt-2 mb-2 ml-1 mr-1">
+                      <div class="input-group input-group-lg">
                         <div class="input-group-icon">Duration</div>
                         <input type="number" class="form-control transition-duration">
                       </div>
@@ -65,18 +68,27 @@
                   </div>
                   <div style="display:none" class="buttons-vmix">
                     <div class="d-flex align-items-center flex-row">
-                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-fullscreen">Fullscreen</button>
+                      <button type="button" class="btn btn-lg m-1 btn-secondary btn-block btn-fullscreen">Fullscreen</button>
                     </div>
                     <div class="d-flex align-items-center flex-row">
-                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-external">External</button>
+                      <button type="button" class="btn btn-lg m-1 btn-secondary btn-block btn-external">External</button>
                     </div>
                   </div>
                   <div style="display:none" class="buttons-vmix">
                     <div class="d-flex align-items-center flex-row">
-                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-record">Record</button>
+                      <div class="btn-group m-1 btn-block" style="width:124px">
+                        <button type="button" class="btn btn-lg btn-secondary btn-record" data-toggle="modal" data-target="#actionModal" data-command="mixer.record">Record</button>
+                        <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#">Multicorder</a>
+                          <a class="dropdown-item" href="#">Record XML</a>
+                        </div>
+                      </div>
                     </div>
                     <div class="d-flex align-items-center flex-row">
-                      <button class="btn btn-lg m-1 btn-secondary btn-block btn-stream">Stream</button>
+                      <button type="button" class="btn btn-lg m-1 btn-secondary btn-block btn-stream">Stream</button>
                     </div>
                   </div>
                 </div>
@@ -94,14 +106,17 @@
             </div>
           </div>
         </div>
-        
       </div>
     </main>
   </div>
 
+  //= includes/audio-mixer.html
+
   <div id="routerSlideout" class="slideout slideout-left text-white">
-    //= includes/routers.html
-    <div id="routerTrigger" class="slideout-handle">
+    <div class="slideout-scroll">
+      //= includes/routers.html
+    </div>
+    <div id="routerTrigger" class="slideout-handle" data-toggle="tooltip" data-placement="right" title="Routers" data-container="#routerSlideout">
       <i class="fas fa-chevron-right"></i>
     </div>
   </div>

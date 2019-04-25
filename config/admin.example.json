@@ -2,5 +2,7 @@
   "serverName": "Administration",
   "serverHost": "hostname.local",
   "adminPass": "md5password",
-  "updateMixerNames": true
+  "updateMixerNames": true,
+  "clientKey": "123456789",
+  "clientName": "tally-server"
 }

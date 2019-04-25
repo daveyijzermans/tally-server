@@ -5,6 +5,7 @@ import Mixer from './mixer';
 import Router from './router';
 import Mumble from './mumble';
 import Vmix from './vmix';
+import Focusrite from './focusrite';
 import Videohub from './videohub';
 import Aten from './aten';
 import Atem from './atem';
@@ -104,12 +105,13 @@ class Application extends EventEmitter
     /* Kick-off server connections */
     this.config.getServerConfigByType('mumble', this._createMumble);
     this.config.getServerConfigByType('vmix', this._createVmix);
+    this.config.getServerConfigByType('atem', this._createAtem);
     this.config.getServerConfigByType('videohub', this._createVideohub);
     this.config.getServerConfigByType('aten', this._createAten);
-    this.config.getServerConfigByType('atem', this._createAtem);
-    this.config.getServerConfigByType('netgear', this._createNetgear);
+    this.config.getServerConfigByType('focusrite', this._createFocusrite);
     this.config.getServerConfigByType('huawei', this._createHuawei);
     this.config.getServerConfigByType('apc', this._createApc);
+    this.config.getServerConfigByType('netgear', this._createNetgear);
 
     /* Create all users */
     log.debug('[Application] Creating all users from config...');
@@ -1025,10 +1027,13 @@ class Application extends EventEmitter
    * @return     {Backend.Vmix}  The server instance that was created
    * @listens    Backend.Mixer#event:linked
    * @listens    Backend.Mixer#event:unlinked
+   * @listens    Backend.Mixer#event:action
+   * @listens    Backend.Vmix#event:level
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Vmix#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
+   * @fires      Socket#event:"admin.audiomixer.level"
    */
   _createVmix = (opts) =>
   {
@@ -1048,6 +1053,10 @@ class Application extends EventEmitter
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
       })
+      .on('action', () =>
+      {
+        this.emit('broadcast.servers');
+      })
       .on('linked', () =>
       {
         this.emit('broadcast.servers');
@@ -1055,7 +1064,39 @@ class Application extends EventEmitter
       .on('unlinked', () =>
       {
         this.emit('broadcast.servers');
+      })
+      .on('level', (type, n, level) =>
+      {
+        this._io.to('admins').emit('admin.audiomixer.level', opts.name, type, n, level);
       });
+  }
+  /**
+   * Initialize a Focusrite server object
+   *
+   * @method     Backend.Application#_createFocusrite
+   *
+   * @param      {Object}        opts    The options
+   * @return     {Backend.Focusrite}  The server instance that was created
+   * @listens    Backend.Router#event:updated
+   * @listens    Backend.Router#event:level
+   * @listens    Backend.Server#event:disconnected
+   * @fires      Backend.Application#event:"broadcast.servers"
+   * @fires      Socket#event:"admin.audiomixer.level"
+   */
+  _createFocusrite = (opts) =>
+  {
+    return this._defaultServerHandlers(new Focusrite(Object.assign({
+      clientKey: this.config.admin.clientKey,
+      clientName: this.config.admin.clientName
+    }, opts)))
+    .on('updated', () =>
+    {
+      this.emit('broadcast.servers');
+    })
+    .on('level', (type, n, level) =>
+    {
+      this._io.to('admins').emit('admin.audiomixer.level', opts.name, type, n, level);
+    });
   }
   /**
    * Initialize a Videohub server object
@@ -1064,7 +1105,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Videohub}  The server instance that was created
-   * @listens    Backend.Huawei#event:updated
+   * @listens    Backend.Router#event:updated
    */
   _createVideohub = (opts) =>
   {
@@ -1081,10 +1122,16 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Aten}  The server instance that was created
+   * 
+   * @listens    Backend.Router#event:updated
    */
   _createAten = (opts) =>
   {
     return this._defaultServerHandlers(new Aten(opts))
+    .on('updated', () =>
+    {
+      this.emit('broadcast.servers');
+    });
   }
   /**
    * Initialize a Atem server object
@@ -1095,6 +1142,7 @@ class Application extends EventEmitter
    * @return     {Backend.Atem}  The server instance that was created
    * @listens    Backend.Mixer#event:linked
    * @listens    Backend.Mixer#event:unlinked
+   * @listens    Backend.Mixer#event:action
    * @listens    Backend.Server#event:disconnected
    * @listens    Backend.Atem#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
@@ -1117,6 +1165,10 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.servers');
         this.emit('broadcast.users');
+      })
+      .on('action', () =>
+      {
+        this.emit('broadcast.servers');
       })
       .on('linked', () =>
       {

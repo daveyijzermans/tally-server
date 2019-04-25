@@ -168,7 +168,7 @@ class Mumble extends Server
      * @param      {boolean}  talking   Whether the user is now talking
      */
     this.emit('user-talk', data.name, data.talking);
-    log.debug('[' + this.name + '] Received voice data:', data);
+    log.trace('[' + this.name + '] Received voice data:', data);
   }
   /**
    * Setup a new connection to the server and connect

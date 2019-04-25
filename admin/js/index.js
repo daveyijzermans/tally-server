@@ -221,10 +221,10 @@ class Admin
     });
 
     /* Router slideout */
-    let $sldTrigger = $('#routerTrigger');
+    let $sldTrigger = $('#routerTrigger').tooltip();
     let $slideout = $('#routerSlideout').slideReveal({
       trigger: $sldTrigger,
-      width: '50%',
+      width: '370px',
       push: false,
       show: (panel) =>
       {

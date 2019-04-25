@@ -61,6 +61,7 @@ class Routers
    */
   _list = data =>
   {
+    data = data.filter((s) => ['videohub', 'aten'].indexOf(s.type) != -1);
     if(JSON.stringify(data) === JSON.stringify(this._routers))
       return false;
     this._routers = data;
@@ -91,32 +92,34 @@ class Routers
           });
           $out.find('.output-number').text(i);
 
-          let $inputTpl = $out.find('.input-button');
+          let $inputs = $out.find('.input-list')
+            .attr('data-name', router.name)
+            .attr('data-output', i)
+            .on('change', this._routingChange);
           for (let y = 1; y < router.inputs.length; y++)
           {
-            if(router.inputs[y].nc) continue;
-            let $in = $inputTpl.clone().appendTo($out)
-              .text(y)
-              .attr('data-output', i)
-              .attr('data-input', y)
-              .attr('data-name', router.name)
-              .click(this._btnRouteClick)
-              .tooltip({
-                container: this.$list,
-                title: () => this._routers[id].inputs[y].name
-              });
+            let input = router.inputs[y];
+            if(input.nc) continue;
+            let $in = $inputs.append($('<option></option', { value: y }));
           }
-          $inputTpl.remove();
         }
         $outputTpl.remove()
       }
 
-      let $buttons = $tr.find('.output-row .btn')
-        .removeClass('btn-danger');
+      let $inputs = $tr.find('.input-list');
+      $inputs.each((i, input) =>
+      {
+        $(input).find('option').each((y, opt) =>
+        {
+          let $opt = $(opt);
+          let n = $opt.val();
+          $(opt).text(n + ' - ' + router.inputs[n].name)
+        });
+      });
       for (let i = 1; i < router.outputs.length; i++)
       {
         let output = router.outputs[i];
-        $buttons.filter('[data-output="' + i + '"][data-input="' + output.input + '"]').addClass('btn-danger');
+        $inputs.filter('[data-output="' + i + '"]').val(output.input);
       }
 
       let $dropdown = $tr.find('.dropdown-menu');
@@ -160,13 +163,19 @@ class Routers
       
     });
   }
-  _btnRouteClick = (event) =>
+  /**
+   * Fires when routing in the select boxes has changed
+   *
+   * @param      {event}  event   The event
+   * 
+   * @fires      Socket#event:"admin.router.route"
+   */ 
+  _routingChange = (event) =>
   {
     let $target = $(event.currentTarget);
     let name = $target.data('name');
-    let input = parseInt($target.data('input'));
+    let input = parseInt($target.val());
     let output = parseInt($target.data('output'));
-    console.log(name, input, output)
     this.socket.emit('admin.router.route', name, input, output);
     event.preventDefault();
   }

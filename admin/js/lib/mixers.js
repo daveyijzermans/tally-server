@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import $ from 'jquery';
 import 'jquery-ui/ui/effect';
 import 'jquery-ui/ui/widgets/slider';
@@ -6,9 +7,10 @@ import 'jquery-ui-touch-punch';
 /**
  * Class for Mixers UI.
  *
+ * @extends    EventEmitter
  * @memberof   Frontend.UI
  */
-class Mixers
+class Mixers extends EventEmitter
 {
   /**
    * Constructs the object.
@@ -17,6 +19,8 @@ class Mixers
    */
   constructor(opts)
   {
+    super(opts);
+    
     /**
      * Reference to Socket.IO client
      * 
@@ -79,23 +83,12 @@ class Mixers
         $tr = this.$tpl.clone().attr('id', '').addClass('mixer-entry')
           .attr('data-name', mixer.name).show().appendTo(this.$list);
 
+        let $version = $tr.find('.version').text('v' + mixer.version);
         let $dropdown = $tr.find('.dropdown-menu');
         $dropdown.find('.dropdown-item.unlink').attr('data-param', mixer.name);
         if(mixer.type == 'vmix')
         {
           $tr.find('.buttons-vmix').show();
-          $tr.find('.btn-fullscreen')
-            .toggleClass('btn-primary', mixer.fullscreen)
-            .toggleClass('btn-secondary', !mixer.fullscreen);
-          $tr.find('.btn-external')
-            .toggleClass('btn-primary', mixer.external)
-            .toggleClass('btn-secondary', !mixer.external);
-          $tr.find('.btn-record')
-            .toggleClass('btn-primary', mixer.recording)
-            .toggleClass('btn-secondary', !mixer.recording);
-          $tr.find('.btn-stream')
-            .toggleClass('btn-primary', mixer.streaming)
-            .toggleClass('btn-secondary', !mixer.streaming);
         }
         let $transitions = $tr.find('.transition-select');
         let $duration = $tr.find('.transition-duration');
@@ -174,6 +167,15 @@ class Mixers
                 background: bg
               })
           },
+          start:(event, ui) =>
+          {
+            /**
+             * Tbar transition start
+             * 
+             * @event      Frontend.UI.Mixers#event:"slide.start"
+             */
+            this.emit('slide.start');
+          },
           stop: (event, ui) =>
           {
             if(ui.value >= 254)
@@ -181,6 +183,12 @@ class Mixers
               this.socket.emit('admin.mixer.command', mixer.name, 'fade', [255, $transitions.val()]);
               $tbar.slider('value', 0);
             }
+            /**
+             * Tbar transition stop
+             * 
+             * @event      Frontend.UI.Mixers#event:"slide.stop"
+             */
+            this.emit('slide.stop');
           }
         });
 
@@ -209,6 +217,42 @@ class Mixers
       $duration
         .prop('disabled', isLinked())
         .val(mixer.autoDuration);
+
+      if(mixer.type == 'vmix')
+      {
+        $tr.find('.btn-fullscreen')
+          .toggleClass('btn-primary', mixer.fullscreen)
+          .toggleClass('btn-secondary', !mixer.fullscreen)
+          .data('param', {
+            name: mixer.name,
+            slaves: mixer.slaves,
+            state: !mixer.fullscreen
+          });
+        $tr.find('.btn-external')
+          .toggleClass('btn-primary', mixer.external)
+          .toggleClass('btn-secondary', !mixer.external)
+          .data('param', {
+            name: mixer.name,
+            slaves: mixer.slaves,
+            state: !mixer.external
+          });
+        $tr.find('.btn-record')
+          .toggleClass('btn-primary', mixer.recording)
+          .toggleClass('btn-secondary', !mixer.recording)
+          .data('param', {
+            name: mixer.name,
+            slaves: mixer.slaves,
+            state: !mixer.recording
+          });
+        $tr.find('.btn-stream')
+          .toggleClass('btn-primary', mixer.streaming)
+          .toggleClass('btn-secondary', !mixer.streaming)
+          .data('param', {
+            name: mixer.name,
+            slaves: mixer.slaves,
+            state: !mixer.streaming
+          });
+      }
       let $dropdown = $tr.find('.dropdown-menu');
       let $linkedItem = $dropdown.find('.dropdown-item.linked');
       let $noresultsItem = $dropdown.find('.dropdown-item.noresults');

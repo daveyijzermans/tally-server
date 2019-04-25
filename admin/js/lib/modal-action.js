@@ -96,6 +96,12 @@ class ActionModal extends EventEmitter
       case 'mixer.unlink':
         this.$text.html('Are you sure you want to unlink ' + this._param + '?');
         break;
+      case 'mixer.record':
+        this.$text.html('Are you sure you want to start recording on ' + this._param.name + '?');
+        if(this._param.slaves)
+          this.$text.append('Recording with also start on slaved mixers ' 
+            + this._param.slaves.join(', ') + '.');
+        break;
       default:
         console.error('Invalid command');
         return false;

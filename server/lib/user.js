@@ -54,7 +54,7 @@ class User extends EventEmitter
      */
     this.talking = false;
     User._instances.push(this);
-    log.debug('Created user', this);
+    log.trace('Created user', this);
   }
 }
 

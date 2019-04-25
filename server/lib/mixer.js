@@ -144,7 +144,8 @@ class Mixer extends Server
       program: this._currentProgramInput,
       transition: this._currentTransition,
       autoDuration: this._autoDuration,
-      effects: this.effects
+      effects: this.effects,
+      slaves: Mixer._instances.filter((s) => s.linked && s.linked.name === this.name).map((s) => s.name)
     });
   }
   /**
