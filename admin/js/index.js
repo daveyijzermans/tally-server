@@ -12,8 +12,6 @@ import Tallies from './lib/tallies';
 import Plugs from './lib/plugs';
 import LoginModal from './lib/modal-login';
 import ActionModal from './lib/modal-action';
-import poof from './lib/jquery-poof';
-$.fn.poof = poof;
 import { toggleFullscreen } from './lib/fullscreen';
 import moment from 'moment';
 

@@ -95,6 +95,8 @@ class Vmix extends Mixer
      * @type       {number}
      */
     this.xmlTimeout = 0;
+
+    this.on('action', this._assignSelfAction);
     this._check();
   }
   /**
@@ -267,15 +269,29 @@ class Vmix extends Mixer
   {
     let capture = false;
     let xml = [];
+    let timeout = 0;
+    let setCaptureTimeout = () =>
+    {
+      if(timeout) clearTimeout(timeout);
+      timeout = setTimeout(() =>
+      {
+        capture = false;
+        xml = '';
+        this.readline.off('line', parseParam);
+        callback(new Error('XML retrieve timeout'));
+      }, 5000);
+    }
     let parseParam = (line) =>
     {
       if(line.indexOf('XML ') == 0)
       {
         capture = parseInt(line.substring(4)) - 1;
+        setCaptureTimeout();
         return;
       }
       if(typeof capture == 'number')
       {
+        clearTimeout(timeout);
         xml.push(line);
         let join = xml.join('\r\n');
         if(join.length == capture)
@@ -292,75 +308,111 @@ class Vmix extends Mixer
           callback(json.vmix);
           capture = false;
           xml = '';
+          return;
         }
+        setCaptureTimeout();
       }
     }
     this.readline.on('line', parseParam);
     this.client.write('XML\r\n');
   }
   /**
-   * Parse first time info, then start the timeout for getting input audio level data
+   * Parse first time info, then start the timeout for getting input audio control data
    * 
    * @method     Backend.Vmix#_assignFirstXml
    *
-   * @param      {Object}   params  The parameters
+   * @param      {Object}   result  Result XML data as object
    */
-  _assignFirstXml = (params) =>
+  _assignFirstXml = (result) =>
   {
-    this._currentPreviewInput = params.preview;
-    this._currentProgramInput = params.active;
-    this.recording = params.recording == 'True';
-    this.streaming = params.streaming == 'True';
-    this.fullscreen = params.fullscreen == 'True';
-    this.external = params.external == 'True';
-    this.multiCorder = params.multiCorder == 'True';
-    this.fadeToBlack = params.fadeToBlack == 'True';
-    this._currentTransition = params.transitions.transition[0].effect
-    this._autoDuration = params.transitions.transition[0].duration
-
-    this.xmlTimeout = setTimeout(this._getLevelsXml, 100);
+    if(result instanceof Error)
+    {
+      log.error(result);
+    } else {
+      this._currentPreviewInput = result.preview;
+      this._currentProgramInput = result.active;
+      this.recording = result.recording == 'True';
+      this.streaming = result.streaming == 'True';
+      this.fullscreen = result.fullscreen == 'True';
+      this.external = result.external == 'True';
+      this.multiCorder = result.multiCorder == 'True';
+      this.fadeToBlack = result.fadeToBlack == 'True';
+      this._currentTransition = result.transitions.transition[0].effect
+      this._autoDuration = result.transitions.transition[0].duration
+    }
+    this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
   }
   /**
-   * Gets the audio levels xml.
+   * Gets the audio control data xml.
    * 
-   * @method     Backend.Vmix#_getLevelsXml
+   * @method     Backend.Vmix#_getControlDataXml
    */
-  _getLevelsXml = () =>
+  _getControlDataXml = () =>
   {
     this._getXmlParams(this._assignInputXml);
   }
   /**
    * Parse input data XML result
-   * 
+   *
    * @method     Backend.Vmix#_assignInputXml
-   * 
-   * @param      {Object} params XML data
+   *
+   * @param      {Object}   result  Result XML data as object
    */
-  _assignInputXml = (params) =>
+  _assignInputXml = (result) =>
   {
-    /* Set output level meters */
-    this.outputs[1].level = params.audio.master.meterF1;
-    this.outputs[2].level = params.audio.busA.meterF1;
-    this.outputs[3].level = params.audio.busB.meterF1;
-    [1, 2, 3].forEach(i => this.emit('level', 'outputs', i, this.outputs[i].level));
-
-    /* Set input level meters */
-    let inputs = params.inputs.input;
-    for (var i = 0; i < inputs.length; i++)
+    if(result instanceof Error)
     {
-      let input = inputs[i];
-      if(!this.inputs[input.number])
+      log.error(result);
+    } else {
+      let changed = false;
+      /* Set output level meters */
+      this.outputs[1].level = [result.audio.master.meterF1, result.audio.master.meterF2];
+      this.outputs[2].level = [result.audio.busA.meterF1, result.audio.busA.meterF2];
+      this.outputs[3].level = [result.audio.busB.meterF1, result.audio.busB.meterF2];
+      [1, 2, 3].forEach(i => this.emit('controlChange', 'outputs', i, { level: this.outputs[i].level }));
+
+      /* Set input level meters */
+      let inputs = result.inputs.input;
+      for (let i = 0; i < inputs.length; i++)
       {
-        this.inputs[input.number] = { name: input['#text'], level: 0 };
+        let input = inputs[i];
+        if(!this.inputs[input.number])
+        {
+          this.inputs[input.number] = {};
+        }
+
+        let newName = input.title;
+        if(this.inputs[input.number].name != newName)
+        {
+          this.inputs[input.number].name = newName;
+          changed = true;
+        }
+        
+        let newLevel = [input.meterF1, input.meterF2];
+        if(!this.inputs[input.number].level ||
+           this.inputs[input.number].level[0] != newLevel[0] ||
+           this.inputs[input.number].level[1] != newLevel[1])
+        {
+          this.inputs[input.number].level = newLevel;
+          this.emit('controlChange', 'inputs', input.number, { level: newLevel });
+        }
+        
+        let newBalance = input.balance;
+        if(this.inputs[input.number].balance != newBalance)
+        {
+          this.inputs[input.number].balance = newBalance;
+          this.emit('controlChange', 'inputs', input.number, { balance: newBalance });
+        }
       }
-      let newLevel = input.meterF1;
-      if(this.inputs[input.number].level != newLevel)
+      let newLength = inputs.length + 1;
+      if(this.inputs.length != newLength)
       {
-        this.inputs[input.number].level = newLevel;
-        this.emit('level', 'inputs', input.number, newLevel);
+        changed = true;
+        this.inputs = this.inputs.slice(0, newLength);
       }
+      if(changed) this.emit('updated');
     }
-    this.xmlTimeout = setTimeout(this._getLevelsXml, 100);
+    this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
   }
   /**
    * Setup a new connection to the server and connect
@@ -558,6 +610,27 @@ class Vmix extends Mixer
     this.emit('action', 'setDuration', [n, duration]);
   }
   /**
+   * Listen to own actions and set object parameters
+   *
+   * @param      {string}        param  The parameter name
+   * @param      {mixed[]}          args    The arguments
+   */
+  _assignSelfAction = (param, args) =>
+  {
+    switch(param)
+    {
+      case 'inputVolume':
+        let number = args[0];
+        let newVolume = args[1];
+        if(this.inputs[number].volume != newVolume)
+        {
+          this.inputs[number].volume = newVolume;
+          this.emit('controlChange', 'inputs', number, { volume: newVolume })
+        }
+      break;
+    }
+  }
+  /**
    * Get vMix server properties
    *
    * @type       {Object}
@@ -626,12 +699,12 @@ class Vmix extends Mixer
 }
 
 /**
- * Audio level information is updated
+ * Audio control information is updated
  *
- * @event      Backend.Vmix#event:level
+ * @event      Backend.Vmix#event:controlChange
  * @param      {string}  w         'inputs' or 'outputs'
  * @param      {number}  i         Input number, 1-indexed
- * @param      {number}  newLevel  New level
+ * @param      {number}  newData   New data
  */
 
 export default Vmix;

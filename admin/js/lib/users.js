@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import poof from './jquery-poof';
-import EditUserModal from './modal-edit-user';
 $.fn.poof = poof;
+import EditUserModal from './modal-edit-user';
 import talkingIndicator from './jquery-talkingIndicator';
 $.fn.talkingIndicator = talkingIndicator;
 import EventEmitter from 'events';
@@ -28,7 +28,6 @@ class Users extends EventEmitter
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.user.disconnect', this._disconnect)
       .on('admin.users.list', this._list)
       .on('admin.config', this._configUpdate);
     /**
@@ -88,11 +87,12 @@ class Users extends EventEmitter
    */
   _list = users =>
   {
-    this.$list.find('.noresults').toggle(users.length == 0);
+    this.$list.find('.noresults').toggle(users.filter((u) => u.connections > 0).length == 0);
 
     $.each(users, (id, user) =>
     {
       let $u = this.$list.find('.user-entry[data-username="' + user.username + '"]');
+      if(user.connections == 0) return $u.poof(true);
       let $dropdown = $u.find('.dropdown-menu');
       if($u.length == 0)
       {
@@ -102,6 +102,7 @@ class Users extends EventEmitter
         $dropdown.attr('aria-labelledby', user.username);
         $dropdown.find('a').attr('data-param', user.username);
       }
+      $u.css({ order: id });
 
       if(user.talking)
       {
@@ -139,21 +140,6 @@ class Users extends EventEmitter
       $u.find('.channelName').text(user.channelName);
       $dropdown.find('.edit-user-modal').data('user', user);
     });
-  }
-  /**
-   * Executed when a user disconnects. Remove the entry from the UI.
-   *
-   * @method     Frontend.UI.Users#_disconnect
-   *
-   * @param      {string}  username  The username
-   * 
-   * @listens    Socket#event:"admin.user.disconnect"
-   */
-  _disconnect = username =>
-  {
-    let $user = this.$list.find('.user-entry[data-username="' + username + '"]');
-    $user.poof(true);
-    this.$list.find('.noresults').toggle(this.$list.find('.user-entry').length == 0);
   }
   /**
    * Send command to server to toggle updateMixerNames option

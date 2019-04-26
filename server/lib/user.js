@@ -48,6 +48,12 @@ class User extends EventEmitter
      */
     this.status = 0;
     /**
+     * Amount of client connected to this user
+     * 
+     * @type       {number}
+     */
+    this.connections = 0;
+    /**
      * Whether the user is currently talking.
      *
      * @type       {boolean}

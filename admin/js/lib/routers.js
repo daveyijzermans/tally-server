@@ -105,7 +105,7 @@ class Routers
         }
         $outputTpl.remove()
       }
-
+      $tr.css({ order: id });
       let $inputs = $tr.find('.input-list');
       $inputs.each((i, input) =>
       {

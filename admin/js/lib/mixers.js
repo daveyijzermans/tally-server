@@ -71,7 +71,6 @@ class Mixers extends EventEmitter
     let connected = data.filter((s) => s.connected);
     this.$list.find('.content-header .noresults').toggle(connected.length == 0);
 
-    const states = ['btn-secondary', 'btn-danger', 'btn-success'];
     $.each(this._mixers, (id, mixer) =>
     {
       let $tr = this.$list.find('.mixer-entry[data-name="' + mixer.name + '"]');
@@ -208,7 +207,8 @@ class Mixers extends EventEmitter
           this.socket.emit('admin.mixer.command', mixer.name, 'setDuration', [1, $duration.val()]);
         });
       }
-
+      
+      $tr.css({ order: id });
       let $transitions = $tr.find('.transition-select')
       $transitions
         .prop('disabled', isLinked())
@@ -295,42 +295,33 @@ class Mixers extends EventEmitter
       $tbar.slider('option', 'disabled', isLinked());
       
       let $name = $tr.find('.name').text(mixer.name);
-      $tr.find('.previewBus, .programBus').find('.btn').remove();
-      let $prv = $tr.find('.previewBus');
-      let $pgm = $tr.find('.programBus');
+      let $container = [null, $tr.find('.previewBus'), $tr.find('.programBus')];
 
-      for (let i = 1; i < mixer.tallies.length; i++)
+      [1, 2].forEach((state) =>
       {
-        /*
-         * Populate the preview bus row
-         */
-        let prvClass = i == mixer.preview ? states[2] : states[0];
-        let $prvBtn = $('<button class="btn btn-lg m-1"></button>')
-          .text(i)
-          .addClass(prvClass)
-          .appendTo($prv)
-          .one('click', (event) =>
+        for (let i = 1; i < mixer.tallies.length; i++)
+        {
+          let $btn = $container[state].find('button:eq(' + (i - 1) + ')');
+          if($btn.length == 0)
           {
-            if(isLinked()) return;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, 2]);
-            event.preventDefault();
-          });
-
-        /*
-         * Populate the program bus row
-         */
-        let pgmClass = i == mixer.program ? states[1] : states[0];
-        let $pgmBtn = $('<button class="btn btn-lg m-1"></button>')
-          .text(i)
-          .addClass(pgmClass)
-          .appendTo($pgm)
-          .one('click', (event) =>
-          {
-            if(isLinked()) return;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, 1]);
-            event.preventDefault();
-          });
-      }
+            $btn = $('<button class="btn btn-lg m-1"></button>')
+              .text(i)
+              .appendTo($container[state])
+              .on('click', (event) =>
+              {
+                if(isLinked()) return;
+                this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, state]);
+                event.preventDefault();
+              });
+          }
+          let isPgm = state == 1 && mixer.program == i;
+          let isPrv = state == 2 && mixer.preview == i;
+          $btn.toggleClass('btn-danger', isPgm);
+          $btn.toggleClass('btn-success', isPrv);
+          $btn.toggleClass('btn-secondary', !(isPgm || isPrv));
+        }
+        $container[state].find('button:gt(' + (mixer.tallies.length - 2) + ')').remove();
+      });
     });
   }
   /**

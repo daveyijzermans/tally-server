@@ -8,15 +8,21 @@
         </div>
         <div class="d-flex flex-row inputs flex-grow-1">
           <div class="d-none flex-column" id="inputTpl">
-            <div class="d-flex flex-row flex-grow-1">
-              <div class="p-2">
-                <div class="gain-slider"></div>
+            <div class="d-flex flex-row flex-grow-1 pl-1 pr-1">
+              <div class="pt-2 pr-2 pb-2 pl-1">
+                <div class="volume-slider"></div>
+              </div>
+              <div class="pb-2">
+                <div class="level-meter level-meterL"><div class="level-value"></div></div>
               </div>
               <div class="pb-2 pr-1">
-                <div class="level-meter"><div class="level-value"></div></div>
+                <div class="level-meter level-meterR"><div class="level-value"></div></div>
               </div>
-              <div>
-                btns
+              <div class="flex-grow-1">
+                <button class="btn btn-secondary btn-xxs btn-block btn-active"><i class="fas fa-power-off"></i></button>
+                <button class="btn btn-secondary btn-xxs btn-block mt-1 btn-route"><i class="fas fa-route"></i></button>
+                <button class="btn btn-secondary btn-xxs btn-block mt-1 btn-stereo"><i class="far fa-circle"></i></button>
+                <button class="btn btn-secondary btn-xxs btn-block mt-1 btn-solo"><i class="fas fa-headphones"></i></button>
               </div>
             </div>
             <div class="control-label"></div>
@@ -27,15 +33,20 @@
         <div class="label align-self-center strip-label">OUTPUTS</div>
         <div class="d-flex flex-row outputs flex-grow-1">
           <div class="d-none flex-column" id="outputTpl">
-            <div class="d-flex flex-row flex-grow-1">
-              <div class="p-2">
-                <div class="gain-slider"></div>
+            <div class="d-flex flex-row flex-grow-1 pl-1 pr-1">
+              <div class="pt-2 pr-2 pb-2 pl-1">
+                <div class="volume-slider"></div>
+              </div>
+              <div class="pb-2">
+                <div class="level-meter level-meterL"><div class="level-value"></div></div>
               </div>
               <div class="pb-2 pr-1">
-                <div class="level-meter"><div class="level-value"></div></div>
+                <div class="level-meter level-meterR"><div class="level-value"></div></div>
               </div>
-              <div>
-                btns
+              <div class="flex-grow-1">
+                <button class="btn btn-secondary btn-xxs btn-block btn-active"><i class="fas fa-power-off"></i></button>
+                <button class="btn btn-secondary btn-xxs btn-block mt-1 btn-route"><i class="fas fa-route"></i></button>
+                <button class="btn btn-secondary btn-xxs btn-block mt-1 btn-stereo"><i class="far fa-infinity"></i></button>
               </div>
             </div>
             <div class="control-label"></div>

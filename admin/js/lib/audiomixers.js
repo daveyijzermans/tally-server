@@ -24,7 +24,8 @@ class Audiomixers
      */
     this.socket = opts.socket
       .on('admin.status.servers', this._list)
-      .on('admin.audiomixer.level', this._setLevel);
+      .on('admin.audiomixer.controlChange', this._setControl)
+      .emit('subscribe', 'controlChange');
     /**
      * Main container for this UI element
      * 
@@ -45,11 +46,11 @@ class Audiomixers
      */
     this._servers = null;
     /**
-     * Whether to update levels
+     * Whether to update control data
      * 
      * @type       {boolean}
      */
-    this.updateLevels = true;
+    this.updateControlData = true;
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -87,60 +88,83 @@ class Audiomixers
           .attr('data-name', server.name).removeClass('d-none').addClass('d-flex').appendTo(this.$list);
 
         $tr.find('.name').text(server.name);
-
-        ['input', 'output'].forEach((w) =>
-        {
-          let p = w + 's';
-          let $el = $tr.find('.' + p);
-          let $tpl = $tr.find('#' + w + 'Tpl');
-          for (let i = 1; i < server[p].length; i++)
-          {
-            let $in = $tpl.clone().attr('id', '').addClass(w + '-entry')
-              .attr('data-' + w, i).removeClass('d-none').addClass('d-flex').appendTo($el);
-            let $gain = $in.find('.gain-slider');
-            $gain.slider({
-              orientation: 'vertical',
-              range: 'min',
-              min: -128,
-              max: 0,
-              value: 0
-            });
-            this._setLevel(server.name, p, i, server[p][i].level);
-          }
-        });
       }
 
+      $tr.css({ order: id });
       ['input', 'output'].forEach((w) =>
       {
         let p = w + 's';
-        for (let i = 1; i < server[p].length; i++)
+        let $container = $tr.find('.' + p);
+        let $tpl = $tr.find('#' + w + 'Tpl');
+        let length = server[p].length;
+
+        for (let i = 1; i < length; i++)
         {
-          let $el = $tr.find('[data-' + w + '="' + i + '"] .control-label');
-          if(server[p][i].name) $el.text(server[p][i].name)
-          else $el.html('&nbsp;');
+          let $ctrl = $container.find('[data-id="' + i + '"]');
+
+          if($ctrl.length == 0)
+          {
+            $ctrl = $tpl.clone().attr('id', '').addClass(w + '-entry')
+              .attr('data-id', i).removeClass('d-none').addClass('d-flex').appendTo($container);
+            let $volume = $ctrl.find('.volume-slider');
+            $volume.slider({
+              orientation: 'vertical',
+              range: 'min',
+              min: 0,
+              max: 100,
+              value: server[p][i].volume
+            });
+          }
+
+          $ctrl.css({ order: i });
+          let $label = $ctrl.find('.control-label');
+          this._setControl(server.name, p, i, { level: server[p][i].level });
+          let text =  server[p][i].name || w + ' ' + i;
+          $label.text(text);
         }
+        $container.find('.' + w + '-entry:gt(' + (length - 2) + ')').remove();
       });
     });
   }
   /**
    * Sets the audio level meter.
    * 
-   * @method     Frontend.UI.Audiomixers#_setLevel
+   * @method     Frontend.UI.Audiomixers#_setControl
    *
    * @param      {string}  name    The server name
    * @param      {string}  type    The type (inputs or outputs)
    * @param      {string}  n       Input or output number (1-indexed)
-   * @param      {number}  level   The new audio level
+   * @param      {number}  data    The new control data
    * 
-   * @listens    Socket#event:"admin.audiomixer.level"
+   * @listens    Socket#event:"admin.audiomixer.controlChange"
    */
-  _setLevel = (name, type, n, level) =>
+  _setControl = (name, type, n, data) =>
   {
-    if(this.updateLevels != true) return;
-    let t = type == 'inputs' ? 'input' : 'output';
-    let $el = this.$list.find('.audio-entry[data-name="' + name + '"] [data-' + t + '="' + n + '"]');
-    let perc = Math.round(level*100) + '%';
-    $el.find('.level-meter .level-value').css({ height: perc });
+    if(this.updateControlData != true) return;
+    let $el = this.$list.find('.audio-entry[data-name="' + name + '"] .' + type + ' [data-id="' + n + '"]');
+    if(typeof data.level == 'number')
+    {
+      let perc = Math.round(data.level * 100) + '%';
+      $el.find('.level-meterL .level-value').css({ height: perc });
+      $el.find('.level-meterR').hide();
+      return;
+    }
+    if(Array.isArray(data.level) && typeof data.level[0] == 'number' && typeof data.level[1] == 'number')
+    {
+      let perc1 = Math.round(data.level[0] * 100) + '%';
+      let perc2 = Math.round(data.level[1] * 100) + '%';
+      $el.find('.level-meterL .level-value').css({ height: perc1 });
+      $el.find('.level-meterR').show();
+      $el.find('.level-meterR .level-value').css({ height: perc2 });
+      return;
+    }
+    if(typeof data.volume == 'number')
+    {
+      let perc = Math.round(data.volume * 100);
+      console.log(perc);
+      let $volume = $el.find('.volume-slider').slider('value', perc);
+      return;
+    }
   }
   /**
    * All items in the list

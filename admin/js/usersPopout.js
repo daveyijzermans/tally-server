@@ -4,8 +4,6 @@ import Cookies from 'js-cookie';
 import Users from './lib/users';
 import LoginModal from './lib/modal-login';
 import ActionModal from './lib/modal-action';
-import poof from './lib/jquery-poof';
-$.fn.poof = poof;
 
 /**
  * User popout interface bootstrap

@@ -218,7 +218,6 @@ class Application extends EventEmitter
    * @fires      Backend.Application#event:"broadcast.users"
    * @fires      Socket#event:authenticated
    * @listens    Socket#event:connection
-   * @listens    Socket#event:request
    */
   _onSocketConnection = socket => {
     let username = socket.handshake.query.username;
@@ -234,10 +233,11 @@ class Application extends EventEmitter
       }
 
       socket.join('users');
-      this.emit('broadcast.users');
       let room = socket.join(username);
 
       log.info(username + ' has connected!');
+      User.getByUsername(username).connections++;
+      this.emit('broadcast.users');
 
       /* User-only commands */
       /**
@@ -253,11 +253,7 @@ class Application extends EventEmitter
        * @event      Socket#event:cycleUser
        */
       socket.on('cycleUser', () => this._userCycle(username));
-      /**
-       * User or admin was disconnected
-       *
-       * @event      Socket#event:disconnect
-       */
+
       socket.on('disconnect', () => this._userDisconnect(username));
     }
 
@@ -291,6 +287,8 @@ class Application extends EventEmitter
        * @param      {Function}       cb                Callback
        */
       socket.on('admin.set.user', this._adminUserSet);
+
+      socket.on('subscribe', socket.join);
 
       /**
        * Toggle the power state of a smart plug
@@ -446,18 +444,13 @@ class Application extends EventEmitter
    * @method     Backend.Application#_userDisconnect
    * @param      {string}  username  The username
    *
-   * @fires      Socket#event:"admin.user.disconnect"
    * @listens      Socket#event:disconnect
    */
   _userDisconnect = (username) =>
   {
     log.info(username + ' has disconnected.');
-    /**
-     * Let admins know that user was disconnected
-     * 
-     * @event      Socket#event:"admin.user.disconnect"
-     */
-    this._io.to('admins').emit('admin.user.disconnect', username)
+    User.getByUsername(username).connections--;
+    this.emit('broadcast.users');
   }
   /**
    * Validate and save user information
@@ -852,33 +845,15 @@ class Application extends EventEmitter
    */
   _broadcastUsers = () =>
   {
-    this._io.in('users').clients((error, users) =>
-    {
-      let result = [];
-      users.forEach((id) =>
-      {
-        let socket = this._io.sockets.connected[id];
-        let username = socket.handshake.query.username;
-        let user = User.getByUsername(username);
-        // Users only appear if they exists in the users.json file
-        if(user) result.push(user);
-      });
-      // Sort users by username
-      result.sort((a, b) =>
-      {
-        let textA = a.username.toUpperCase();
-        let textB = b.username.toUpperCase();
-        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-      });
-      /**
-       * Broadcast users data to admins
-       * 
-       * @event Socket#event:"admin.users.list"
-       * @param      {Backend.User[]} result Array of users
-       */
-      this._io.to('admins').emit('admin.users.list', result);
-      log.trace('[Application] Broadcasted user information', result);
-    });
+    let result = User._instances;
+    /**
+     * Broadcast users data to admins
+     * 
+     * @event Socket#event:"admin.users.list"
+     * @param      {Backend.User[]} result Array of users
+     */
+    this._io.to('admins').emit('admin.users.list', result);
+    log.trace('[Application] Broadcasted user information', result);
   }
   /**
    * Broadcast smart plug updates
@@ -1065,9 +1040,9 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.servers');
       })
-      .on('level', (type, n, level) =>
+      .on('controlChange', (type, n, data) =>
       {
-        this._io.to('admins').emit('admin.audiomixer.level', opts.name, type, n, level);
+        this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, n, data);
       });
   }
   /**
@@ -1078,10 +1053,10 @@ class Application extends EventEmitter
    * @param      {Object}        opts    The options
    * @return     {Backend.Focusrite}  The server instance that was created
    * @listens    Backend.Router#event:updated
-   * @listens    Backend.Router#event:level
+   * @listens    Backend.Router#event:controlChange
    * @listens    Backend.Server#event:disconnected
    * @fires      Backend.Application#event:"broadcast.servers"
-   * @fires      Socket#event:"admin.audiomixer.level"
+   * @fires      Socket#event:"admin.audiomixer.controlChange"
    */
   _createFocusrite = (opts) =>
   {
@@ -1093,9 +1068,9 @@ class Application extends EventEmitter
     {
       this.emit('broadcast.servers');
     })
-    .on('level', (type, n, level) =>
+    .on('controlChange', (type, n, data) =>
     {
-      this._io.to('admins').emit('admin.audiomixer.level', opts.name, type, n, level);
+      this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, n, data);
     });
   }
   /**

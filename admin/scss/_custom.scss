@@ -104,6 +104,12 @@
   font-size: 12px;
 }
 
+.btn-xxs {
+  padding: 2px 0;
+  max-width: 30px;
+  font-size: 11px;
+}
+
 .btn-xl, .btn-group-xl > .btn {
   padding: 22px;
   line-height: 46px;
@@ -268,6 +274,27 @@ a.text-white {
   position: relative;
 }
 
+html {
+  min-height: 100%;
+  position: relative;
+}
+
+body {
+  position: static !important;
+}
+
+html.index {
+  body {
+    margin-bottom: 67px;
+  }
+}
+.footer {
+  height: 67px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
 html.popout {
   .box {
     box-shadow: none;
@@ -288,13 +315,8 @@ html.users-popout {
 }
 
 html.mixer-popout {
-  & {
-    position: relative;
-    min-height: 100%;
-  }
   body {
     margin-bottom: 190px;
-    position: static !important;
   }
   .audio-mixers {
     position: absolute;
@@ -337,9 +359,9 @@ html.mixer-popout {
       }
     }
     .input-entry, .output-entry {
-      width: 75px;
+      width: 70px;
     }
-    .gain-slider {
+    .volume-slider {
       height: 100%;
     }
 
@@ -399,8 +421,9 @@ html.mixer-popout {
 }
 
 #routers {
-  .output-label {
-    width: 55px;
+  .input-group-icon {
+    width: 78px;
+    text-align: center;
   }
 }
 

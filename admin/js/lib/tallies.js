@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import poof from './jquery-poof';
+$.fn.poof = poof;
 import EventEmitter from 'events';
 
 /**
@@ -51,6 +53,12 @@ class Tallies extends EventEmitter
      * @type       {Object[]}
      */
     this._mixers = null;
+    /**
+     * Combined tally information
+     * 
+     * @type       {number[]}
+     */
+    this.combined = [];
   }
   /**
    * Executed when the server emits a list. Loop over them and add or update the
@@ -67,22 +75,32 @@ class Tallies extends EventEmitter
       return false;
     this._mixers = data;
     let max = this._mixers.reduce((a, c) => Math.max(a, c.tallies.length), 0);
-    let states = ['badge-secondary', 'badge-danger', 'badge-success', 'badge-danger'];
+    let states = ['badge-secondary', 'badge-danger', 'badge-success'];
 
-    this.$list.empty();
-    let combined = [];
-    $.each(this._mixers, (i, mixer) =>
+    this.combined = [];
+    $.each(this._mixers, (id, mixer) =>
     {
-      if(!mixer.connected) return;
-      let $t = this.$tpl.clone().attr('id', '').attr('data-name', mixer.name).addClass('tally-entry')
-        .show().appendTo(this.$list);
+      let $t = this.$list.find('.tally-entry[data-name="' + mixer.name + '"]');
+      if(!mixer.connected) return $t.poof(true);
+      if($t.length == 0)
+      {
+        $t = this.$tpl.clone().attr('id', '').attr('data-name', mixer.name).addClass('tally-entry')
+          .show().appendTo(this.$list);
+
+        let $name = $t.find('.name').text(mixer.name)
+        if(mixer.type == 'vmix')
+        {
+          $t.find('.badge-status').show();
+        }
+      }
+
+      $t.css({ order: id });
       let $a = $t.find('b').text(mixer.name);
       if(mixer.type == 'vmix')
       {
         let out = mixer.fullscreen || mixer.external;
         let rec = mixer.recording || mixer.multiCorder;
         let stream = mixer.streaming;
-        $t.find('.badge-status').show();
         $t.find('.badge-out')
           .toggleClass('badge-outline-primary', !out)
           .toggleClass('badge-primary', out);
@@ -94,52 +112,72 @@ class Tallies extends EventEmitter
           .toggleClass('badge-warning', stream);
       }
 
-      let isLinked = typeof mixer.linked == 'object';
-      $t.find('.fas').toggle(isLinked);
+      let isLinked = () => typeof this._mixers[id].linked == 'object';
+      $t.find('.fas').toggle(isLinked());
 
       let $indicators = $t.find('.tally-indicators');
       for (let i = 1; i < max; i++)
       {
-        let state = typeof mixer.tallies[i] == 'number' ? states[mixer.tallies[i]] : states[0];
-        let $s = $('<span class="badge badge-pill"></span>')
-          .text(i)
-          .addClass(state)
-          .appendTo($indicators)
-          .click((event) =>
-          {
-            if(isLinked) return;
-            let newState = mixer.tallies[i] == 0 ? 2 : 1;
-            this.socket.emit('admin.mixer.command', mixer.name, 'switchInput', [i, newState]);
-            event.preventDefault();
-          });
-        combined[i] = combined[i] ? (combined[i] == 3 ? 3 : (combined[i] == 1 ? 1 : (combined[i] == 2 ? 2 : 0))) : mixer.tallies[i];
+        let $s = $indicators.find('span[data-id="' + i + '"]');
+        if($s.length == 0)
+        {
+          $s = $('<span class=""></span>')
+            .addClass('badge badge-pill')
+            .attr('data-id', i)
+            .text(i)
+            .appendTo($indicators)
+            .click((event) =>
+            {
+              if(isLinked()) return;
+              let newState = this._mixers[id].tallies[i] == 0 ? 2 : 1;
+              this.socket.emit('admin.mixer.command', this._mixers[id].name, 'switchInput', [i, newState]);
+              event.preventDefault();
+            });
+        }
+        $s.toggleClass(states[0], typeof mixer.tallies[i] != 'number' || mixer.tallies[i] === 0);
+        $s.toggleClass(states[1], mixer.tallies[i] === 1 || mixer.tallies[i] === 3);
+        $s.toggleClass(states[2], mixer.tallies[i] === 2);
+        this.combined[i] = this.combined[i] ? (this.combined[i] == 3 ? 3 : (this.combined[i] == 1 ? 1 : (this.combined[i] == 2 ? 2 : 0))) : mixer.tallies[i];
       }
+      $indicators.find('span:gt(' + (max - 2) + ')').remove();
     });
 
     let mixersOnline = this._mixers.filter((m) => m.connected).length > 0;
     if(mixersOnline)
     {
-      let $t = this.$tpl.clone().attr('id', '').addClass('tally-entry')
-        .show().appendTo(this.$list);
-      let $a = $t.find('b').text('Combined result');
-
-      let $indicators = $t.find('.tally-indicators');
+      let $t = this.$list.find('#combinedTally');
+      if($t.length == 0)
+      {
+        $t = this.$tpl.clone().attr('id', 'combinedTally').addClass('tally-entry')
+          .show().appendTo(this.$list);
+        let $a = $t.find('b').text('Combined result');
+      }
+      $t.css({ order: this._mixers.length });
+      let $indicators = $t.find('.tally-indicators')
       for (let i = 1; i < max; i++)
       {
-        let state = typeof combined[i] == 'number' ? states[combined[i]] : states[0];
-        let $s = $('<span class="badge badge-pill"></span>')
-          .text(i)
-          .addClass(state)
-          .appendTo($indicators)
-          .click((event) =>
-          {
-            let newState = combined[i] == 0 ? 2 : 1;
-            this.socket.emit('admin.mixer.command', '*', 'switchInput', [i, newState]);
-            event.preventDefault();
-          });
+        let $s = $indicators.find('span[data-id="' + i + '"]');
+        if($s.length == 0)
+        {
+          $s = $('<span class=""></span>')
+            .addClass('badge badge-pill')
+            .attr('data-id', i)
+            .text(i)
+            .appendTo($indicators)
+            .click((event) =>
+            {
+              let newState = this.combined[i] == 0 ? 2 : 1;
+              this.socket.emit('admin.mixer.command', '*', 'switchInput', [i, newState]);
+              event.preventDefault();
+            });
+        }
+        $s.toggleClass(states[0], typeof this.combined[i] != 'number' || this.combined[i] === 0);
+        $s.toggleClass(states[1], this.combined[i] === 1 || this.combined[i] === 3);
+        $s.toggleClass(states[2], this.combined[i] === 2);
       }
+      $indicators.find('span:gt(' + (max - 2) + ')').remove();
     }
-    this.$list.siblings('.noresults').toggle(!mixersOnline);
+    this.$list.find('.noresults').toggle(!mixersOnline);
     this.$list.find('.tally-entry').toggle(mixersOnline);
   }
   /**

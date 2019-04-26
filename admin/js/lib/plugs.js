@@ -65,7 +65,7 @@ class Plugs
           .show().appendTo(this.$list);
         $p.find('a.toggle').click(this._btnPlugToggle);
       }
-
+      $p.css({ order: id });
       $p.find('.name').text(plug.name);
       $p.find('.description').text(plug.description);
       $p.find('.actions .fas')

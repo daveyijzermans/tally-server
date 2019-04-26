@@ -7,8 +7,6 @@ import Mixers from './lib/mixers';
 import Routers from './lib/routers';
 import Audiomixers from './lib/audiomixers';
 import ActionModal from './lib/modal-action';
-import poof from './lib/jquery-poof';
-$.fn.poof = poof;
 import { toggleFullscreen } from './lib/fullscreen';
 
 /**
@@ -78,8 +76,8 @@ class MixerPopout
       $list: $('#mixers'),
       $tpl: $('#tplMixer'),
       socket: this.socket
-    }).on('slide.start', () => this.audiomixers.updateLevels = false)
-      .on('slide.stop', () => this.audiomixers.updateLevels = true);
+    }).on('slide.start', () => this.audiomixers.updateControlData = false)
+      .on('slide.stop', () => this.audiomixers.updateControlData = true);
     /**
      * Routers class instance
      *
