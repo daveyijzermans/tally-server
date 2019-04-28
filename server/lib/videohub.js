@@ -100,11 +100,7 @@ class Videohub extends Router
         }
         break;
     }
-    /**
-     * Videohub status was updated
-     *
-     * @event      Backend.Videohub#event:updated
-     */
+    
     this.emit('updated', this.status);
     log.trace('[' + this.name + '] Parsed received data:', obj);
   };

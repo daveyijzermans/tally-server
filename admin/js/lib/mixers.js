@@ -27,7 +27,7 @@ class Mixers extends EventEmitter
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.status.mixers', this._list);
+      .on('admin.status.servers', this._list);
     /**
      * Main container for this UI element
      * 
@@ -60,11 +60,12 @@ class Mixers extends EventEmitter
    * @param      {string}          data.name       The mixer display name
    * @param      {string|boolean}  data.wol        WOL address
    * @param      {boolean}         data.connected  Connection status
-   * @listens    Socket#event:"admin.status.mixers"
+   * @listens    Socket#event:"admin.status.servers"
    * @fires      Socket#event:"admin.mixer.command"
    */
   _list = data =>
   {
+    data = data.filter((s) => ['atem', 'vmix'].indexOf(s.type) != -1);
     if(JSON.stringify(data) === JSON.stringify(this._mixers))
       return false;
     this._mixers = data;
@@ -208,7 +209,7 @@ class Mixers extends EventEmitter
         });
       }
       
-      $tr.css({ order: id });
+      $tr.css({ order: mixer.order });
       let $transitions = $tr.find('.transition-select')
       $transitions
         .prop('disabled', isLinked())

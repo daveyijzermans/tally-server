@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 import chalk from 'chalk';
 import stripAnsi from 'strip-ansi';
 

@@ -1,16 +1,17 @@
-import Router from './router';
+import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
 import XMLParser from 'fast-xml-parser';
 import log from './logger';
+import dgram from 'dgram';
 
 /**
  * Class for connecting to Focusrite Control Server via TCP.
  *
- * @extends    Backend.Router
+ * @extends    Backend.Mixer
  * @memberof   Backend
  */
-class Focusrite extends Router
+class Focusrite extends Mixer
 {
   /**
    * Constructs the object.
@@ -57,12 +58,7 @@ class Focusrite extends Router
      */
     this._values = {};
 
-    this.throttles = {};
-
-    this.inputs = this.inputs.map((o) => Object.assign(o, { level: -128 }));
-    this.outputs = this.outputs.map((o) => Object.assign(o, { level: -128 }));
-    
-    this._check();
+    Focusrite.discoverServer(this.hostname, this._check);
   }
   /**
    * Parse raw data that come from Focusrite
@@ -148,8 +144,8 @@ class Focusrite extends Router
    *
    * @method     Backend.Focusrite#_updateData
    * 
-   * @fires      Backend.Router#event:updated
-   * @fires      Backend.Router#event:level
+   * @fires      Backend.Server#event:updated
+   * @fires      Backend.Mixer#event:controlChange
    */
   _updateData = () =>
   {
@@ -166,6 +162,7 @@ class Focusrite extends Router
         {
           let variable = all[i];
           let newName = variable.nickname.value;
+          if(!this[w][i]) this[w][i] = {};
           if(this[w][i].name != newName)
           {
             this[w][i].name = newName;
@@ -175,7 +172,7 @@ class Focusrite extends Router
           if(typeof newLevel == 'number' && this[w][i].level != newLevel)
           {
             this[w][i].level = newLevel;
-            this.throttledEmit(40, 'level', w, i, newLevel);
+            this.throttledEmit(40, 'controlChange', w+i, { w: w, i: i, level: newLevel });
           }
           if(w == 'inputs')
           {
@@ -184,7 +181,7 @@ class Focusrite extends Router
           if(w == 'outputs')
           {
             let source_id = variable.source.value;
-            let match = this.inputs.filter((i) => i.source_id === source_id);
+            let match = this.inputs.filter((i) => i && i.source_id === source_id);
             if(match.length == 1)
             {
               let newInput = this.inputs.indexOf(match[0]);
@@ -199,17 +196,6 @@ class Focusrite extends Router
       }
     });
     if(changed) this.emit('updated');
-  }
-
-  throttledEmit = (wait, event, w, i, ...args) =>
-  {
-    let key = event+w+i;
-    if(this.throttles[key] != true)
-    {
-      this.throttles[key] = true;
-      setTimeout(() => this.throttles[key] = false, wait)
-      this.emit.apply(this, [event, w, i].concat(args));
-    } 
   }
   /**
    * Combine device info with the values
@@ -279,8 +265,7 @@ class Focusrite extends Router
    */
   _write = (msg) =>
   {
-    let hex = ('000000' + msg.length.toString(16)).substr(-6);
-    this.client.write('Length=' + hex + ' ' + msg);
+    this.client.write(Focusrite.prependHex(msg));
   }
   /**
    * Send keep alive message to server
@@ -296,15 +281,18 @@ class Focusrite extends Router
    * Setup a new connection to the server and connect
    *
    * @method     Backend.Focusrite#_check
+   * 
+   * @param      {number|string} port Port number
    */
-  _check = () =>
+  _check = (port) =>
   {
+    if(port) this.port = port;
     this.client = new Socket();
     this.client.setTimeout(3000);
     this.client.on('close', this._closed);
     this.client.on('error', () => {});
     this.client.on('timeout', () => this.client.end() && this.client.destroy());
-    this.client.connect(49935, this.hostname, this._connected);
+    this.client.connect(this.port, this.hostname, this._connected);
   }
   /**
    * Executed when server connection is closed
@@ -327,5 +315,63 @@ class Focusrite extends Router
     this.timeout = setTimeout(this._check, 3000);
   }
 }
+
+/**
+ * Prepends the message length to the message.
+ * 
+ * @param      {string}  msg     The message
+ */
+Focusrite.prependHex = (msg) =>
+{
+  let hex = ('000000' + msg.length.toString(16)).substr(-6);
+  return 'Length=' + hex + ' ' + msg;
+}
+/**
+ * Set up UDP broadcast client. When a message is received, execute registered
+ * callbacks
+ */
+Focusrite.discoverServer = (() =>
+{
+  const client = dgram.createSocket('udp4');
+  let interval;
+  let announce = Focusrite.prependHex('<client-discovery app="SAFFIRE-CONTROL" version="4" device="iOS"/>');
+  let message = Buffer.from(announce);
+  let callbacks = [];
+
+  let broadcast = () =>
+  {
+    client.send(message, 0, message.length, 30096, "255.255.255.255");
+    client.send(message, 0, message.length, 30097, "255.255.255.255");
+    client.send(message, 0, message.length, 30098, "255.255.255.255");
+  }
+
+  client.on('listening', () =>
+  {
+    let address = client.address();
+    log.debug('UDP Client listening on ' + address.address + ":" + address.port);
+    client.setBroadcast(true)
+    client.setMulticastTTL(128); 
+
+    interval = setInterval(broadcast, 1000);
+  });
+
+  client.on('message', (message, remote) =>
+  {
+    let foundHost = remote.address;
+    let port = message.toString().match(/port\=\'([0-9]*)\'/);
+    if(port && callbacks[foundHost])
+    {
+      callbacks[foundHost].forEach((cb) => cb(port[1]));
+      delete callbacks[foundHost];
+    }
+  });
+
+  client.bind(61392);
+
+  return (hostname, callback) => {
+    if(callbacks[hostname]) callbacks[hostname].push(callback);
+    else callbacks[hostname] = [callback];
+  }
+})();
 
 export default Focusrite;

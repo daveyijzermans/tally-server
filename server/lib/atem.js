@@ -87,8 +87,8 @@ class Atem extends Mixer
    *
    * @param      {number}  n       Camera number
    * @param      {Object}  state   Object containing state information
-   * @fires      Backend.Atem#event:tallies
-   * @fires      Backend.Atem#event:action
+   * @fires      Backend.Mixer#event:tallies
+   * @fires      Backend.Mixer#event:action
    */
   _updated = (err, state) => //TODO: document
   {
@@ -114,12 +114,6 @@ class Atem extends Mixer
     }, [null]);
     if(JSON.stringify(this.tallies) != newTallies)
     {
-      /**
-       * Let listeners know that tally information was updated.
-       *
-       * @event      Backend.Atem#event:tallies
-       * @param      {number[]}  tallies  Tally information
-       */
       this.emit('tallies', this.tallies = newTallies);
     }
   }
@@ -160,7 +154,7 @@ class Atem extends Mixer
    *
    * @method     Backend.Atem#cut
    * 
-   * @fires      Backend.Atem#event:action
+   * @fires      Backend.Mixer#event:action
    */
   cut = () =>
   {
@@ -174,7 +168,7 @@ class Atem extends Mixer
    *
    * @method     Backend.Atem#transition
    * 
-   * @fires      Backend.Atem#event:action
+   * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   duration  The duration
    * @param      {string}   effect    The effect

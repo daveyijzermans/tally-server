@@ -154,7 +154,7 @@ class Apc extends Server
    *
    * @method     Backend.Apc#_check
    * 
-   * @fires      Backend.Apc#event:updated
+   * @fires      Backend.Server#event:updated
    */
   _check = () =>
   {
@@ -163,11 +163,6 @@ class Apc extends Server
       if(err) return this._closed(err);
       properties.forEach((prop) => this[prop] = results[prop]);
 
-      /**
-       * APC status was updated
-       *
-       * @event      Backend.Apc#event:updated
-       */
       this.emit('updated');
       /*
        * Also fire the connected method to update connection status

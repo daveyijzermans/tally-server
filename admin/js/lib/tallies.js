@@ -25,7 +25,7 @@ class Tallies extends EventEmitter
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.status.mixers', this._list);
+      .on('admin.status.servers', this._list);
     /**
      * Main container for this UI element
      * 
@@ -67,10 +67,11 @@ class Tallies extends EventEmitter
    * @method     Frontend.UI.Tallies#_list
    *
    * @param      {Object.<string, number[]>}  data   Array of tally information
-   * @listens    Socket#event:"admin.status.mixers"
+   * @listens    Socket#event:"admin.status.servers"
    */
   _list = data =>
   {
+    data = data.filter((s) => ['atem', 'vmix'].indexOf(s.type) != -1);
     if(JSON.stringify(data) === JSON.stringify(this._mixers))
       return false;
     this._mixers = data;
@@ -94,7 +95,7 @@ class Tallies extends EventEmitter
         }
       }
 
-      $t.css({ order: id });
+      $t.css({ order: mixer.order });
       let $a = $t.find('b').text(mixer.name);
       if(mixer.type == 'vmix')
       {

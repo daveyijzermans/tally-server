@@ -93,11 +93,6 @@ class Huawei extends Server
       this.SignalIcon = parseInt(data[0].SignalIcon);
       this.cellroam = parseInt(data[0].cellroam);
       this.FullName = data[1].FullName;
-      /**
-       * Huawei dongle status was updated
-       *
-       * @event      Backend.Huawei#event:updated
-       */
       this.emit('updated');
       /*
        * Also fire the connected method to update connection status

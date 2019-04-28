@@ -124,19 +124,4 @@ Router.getByName = (name) =>
  * @param      {string}  method  The method name to call
  * @param      {array}   args    The arguments to call the method with
  */
-
-/**
- * Router information is updated
- * 
- * @event      Backend.Router#event:updated
- */
-
-/**
- * Audio level information is updated
- *
- * @event      Backend.Router#event:level
- * @param      {string}  w         'inputs' or 'outputs'
- * @param      {number}  i         Input number, 1-indexed
- * @param      {number}  newLevel  New level
- */
 export default Router;

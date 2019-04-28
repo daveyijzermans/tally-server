@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 
 /**
  * Base class for servers.
@@ -15,6 +15,12 @@ class Server extends EventEmitter
   constructor(opts)
   {
     super();
+    /**
+     * Server order
+     * 
+     * @type       {number}
+     */
+    this.order = opts.order;
     /**
      * Server type
      * 
@@ -63,6 +69,7 @@ class Server extends EventEmitter
    * Server properties
    *
    * @type       {Object}
+   * @property   {number}          result.order      Order number in config
    * @property   {string}          result.type       The server type
    * @property   {string}          result.hostname   The server hostname
    * @property   {string}          result.name       The server display name
@@ -72,6 +79,7 @@ class Server extends EventEmitter
   get status()
   {
     return {
+      order: this.order,
       type: this.type,
       hostname: this.hostname,
       name: this.name,
@@ -157,6 +165,11 @@ Server.waitFor = (name, cb) =>
     Server._callbacks[name] = [cb];
 }
 
+/**
+ * Let listeners know that the server information was updated.
+ *
+ * @event      Backend.Server#event:updated
+ */
 /**
  * Let listeners know the connection state of this server.
  *

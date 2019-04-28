@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 import log from './logger';
 
 /**

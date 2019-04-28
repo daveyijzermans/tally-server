@@ -1,5 +1,5 @@
 import express from 'express';
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 
 const info = {
   noauth: 'Not authorized. Use auth/password first.',
@@ -24,7 +24,7 @@ class API extends EventEmitter
    */
   constructor(opts)
   {
-    super(opts);
+    super();
     this._adminPass = opts.adminPass;
 
     let plugs = new express.Router()

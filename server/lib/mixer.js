@@ -18,12 +18,6 @@ class Mixer extends Server
   {
     super(opts);
     /**
-     * Tally information
-     * 
-     * @type       {number[]}
-     */
-    this.tallies = [];
-    /**
      * Is this linked to another switcher?
      *
      * @type       {boolean|Backend.Mixer}
@@ -53,6 +47,18 @@ class Mixer extends Server
      * @type       {number}
      */
     this._autoDuration = 1000;
+    /**
+     * Inputs
+     * 
+     * @type       {object[]}
+     */
+    this.inputs = [null];
+    /**
+     * Outputs
+     * 
+     * @type       {object[]}
+     */
+    this.outputs = [null];
 
     Mixer._instances.push(this);
     this.linkTo(opts.linked);
@@ -123,6 +129,14 @@ class Mixer extends Server
     return this[method].apply(this, args);
   }
   /**
+   * Retrieve tallies
+   *
+   * @type     {number[]}
+   */
+  get tallies() {
+    return this.inputs.map((i) => i ? i.status : null);
+  }
+  /**
    * Mixer properties
    *
    * @type       {Object}
@@ -138,6 +152,8 @@ class Mixer extends Server
   get status()
   {
     return Object.assign(super.status, {
+      inputs: this.inputs,
+      outputs: this.outputs,
       tallies: this.tallies,
       linked: this.linked instanceof Mixer ? this.linked.status : false,
       preview: this._currentPreviewInput,
@@ -243,11 +259,23 @@ Mixer.updateMixerNames = (users) =>
 }
 
 /**
+ * Let listeners know that tally information was updated.
+ *
+ * @event      Backend.Mixer#event:tallies
+ * @param      {number[]}  tallies  Tally information
+ */
+/**
  * Let listeners know of an action that should be copied on linked mixers.
  *
  * @event      Backend.Mixer#event:action
  * @param      {string}  method  The method name to call
  * @param      {array}   args    The arguments to call the method with
+ */
+/**
+ * Audio control information is updated
+ *
+ * @event      Backend.Mixer#event:controlChange
+ * @param      {number}  newData   New data
  */
 
 export default Mixer;

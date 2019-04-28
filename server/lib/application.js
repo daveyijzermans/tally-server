@@ -33,7 +33,7 @@ import { Server as HttpServer } from 'http';
 import Socket from 'socket.io';
 import { exec } from 'child_process';
 import wol from 'wol';
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 import log from './logger';
 
 /**
@@ -194,13 +194,14 @@ class Application extends EventEmitter
    *
    * @method      Backend.Application#_socketLog
    *
-   * @param      {string}  msg     The message
+   * @param      {mixed}  msg     The message
    * @listens    Backend.Logger#event:info
    * @listens    Backend.Logger#event:warn
    * @listens    Backend.Logger#event:error
    */
   _socketLog = (msg) =>
   {
+    if(typeof msg == 'object') msg = msg.toString();
     /**
      * Send a log message to admin clients
      *
@@ -784,8 +785,6 @@ class Application extends EventEmitter
    * @listens Backend.Application#event:broadcast
    * @fires      Socket#event:status
    * @fires      Socket#event:"admin.status.servers"
-   * @fires      Socket#event:"admin.status.mixers"
-   * @fires      Socket#event:"admin.status.routers"
    */
   _broadcastServers = () =>
   {
@@ -818,20 +817,6 @@ class Application extends EventEmitter
      * @param      {Object[]}        result            Array of servers.
      */
     this._io.to('admins').emit('admin.status.servers', Server.allStatus);
-    /**
-     * Broadcast an array on mixer information
-     *
-     * @event      Socket#event:"admin.status.mixers"
-     * @param      {Object[]}        result            Array of mixers.
-     */
-    this._io.to('admins').emit('admin.status.mixers', Mixer.allStatus);
-    /**
-     * Broadcast an array on router information
-     *
-     * @event      Socket#event:"admin.status.routers"
-     * @param      {Object[]}        result            Array of routers.
-     */
-    this._io.to('admins').emit('admin.status.routers', Router.allStatus);
     log.trace('[Application] Broadcasted server and mixer information', Server.allStatus, Mixer.allStatus);
   }
   /**
@@ -1003,12 +988,12 @@ class Application extends EventEmitter
    * @listens    Backend.Mixer#event:linked
    * @listens    Backend.Mixer#event:unlinked
    * @listens    Backend.Mixer#event:action
-   * @listens    Backend.Vmix#event:level
+   * @listens    Backend.Mixer#event:controlChange
    * @listens    Backend.Server#event:disconnected
-   * @listens    Backend.Vmix#event:tallies
+   * @listens    Backend.Mixer#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
-   * @fires      Socket#event:"admin.audiomixer.level"
+   * @fires      Socket#event:"admin.audiomixer.controlChange"
    */
   _createVmix = (opts) =>
   {
@@ -1040,9 +1025,11 @@ class Application extends EventEmitter
       {
         this.emit('broadcast.servers');
       })
-      .on('controlChange', (type, n, data) =>
-      {
-        this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, n, data);
+      .on('controlChange', (data) =>
+      { 
+        let type = data.w;
+        let number = data.i;
+        this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, number, data);
       });
   }
   /**
@@ -1052,7 +1039,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Focusrite}  The server instance that was created
-   * @listens    Backend.Router#event:updated
+   * @listens    Backend.Server#event:updated
    * @listens    Backend.Router#event:controlChange
    * @listens    Backend.Server#event:disconnected
    * @fires      Backend.Application#event:"broadcast.servers"
@@ -1068,9 +1055,11 @@ class Application extends EventEmitter
     {
       this.emit('broadcast.servers');
     })
-    .on('controlChange', (type, n, data) =>
+    .on('controlChange', (data) =>
     {
-      this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, n, data);
+      let type = data.w;
+      let number = data.i;
+      this._io.to('controlChange').emit('admin.audiomixer.controlChange', opts.name, type, number, data);
     });
   }
   /**
@@ -1080,7 +1069,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}        opts    The options
    * @return     {Backend.Videohub}  The server instance that was created
-   * @listens    Backend.Router#event:updated
+   * @listens    Backend.Server#event:updated
    */
   _createVideohub = (opts) =>
   {
@@ -1098,7 +1087,7 @@ class Application extends EventEmitter
    * @param      {Object}        opts    The options
    * @return     {Backend.Aten}  The server instance that was created
    * 
-   * @listens    Backend.Router#event:updated
+   * @listens    Backend.Server#event:updated
    */
   _createAten = (opts) =>
   {
@@ -1119,7 +1108,7 @@ class Application extends EventEmitter
    * @listens    Backend.Mixer#event:unlinked
    * @listens    Backend.Mixer#event:action
    * @listens    Backend.Server#event:disconnected
-   * @listens    Backend.Atem#event:tallies
+   * @listens    Backend.Mixer#event:tallies
    * @fires      Backend.Application#event:"broadcast.servers"
    * @fires      Backend.Application#event:"broadcast.users"
    */
@@ -1173,7 +1162,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}           opts    The options
    * @return     {Backend.Huawei}  The server instance that was created
-   * @listens    Backend.Huawei#event:updated
+   * @listens    Backend.Server#event:updated
    */
   _createHuawei = (opts) =>
   {
@@ -1190,7 +1179,7 @@ class Application extends EventEmitter
    *
    * @param      {Object}           opts    The options
    * @return     {Backend.Apc}  The server instance that was created
-   * @listens    Backend.Apc#event:updated
+   * @listens    Backend.Server#event:updated
    */
   _createApc = (opts) =>
   {

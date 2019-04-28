@@ -77,18 +77,6 @@ class Vmix extends Mixer
      * @type       {boolean}
      */
     this.fadeToBlack = false;
-
-    this.inputs = [null];
-    this.outputs = [null, {
-      name: 'Master',
-      level: 0
-    },{
-      name: 'Bus A',
-      level: 0
-    },{
-      name: 'Bus B',
-      level: 0
-    }];
     /**
      * XML retrieving timeout
      * 
@@ -105,8 +93,8 @@ class Vmix extends Mixer
    * @method     Backend.Vmix#_line
    *
    * @param      {string}  line    The line
-   * @fires      Backend.Vmix#event:tallies
-   * @fires      Backend.Vmix#event:action
+   * @fires      Backend.Mixer#event:tallies
+   * @fires      Backend.Mixer#event:action
    */
   _line = line =>
   {
@@ -118,19 +106,15 @@ class Vmix extends Mixer
     }
     if(line.indexOf('TALLY OK ') == 0)
     {
-      this.tallies = line.substring('TALLY OK '.length).split('').reduce((a, c, i) =>
+      let tallies = line.substring('TALLY OK '.length).split('');
+      for (var i = 0; i < tallies.length; i++)
       {
-        let tally = parseInt(c);
-        if(tally == 1 && i + 1 == this._currentPreviewInput) tally = 3;
-        a.push(tally);
-        return a;
-      }, [null]);
-      /**
-       * Let listeners know that tally information was updated.
-       *
-       * @event      Backend.Vmix#event:tallies
-       * @param      {number[]}  tallies  Tally information
-       */
+        let state = parseInt(tallies[i]);
+        if(state == 1 && i + 1 == this._currentPreviewInput) state = 3;
+        if(!this.inputs[i + 1]) this.inputs[i + 1] = {};
+        this.inputs[i + 1].status = state;
+      }
+      
       this.emit('tallies', this.tallies);
       return;
     }
@@ -337,8 +321,38 @@ class Vmix extends Mixer
       this.external = result.external == 'True';
       this.multiCorder = result.multiCorder == 'True';
       this.fadeToBlack = result.fadeToBlack == 'True';
-      this._currentTransition = result.transitions.transition[0].effect
-      this._autoDuration = result.transitions.transition[0].duration
+      this._currentTransition = result.transitions.transition[0].effect;
+      this._autoDuration = result.transitions.transition[0].duration;
+      var inputs = result.inputs.input;
+      for (var i = 0; i < inputs.length; i++)
+      {
+        let data = inputs[i];
+        if(!this.inputs[data.number]) this.inputs[data.number] = {};
+        this.inputs[data.number].name = data.title;
+        this.inputs[data.number].active = data.muted == 'False';
+        this.inputs[data.number].solo = data.solo == 'True';
+        this.inputs[data.number].level = [data.meterF1, data.meterF2];
+        this.inputs[data.number].balance = data.balance;
+        this.inputs[data.number].volume = data.volume;
+      }
+      this.outputs[1] = {
+        name: 'Master',
+        level: [result.audio.master.meterF1, result.audio.master.meterF2],
+        active: result.audio.master.muted == 'False',
+        volume: result.audio.master.volume
+      };
+      this.outputs[2] = {
+        name: 'Bus A',
+        level: [result.audio.busA.meterF1, result.audio.busA.meterF2],
+        active: result.audio.busA.muted == 'False',
+        volume: result.audio.busA.volume
+      };
+      this.outputs[3] = {
+        name: 'Bus B',
+        level: [result.audio.busB.meterF1, result.audio.busB.meterF2],
+        active: result.audio.busB.muted == 'False',
+        volume: result.audio.busB.volume
+      }
     }
     this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
   }
@@ -369,7 +383,7 @@ class Vmix extends Mixer
       this.outputs[1].level = [result.audio.master.meterF1, result.audio.master.meterF2];
       this.outputs[2].level = [result.audio.busA.meterF1, result.audio.busA.meterF2];
       this.outputs[3].level = [result.audio.busB.meterF1, result.audio.busB.meterF2];
-      [1, 2, 3].forEach(i => this.emit('controlChange', 'outputs', i, { level: this.outputs[i].level }));
+      [1, 2, 3].forEach(i => this.emit('controlChange', { w: 'outputs', i: i, level: this.outputs[i].level }));
 
       /* Set input level meters */
       let inputs = result.inputs.input;
@@ -394,14 +408,14 @@ class Vmix extends Mixer
            this.inputs[input.number].level[1] != newLevel[1])
         {
           this.inputs[input.number].level = newLevel;
-          this.emit('controlChange', 'inputs', input.number, { level: newLevel });
+          this.emit('controlChange', { w: 'inputs', i: input.number, level: newLevel });
         }
         
         let newBalance = input.balance;
         if(this.inputs[input.number].balance != newBalance)
         {
           this.inputs[input.number].balance = newBalance;
-          this.emit('controlChange', 'inputs', input.number, { balance: newBalance });
+          this.emit('controlChange', { w: 'inputs', i: input.number, balance: newBalance });
         }
       }
       let newLength = inputs.length + 1;
@@ -443,7 +457,7 @@ class Vmix extends Mixer
     if(this.connected)
     {
       this.connected = false;
-      this.tallies = [];
+      // this.tallies = [];
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
@@ -473,7 +487,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#cut
    * 
-   * @fires      Backend.Vmix#event:action
+   * @fires      Backend.Mixer#event:action
    */
   cut = () =>
   {
@@ -487,7 +501,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#transition
    *
-   * @fires      Backend.Vmix#event:action
+   * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   duration  The duration
    * @param      {string}   effect    The effect
@@ -512,7 +526,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#fade
    *
-   * @fires      Backend.Vmix#event:action
+   * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   n         Tbar position 0-255
    * @param      {string}   effect    The effect
@@ -542,7 +556,7 @@ class Vmix extends Mixer
    *
    * @method     Backend.Vmix#overlay
    * 
-   * @fires      Backend.Vmix#event:action
+   * @fires      Backend.Mixer#event:action
    *
    * @param      {number}   overlayN  The overlay number
    * @param      {number}   input     The input number
@@ -610,10 +624,15 @@ class Vmix extends Mixer
     this.emit('action', 'setDuration', [n, duration]);
   }
   /**
-   * Listen to own actions and set object parameters
+   * Listen to own actions and set input/output parameters
+   * 
+   * @method     Backend.Vmix#_assignSelfAction
    *
    * @param      {string}        param  The parameter name
    * @param      {mixed[]}          args    The arguments
+   * 
+   * @listens    Backend.Mixer#event:action
+   * @fires      Backend.Mixer#event:controlChange
    */
   _assignSelfAction = (param, args) =>
   {
@@ -625,9 +644,17 @@ class Vmix extends Mixer
         if(this.inputs[number].volume != newVolume)
         {
           this.inputs[number].volume = newVolume;
-          this.emit('controlChange', 'inputs', number, { volume: newVolume })
+          this.emit('controlChange', { w: 'inputs', i: number, volume: newVolume })
         }
-      break;
+        break;
+      case 'inputAudio':
+        this.inputs[args[0]].active = args[1];
+        this.emit('controlChange', { w: 'inputs', i: args[0], active: args[1] });
+        break;
+      case 'inputSolo':
+        this.inputs[args[0]].solo = args[1];
+        this.emit('controlChange', { w: 'inputs', i: args[0], solo: args[1] });
+        break;
     }
   }
   /**
@@ -658,9 +685,7 @@ class Vmix extends Mixer
       fullscreen: this.fullscreen,
       external: this.external,
       multiCorder: this.multiCorder,
-      fadeToBlack: this.fadeToBlack,
-      inputs: this.inputs,
-      outputs: this.outputs
+      fadeToBlack: this.fadeToBlack
     });
   }
   /**
@@ -697,14 +722,5 @@ class Vmix extends Mixer
     }
   }
 }
-
-/**
- * Audio control information is updated
- *
- * @event      Backend.Vmix#event:controlChange
- * @param      {string}  w         'inputs' or 'outputs'
- * @param      {number}  i         Input number, 1-indexed
- * @param      {number}  newData   New data
- */
 
 export default Vmix;

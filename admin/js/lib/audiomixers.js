@@ -90,7 +90,7 @@ class Audiomixers
         $tr.find('.name').text(server.name);
       }
 
-      $tr.css({ order: id });
+      $tr.css({ order: server.order });
       ['input', 'output'].forEach((w) =>
       {
         let p = w + 's';
@@ -118,7 +118,11 @@ class Audiomixers
 
           $ctrl.css({ order: i });
           let $label = $ctrl.find('.control-label');
-          this._setControl(server.name, p, i, { level: server[p][i].level });
+          this._setControl(server.name, p, i, {
+            level: server[p][i].level,
+            active: server[p][i].active,
+            solo: server[p][i].solo
+          });
           let text =  server[p][i].name || w + ' ' + i;
           $label.text(text);
         }
@@ -147,7 +151,6 @@ class Audiomixers
       let perc = Math.round(data.level * 100) + '%';
       $el.find('.level-meterL .level-value').css({ height: perc });
       $el.find('.level-meterR').hide();
-      return;
     }
     if(Array.isArray(data.level) && typeof data.level[0] == 'number' && typeof data.level[1] == 'number')
     {
@@ -156,14 +159,23 @@ class Audiomixers
       $el.find('.level-meterL .level-value').css({ height: perc1 });
       $el.find('.level-meterR').show();
       $el.find('.level-meterR .level-value').css({ height: perc2 });
-      return;
     }
     if(typeof data.volume == 'number')
     {
       let perc = Math.round(data.volume * 100);
-      console.log(perc);
       let $volume = $el.find('.volume-slider').slider('value', perc);
-      return;
+    }
+    if(typeof data.solo == 'boolean')
+    {
+      $el.find('.btn-solo')
+        .toggleClass('btn-warning', data.solo)
+        .toggleClass('btn-secondary', !data.solo);
+    }
+    if(typeof data.active == 'boolean')
+    {
+      $el.find('.btn-active')
+        .toggleClass('btn-success', data.active)
+        .toggleClass('btn-secondary', !data.active);
     }
   }
   /**

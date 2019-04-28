@@ -23,7 +23,7 @@ class Routers
      * @type       {Object}
      */
     this.socket = opts.socket
-      .on('admin.status.routers', this._list);
+      .on('admin.status.servers', this._list);
     /**
      * Main container for this UI element
      * 
@@ -56,7 +56,7 @@ class Routers
    * @param      {string}          data.name       The router display name
    * @param      {string|boolean}  data.wol        WOL address
    * @param      {boolean}         data.connected  Connection status
-   * @listens    Socket#event:"admin.status.routers"
+   * @listens    Socket#event:"admin.status.servers"
    * @fires      Socket#event:"admin.router.command"
    */
   _list = data =>
@@ -105,7 +105,7 @@ class Routers
         }
         $outputTpl.remove()
       }
-      $tr.css({ order: id });
+      $tr.css({ order: router.order });
       let $inputs = $tr.find('.input-list');
       $inputs.each((i, input) =>
       {

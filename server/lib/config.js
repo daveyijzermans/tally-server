@@ -1,7 +1,7 @@
 import User from './user';
 import Server from './server';
 import fs from 'fs';
-import EventEmitter from 'events';
+import EventEmitter from './events-custom';
 import log from './logger';
 
 /**
@@ -32,7 +32,7 @@ class Config extends EventEmitter
      * 
      * @type       {Object}
      */
-    this.servers = require(opts.servers);
+    this.servers = require(opts.servers).map((s, i) => Object.assign(s, { order: i }));
     /**
      * Data from users.json file
      * 
