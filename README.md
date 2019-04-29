@@ -46,14 +46,24 @@ Run ``gulp docs`` to generate code documentation.
 
 There is a simple web API exposed at the url ``/api``. Check out the [API docs](API.md) to see what it can do.
 
-## Writing your own node client
+## Writing your own client
 
-Is possible
+The admin page uses web sockets (with Socket.io) and a very basic authentication system. So it's possible to either write a node client that connects to the server, or use the HTTP API to perform specific functions from an embedded device or microcontroller. This would allow you to send information about your complete production system to any device, like Raspberry PI's, Arduino's etc. for controlling tally lights, record indicators, audio levels, camera operator names, video or audio routing information or labels, you name it.
+
+Take a look at the Events section in the documentation to see which events you can subscribe to. Check out the 'client' folder for a simple client that connects to the server, subscribes to tally events and pushes that to an Arduino tally light. The source code for that is in the 'tallybox folder'.
+
+I will try to document this more in the future!
 
 ## Testing
 
-Whats that?
+Since writing tests would require making models of the actual devices, it would take a lot of time. You're free to do so, but writing unit tests has never been my thing. So try it, and if it breaks, fix it!
 
 ## Credits
 
-You know
+I use a couple of API's available from NPM. In addition I've used source code from available packages and modified them or implemented my own version based on the logic they contained.
+
+https://github.com/daveyijzermans/node-applest-atem was forked to upgrade dependency versions
+https://github.com/daveyijzermans/apc-ups-snmp was forked and changed to retrieve all values at once
+https://github.com/lmginc/io-videohub was used for creating server/lib/videohub.js
+https://github.com/vargaradu/Focusrite-Midi-Control was used for creating server/lib/focusrite.js
+https://github.com/daveyijzermans/p4d-huawei-router was based on an NPM package of the same name.

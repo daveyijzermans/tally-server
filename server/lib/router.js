@@ -35,25 +35,28 @@ class Router extends Server
      */
     this.outputs = [null];
 
-    let inputs = opts.matrix[0];
-    let outputs = opts.matrix[1];
-    if(typeof inputs == 'number')
-      this.inputs = Array.from({ length: inputs + 1 }, () => new Object());
-    else for (let i = 0; i < inputs.length; i++)
-      this.inputs.push({
-        name: (inputs[i] && inputs[i].name) || '',
-        nc: inputs[i] && inputs[i].nc === true,
-        locked: false
-      });
+    if(opts.matrix)
+    {
+      let inputs = opts.matrix[0];
+      let outputs = opts.matrix[1];
+      if(typeof inputs == 'number')
+        this.inputs = Array.from({ length: inputs + 1 }, () => new Object());
+      else for (let i = 0; i < inputs.length; i++)
+        this.inputs.push({
+          name: (inputs[i] && inputs[i].name) || '',
+          nc: inputs[i] && inputs[i].nc === true,
+          locked: false
+        });
 
-    if(typeof outputs == 'number')
-      this.outputs = Array.from({ length: outputs + 1 }, () => new Object());
-    else for (let i = 0; i < outputs.length; i++)
-      this.outputs.push({
-        name: (outputs[i] && outputs[i].name) || '',
-        nc: outputs[i] && outputs[i].nc === true,
-        input: 0
-      });
+      if(typeof outputs == 'number')
+        this.outputs = Array.from({ length: outputs + 1 }, () => new Object());
+      else for (let i = 0; i < outputs.length; i++)
+        this.outputs.push({
+          name: (outputs[i] && outputs[i].name) || '',
+          nc: outputs[i] && outputs[i].nc === true,
+          input: 0
+        });
+    }
 
     Router._instances.push(this);
   }

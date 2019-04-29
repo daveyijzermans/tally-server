@@ -1,5 +1,6 @@
 import Server from './server';
 import { Socket } from 'net';
+import ping from 'net-ping';
 import log from './logger';
 
 /**
@@ -32,6 +33,9 @@ class Netgear extends Server
      * @type       {string}
      */
     this.password = opts.password;
+
+    this.client = ping.createSession();
+
     this._check();
   }
   /**
@@ -49,13 +53,20 @@ class Netgear extends Server
       this.connected = true;
       this.emit('connected');
     }
+    this.emit('connection', this.connected);
     if(this.rebootPending)
     {
-      log.info('[' + this.name + '] Rebooting..,');
-      this.client.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyy');
+      log.info('[' + this.name + '] Rebooting...');
+      let socket = new Socket();
+      socket.on('connect', () =>
+      {
+        socket.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyyyy');
+      });
+      socket.on('data', (data) => {console.log(data.toString())});
+      socket.connect(60000, this.hostname);
+      this.rebootPending = false;
     }
-    this.emit('connection', this.connected);
-    this.client.end() && this.client.destroy();
+    this.timeout = setTimeout(this._check, 10000);
   }
   /**
    * Setup a new connection to the server and connect
@@ -64,13 +75,11 @@ class Netgear extends Server
    */
   _check = () =>
   {
-    this.client = new Socket();
-    this.client.setTimeout(1500);
-    this.client.on('connect', this._connected);
-    this.client.on('close', this._closed);
-    this.client.on('error', () => {});
-    this.client.on('timeout', () => this.client.end() && this.client.destroy());
-    this.client.connect(60000, this.hostname);
+    this.client.pingHost(this.hostname, (error, target) =>
+    {
+      if(error) this._closed(error)
+      else this._connected();
+    });
   }
   /**
    * Executed when server connection is closed

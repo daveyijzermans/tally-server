@@ -39,27 +39,6 @@ class Atem extends Mixer
       .on('error', log.error);
   }
   /**
-   * Executed when server is connected
-   *
-   * @method     Backend.Atem#_connected
-   *
-   * @fires      Backend.Server#event:connected
-   * @fires      Backend.Server#event:disconnected
-   * @fires      Backend.Server#event:connection
-   */
-  _connected = () =>
-  {
-    /*
-     * Toggle the connected property only if it wasn't previously connected
-     */
-    if(!this.connected)
-    {
-      this.connected = true;
-      this.emit('connected');
-    }
-    this.emit('connection', this.connected);
-  }
-  /**
    * Executed when server connection is closed
    *
    * @method     Backend.Atem#_closed

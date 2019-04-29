@@ -132,23 +132,6 @@ class Apc extends Server
     this._timeout = setTimeout(this._check, 1000);
   }
   /**
-   * Executed when server is connected
-   *
-   * @method     Backend.Apc#_connected
-   *
-   * @fires      Backend.Server#event:connected
-   * @fires      Backend.Server#event:connection
-   */
-  _connected = () =>
-  {
-    if(!this.connected)
-    {
-      this.connected = true;
-      this.emit('connected');
-    }
-    this.emit('connection', this.connected);
-  }
-  /**
    * Get UPS status, emit an event if data is received and update the
    * connection status if needed
    *

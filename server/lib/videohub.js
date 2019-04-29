@@ -75,7 +75,8 @@ class Videohub extends Router
           let int = parseInt(index);
           if(isNaN(int)) break;
           let label = split[i].substring(index.length + 1);
-          arr[int + 1].name = label
+          if(arr[int + 1]) arr[int + 1].name = label
+          else arr[int + 1] = {name: label}
         }
         break;
       case 'VIDEO OUTPUT LOCKS:':
@@ -85,7 +86,8 @@ class Videohub extends Router
           let index = s[0];
           let int = parseInt(index);
           if(isNaN(int)) break;
-          this.inputs[int + 1].locked = s[1] != 'U';
+          if(this.inputs[int + 1]) this.inputs[int + 1].locked = s[1] != 'U'
+          else this.inputs[int + 1] = { locked: s[1] != 'U' }
         }
         break;
       case 'VIDEO OUTPUT ROUTING:':
@@ -96,7 +98,8 @@ class Videohub extends Router
           let int = parseInt(index);
           if(isNaN(int)) break;
           let input = parseInt(s[1]);
-          this.outputs[int + 1].input = input + 1;
+          if(this.outputs[int + 1]) this.outputs[int + 1].input = input + 1;
+          else this.outputs[int + 1] = { input: input + 1 }
         }
         break;
     }

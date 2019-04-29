@@ -17,6 +17,7 @@
     "fast-xml-parser": "^3.12.16",
     "grandiose": "github:daveyijzermans/grandiose",
     "mumble": "^0.3.19",
+    "net-ping": "^1.2.3",
     "p4d-huawei-router": "github:daveyijzermans/p4d-huawei-router",
     "socket.io": "^2.2.0",
     "strip-ansi": "^5.2.0",

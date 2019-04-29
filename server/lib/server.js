@@ -66,6 +66,23 @@ class Server extends EventEmitter
     }
   }
   /**
+   * Executed when server is connected
+   *
+   * @method     Backend.Server#_connected
+   *
+   * @fires      Backend.Server#event:connected
+   * @fires      Backend.Server#event:connection
+   */
+  _connected = () =>
+  {
+    if(!this.connected)
+    {
+      this.connected = true;
+      this.emit('connected');
+    }
+    this.emit('connection', this.connected);
+  }
+  /**
    * Server properties
    *
    * @type       {Object}

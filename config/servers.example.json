@@ -21,7 +21,8 @@
     "hostname": "vmix2.local",
     "name": "vMix 2",
     "wol": "00:00:00:00:00:00",
-    "winUserPass": "user%pass"
+    "winUserPass": "user%pass",
+    "linked": "vMix 1"
   },
   {
     "type": "aten",

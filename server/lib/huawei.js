@@ -71,6 +71,7 @@ class Huawei extends Server
     {
       log.info('Rebooting ' + this.name);
       // this.client.write(this.username + '\r\n' + this.password + '\r\nenable\r\n\r\nreload\r\nyy');
+      this.rebootPending = false;
     }
     this.emit('connection', this.connected);
     this._timeout = setTimeout(this._check, 10000);
