@@ -71,6 +71,7 @@ class Tallies extends EventEmitter
    */
   _list = data =>
   {
+    let combinedOrder = data.length;
     data = data.filter((s) => ['atem', 'vmix'].indexOf(s.type) != -1);
     if(JSON.stringify(data) === JSON.stringify(this._mixers))
       return false;
@@ -153,7 +154,7 @@ class Tallies extends EventEmitter
           .show().appendTo(this.$list);
         let $a = $t.find('b').text('Combined result');
       }
-      $t.css({ order: this._mixers.length });
+      $t.css({ order: combinedOrder });
       let $indicators = $t.find('.tally-indicators')
       for (let i = 1; i < max; i++)
       {

@@ -34,7 +34,8 @@ import Socket from 'socket.io';
 import { exec } from 'child_process';
 import wol from 'wol';
 import EventEmitter from './events-custom';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Application');
 
 /**
  * Server application
@@ -76,6 +77,7 @@ class Application extends EventEmitter
           Mixer.updateMixerNames(User._instances);
         this.emit('broadcast.config');
       });
+    log.setLevels(['debug', 'info', 'warn', 'error']);
 
     /* Socket.IO */
     /**
@@ -97,7 +99,7 @@ class Application extends EventEmitter
     this._server.listen(port);
     this._app.use(express.static('dist/www'));
     this._app.use('/docs', express.static('dist/docs'));
-    log.debug('[Application] Express server listening on port', port);
+    log.debug('Express server listening on port', port);
     log.on('info', this._socketLog);
     log.on('warn', this._socketLog);
     log.on('error', this._socketLog);
@@ -114,7 +116,7 @@ class Application extends EventEmitter
     this.config.getServerConfigByType('netgear', this._createNetgear);
 
     /* Create all users */
-    log.debug('[Application] Creating all users from config...');
+    log.debug('Creating all users from config...');
     this.config.makeUsers();
 
     /**
@@ -160,7 +162,7 @@ class Application extends EventEmitter
     this.on('broadcast', this._broadcastPlugs);
     this.on('broadcast', this._broadcastConfig);
 
-    log.debug('[Application] Initializing web API...');
+    log.debug('Initializing web API...');
     /**
      * Web API class instance
      * 
@@ -417,7 +419,7 @@ class Application extends EventEmitter
    */
   _userRequest = (username) =>
   {
-    log.debug('[Application] ' + username + ' sent an update request.');
+    log.debug('' + username + ' sent an update request.');
     /**
      * Broadcast user status to user
      *
@@ -436,7 +438,7 @@ class Application extends EventEmitter
    */
   _userCycle = (username) =>
   {
-    log.debug('[Application] ' + username + ' sent an a user cycle request.');
+    log.debug('' + username + ' sent an a user cycle request.');
     Mumble.cycleUser(username);
   }
   /**
@@ -470,7 +472,7 @@ class Application extends EventEmitter
    */
   _adminUserSet = (data, cb) =>
   {
-    log.debug('[Application] Editing user with new data:', data)
+    log.debug('Editing user with new data:', data)
     let user = User.getByUsername(data.username);
     let newName = !data.name ? '' :
                   data.name.replace(/[^\w\s]/gi, '').substring(0, 30);
@@ -492,7 +494,7 @@ class Application extends EventEmitter
 
     if(r.errors)
     {
-      log.debug('[Application] Errors is new data:', r.errors)
+      log.debug('Errors is new data:', r.errors)
       return cb(r);
     }
 
@@ -530,7 +532,7 @@ class Application extends EventEmitter
   {
     const methods = ['switchInput', 'cut', 'transition', 'fade', 'setTransition', 'setDuration'];
     if(methods.indexOf(method) == -1) return false;
-    log.debug('[Application] Executing mixer command', method, 'on mixer', name, 'with arguments', args);
+    log.debug('Executing mixer command', method, 'on mixer', name, 'with arguments', args);
     if(name === '*')
     {
       Mixer._instances.filter((s) => !(s.linked instanceof Mixer))
@@ -807,7 +809,7 @@ class Application extends EventEmitter
          * @param      {Backend.User}  user    User object
          */
         this._io.to(user.username).emit('status', user);
-        log.trace('[Application] Broadcasted user status', user);
+        log.trace('Broadcasted user status', user);
       }
     });
     /**
@@ -817,7 +819,7 @@ class Application extends EventEmitter
      * @param      {Object[]}        result            Array of servers.
      */
     this._io.to('admins').emit('admin.status.servers', Server.allStatus);
-    log.trace('[Application] Broadcasted server and mixer information', Server.allStatus, Mixer.allStatus);
+    log.trace('Broadcasted server and mixer information', Server.allStatus, Mixer.allStatus);
   }
   /**
    * Broadcast user updates
@@ -838,7 +840,7 @@ class Application extends EventEmitter
      * @param      {Backend.User[]} result Array of users
      */
     this._io.to('admins').emit('admin.users.list', result);
-    log.trace('[Application] Broadcasted user information', result);
+    log.trace('Broadcasted user information', result);
   }
   /**
    * Broadcast smart plug updates
@@ -882,7 +884,7 @@ class Application extends EventEmitter
      *                                             on
      */
     this._io.to('admins').emit('admin.plugs.list', result);
-    log.trace('[Application] Broadcasted smartplug information', result);
+    log.trace('Broadcasted smartplug information', result);
   }
   /**
    * Broadcast config options

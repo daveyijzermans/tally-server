@@ -1,6 +1,7 @@
 import Mixer from './mixer';
 import API from 'applest-atem';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('ATEM');
 
 /**
  * Class for connecting to Atem switchers.
@@ -116,7 +117,7 @@ class Atem extends Mixer
      */
     if(this.linked instanceof Mixer && this.client.state.video.ME[this.ME].transitionPosition > 0.9)
     {
-      log.debug('[' + this.name + '][switchInput] Tbar state is too far, assuming this switch ' +
+      log.debug('[switchInput] Tbar state is too far, assuming this switch ' +
         'is caused by a transition finishing on a master. Ignoring this switch command.');
       return false;
     }
@@ -125,7 +126,7 @@ class Atem extends Mixer
       return false;
     let fnc = state === 1 ? 'changeProgramInput' : 'changePreviewInput';
     this.client[fnc](input, this.ME);
-    log.debug('[' + this.name + '][switchInput] Set input', input, 'to state', state);
+    log.debug('[switchInput] Set input', input, 'to state', state);
     return true;
   }
   /**
@@ -139,7 +140,7 @@ class Atem extends Mixer
   {
     if(!this.connected) return false;
     this.client.cutTransition(this.ME);
-    log.debug('[' + this.name + '][cut]');
+    log.debug('[cut]');
     this.emit('action', 'cut');
   }
   /**
@@ -166,7 +167,7 @@ class Atem extends Mixer
     this.client.changeTransitionMix(duration / (1000 / this.fps), this.ME);
     if(execute) this.client.changeTransitionPosition(0);
     if(execute) this.client.autoTransition(this.ME);
-    log.debug('[' + this.name + '][transition] Args:', duration, effect, execute);
+    log.debug('[transition] Args:', duration, effect, execute);
     this.emit('action', 'transition', [duration, effect, false]);
     return true;
   }
@@ -190,7 +191,7 @@ class Atem extends Mixer
     n = n > 0 ? (n < 255 ? n : 255) : 0;
     // this.client.changeTransitionType(this.effects[effect]); //FIXME: see other fixme, cache this value in mixer obj
     if(execute) this.client.changeTransitionPosition(n * Math.floor(10000/255), this.ME);
-    log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
+    log.debug('[fade] Args:', n, effect, execute);
     return true;
   }
   /**

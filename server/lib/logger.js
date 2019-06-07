@@ -21,6 +21,8 @@ const styles = [
   ['bgWhiteBright', 'black']
 ];
 
+const availableLevels = ['trace', 'debug', 'info', 'warn', 'error'];
+
 /**
  * Logging class
  *
@@ -29,17 +31,51 @@ const styles = [
  */
 class Logger extends EventEmitter
 {
-  _availableLevels = ['trace', 'debug', 'info', 'warn', 'error']
-  levels = ['debug', 'info', 'warn', 'error']
-  _styleMap = {}
-  _i = 0;
+  /**
+   * Activated log levels
+   * 
+   * @type       {string[]}
+   */
+  static levels = [];
+
+  static activeLoggers = [];
+
+  static loggers = {};
+  static _styleMap = {}
+  static _i = 0;
   /**
    * Constructs the object and create logging level functions
    */
-  constructor() 
+  constructor(name = 'root', setExclusive = true) 
   {
     super();
-    this._availableLevels.forEach(m => this[m] = this._funcFactory(m));
+
+    this.name = name;
+    availableLevels.forEach(m => this[m] = this._funcFactory(m));
+    if(setExclusive === true)
+      Logger.activeLoggers = [name];
+    else Logger.activeLoggers.push(name);
+  }
+
+  getLogger = (name, setExclusive = false) =>
+  {
+    if(Logger.loggers[name]) return Logger.loggers[name];
+    Logger.loggers[name] = new Logger(name, setExclusive);
+    availableLevels.forEach(m => Logger.loggers[name].on(m, (...args) => 
+      this.emit.apply(this, [m].concat(args))));
+    return Logger.loggers[name];
+  }
+
+  setLevels = (levels) =>
+  {
+    Logger.levels = levels;
+  }
+
+  setActive = (active) =>
+  {
+    if(typeof active == 'string')
+      Logger.activeLoggers = [active];
+    else Logger.activeLoggers = active;
   }
   /**
    * Gets the next style.
@@ -50,8 +86,8 @@ class Logger extends EventEmitter
    */
   _getNextStyle = () =>
   {
-    this._i = this._i >= styles.length - 1 ? 0 : this._i + 1;
-    return styles[this._i];
+    Logger._i = Logger._i >= styles.length - 1 ? 0 : Logger._i + 1;
+    return styles[Logger._i];
   }
   /**
    * Create a logging function
@@ -63,17 +99,19 @@ class Logger extends EventEmitter
    */
   _funcFactory = (name) =>
   {
-    return function()
+    return (...args) =>
     {
-      if(this.levels.indexOf(name) == -1) return;
-      let args = Array.from(arguments).map((a) => stripAnsi(a));
-      let argsConsole = args.map((a) =>
+      if(Logger.levels.indexOf(name) == -1 || Logger.activeLoggers.indexOf(this.name) == -1) return;
+      args = args.map((a) => stripAnsi(a));
+      let argsConsole = args.map((a, i) =>
       {
         if(typeof a == 'string')
         {
+          if(i == 0 && this.name)
+            a = '[' + this.name + ']' + a;
           a = a.replace(/\[(.*?)\]/gi, (match) =>
           {
-            let style = this._styleMap[match] || (this._styleMap[match] = this._getNextStyle());
+            let style = Logger._styleMap[match] || (Logger._styleMap[match] = this._getNextStyle());
             return style.reduce((a, c) => a[c], chalk)(match);
           });
         }

@@ -1,8 +1,8 @@
 import Mixer from './mixer';
 import { Socket } from 'net';
-import readline from 'readline';
 import XMLParser from 'fast-xml-parser';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Focusrite');
 import dgram from 'dgram';
 
 /**
@@ -104,7 +104,6 @@ class Focusrite extends Mixer
           parseAttributeValue: true,
           parseTrueNumberOnly: true
         });
-        log.trace('[' + this.name + '] Got ' + Object.keys(json)[0] + ' from Focusrite server');
         if(json['device-arrival'])
         {
           let device = json['device-arrival'].device;
@@ -115,7 +114,7 @@ class Focusrite extends Mixer
             this._info = Object.assign(this._info, device);
             return;
           }
-          log.debug('[' + this.name + '] No device found with serial ' + this.serial + '. Did find: ' + device['serial-number']);
+          log.debug(' No device found with serial ' + this.serial + '. Did find: ' + device['serial-number']);
         }
         if(json['set'] && json['set'].item)
         {
@@ -172,7 +171,9 @@ class Focusrite extends Mixer
           if(typeof newLevel == 'number' && this[w][i].level != newLevel)
           {
             this[w][i].level = newLevel;
-            this.throttledEmit(40, 'controlChange', w+i, { w: w, i: i, level: newLevel });
+            let newData = { w: w, i: i, level: newLevel };
+            log.trace('[_updateData] Control change:', newData);
+            this.throttledEmit(40, 'controlChange', w+i, newData);
           }
           if(w == 'inputs')
           {
@@ -195,7 +196,11 @@ class Focusrite extends Mixer
         }
       }
     });
-    if(changed) this.emit('updated');
+    if(changed)
+    {
+      log.trace('[_updateData]', this.inputs, this.outputs);
+      this.emit('updated');
+    }
   }
   /**
    * Combine device info with the values
@@ -252,7 +257,6 @@ class Focusrite extends Mixer
     this.emit('connection', this.connected);
     this.timeout = setTimeout(this._keepAlive, 2500);
 
-    this.client.setTimeout(300);
     this.client.on('data', this._onData);
     this._write('<client-details hostname="' + this.clientName + '" client-key="' + this.clientKey + '"/>');
   }
@@ -336,10 +340,11 @@ Focusrite.discoverServer = (() =>
   let interval;
   let announce = Focusrite.prependHex('<client-discovery app="SAFFIRE-CONTROL" version="4" device="iOS"/>');
   let message = Buffer.from(announce);
-  let callbacks = [];
+  let callbacks = {};
 
   let broadcast = () =>
   {
+    if(Object.keys(callbacks).length == 0) return;
     client.send(message, 0, message.length, 30096, "255.255.255.255");
     client.send(message, 0, message.length, 30097, "255.255.255.255");
     client.send(message, 0, message.length, 30098, "255.255.255.255");
@@ -357,6 +362,7 @@ Focusrite.discoverServer = (() =>
 
   client.on('message', (message, remote) =>
   {
+    log.debug('Found server: ' + message.toString());
     let foundHost = remote.address;
     let port = message.toString().match(/port\=\'([0-9]*)\'/);
     if(port && callbacks[foundHost])

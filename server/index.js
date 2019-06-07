@@ -4,6 +4,8 @@
  * @namespace        Backend
  */
 
+import Logger from './lib/logger';
+Logger.on('error', (err) => {});
 import Application from './lib/application';
 import path from 'path';
 

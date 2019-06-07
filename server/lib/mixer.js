@@ -1,5 +1,6 @@
 import Server from './server';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Mixers');
 
 /**
  * Base class for mixers.
@@ -247,7 +248,7 @@ Mixer.updateMixerNames = (users) =>
     }
     return a;
   }, {});
-  log.debug('[Mixers][updateMixerNames] Setting:', inputs)
+  log.debug('[updateMixerNames] Setting:', inputs)
   connected.forEach((mixer) =>
   {
     Object.keys(inputs).forEach((input) =>

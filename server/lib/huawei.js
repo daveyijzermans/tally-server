@@ -1,6 +1,7 @@
 import Server from './server';
 import Router from 'p4d-huawei-router';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Huawei');
 
 /**
  * Class for connecting to Huawei dongle.
@@ -89,7 +90,7 @@ class Huawei extends Server
       this.client.getNetwork()
     ]).then((data) =>
     {
-      log.trace('[' + this.name + '][_check] Got data:', data);
+      log.trace('[_check] Got data:', data);
       this.CurrentNetworkTypeEx = parseInt(data[0].CurrentNetworkTypeEx);
       this.SignalIcon = parseInt(data[0].SignalIcon);
       this.cellroam = parseInt(data[0].cellroam);

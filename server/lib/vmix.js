@@ -1,7 +1,8 @@
 import Mixer from './mixer';
 import { Socket } from 'net';
 import readline from 'readline';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('vMix');
 import XMLParser from 'fast-xml-parser';
 
 const regexMac = /^((([0-9A-F]{2}:){5})|(([0-9A-F]{2}-){5})|([0-9A-F]{10}))([0-9A-F]{2})$/i; 
@@ -84,6 +85,25 @@ class Vmix extends Mixer
      */
     this.xmlTimeout = 0;
 
+    this.outputs = [null, {
+      name: 'Master',
+      level: 0,
+      active: true,
+      volume: 100
+    },
+    {
+      name: 'Bus A',
+      level: 0,
+      active: true,
+      volume: 100
+    },
+    {
+      name: 'Bus B',
+      level: 0,
+      active: true,
+      volume: 100
+    }];
+
     this.on('action', this._assignSelfAction);
     this._check();
   }
@@ -98,7 +118,7 @@ class Vmix extends Mixer
    */
   _line = line =>
   {
-    log.trace('[' + this.name + '][_line]', line);
+    log.trace('[_line]', line);
     if(line.indexOf('VERSION OK ') == 0) 
     {
       this.version = line.substring('VERSION OK '.length);
@@ -251,7 +271,6 @@ class Vmix extends Mixer
    */
   _getXmlParams = (callback = null) =>
   {
-    let capture = false;
     let xml = [];
     let timeout = 0;
     let setCaptureTimeout = () =>
@@ -259,43 +278,30 @@ class Vmix extends Mixer
       if(timeout) clearTimeout(timeout);
       timeout = setTimeout(() =>
       {
-        capture = false;
-        xml = '';
         this.readline.off('line', parseParam);
-        callback(new Error('XML retrieve timeout'));
+        callback(new Error('XML retrieve timeout for ' + this.name));
       }, 5000);
     }
     let parseParam = (line) =>
     {
-      if(line.indexOf('XML ') == 0)
+      clearTimeout(timeout);
+      xml.push(line);
+      let join = xml.join('\r\n');
+      if(join.indexOf('</vmix>') != -1)
       {
-        capture = parseInt(line.substring(4)) - 1;
-        setCaptureTimeout();
+        this.readline.off('line', parseParam);
+
+        let json = XMLParser.parse(join, {
+          attributeNamePrefix: '',
+          ignoreAttributes: false,
+          allowBooleanAttributes: true,
+          parseAttributeValue: true,
+          parseTrueNumberOnly: true
+        });
+        callback(json.vmix);
         return;
       }
-      if(typeof capture == 'number')
-      {
-        clearTimeout(timeout);
-        xml.push(line);
-        let join = xml.join('\r\n');
-        if(join.length == capture)
-        {
-          this.readline.off('line', parseParam);
-
-          let json = XMLParser.parse(join, {
-            attributeNamePrefix: '',
-            ignoreAttributes: false,
-            allowBooleanAttributes: true,
-            parseAttributeValue: true,
-            parseTrueNumberOnly: true
-          });
-          callback(json.vmix);
-          capture = false;
-          xml = '';
-          return;
-        }
-        setCaptureTimeout();
-      }
+      setCaptureTimeout();
     }
     this.readline.on('line', parseParam);
     this.client.write('XML\r\n');
@@ -323,7 +329,7 @@ class Vmix extends Mixer
       this.fadeToBlack = result.fadeToBlack == 'True';
       this._currentTransition = result.transitions.transition[0].effect;
       this._autoDuration = result.transitions.transition[0].duration;
-      var inputs = result.inputs.input;
+      var inputs = result.inputs.input || [];
       for (var i = 0; i < inputs.length; i++)
       {
         let data = inputs[i];
@@ -335,24 +341,15 @@ class Vmix extends Mixer
         this.inputs[data.number].balance = data.balance;
         this.inputs[data.number].volume = data.volume;
       }
-      this.outputs[1] = {
-        name: 'Master',
-        level: [result.audio.master.meterF1, result.audio.master.meterF2],
-        active: result.audio.master.muted == 'False',
-        volume: result.audio.master.volume
-      };
-      this.outputs[2] = {
-        name: 'Bus A',
-        level: [result.audio.busA.meterF1, result.audio.busA.meterF2],
-        active: result.audio.busA.muted == 'False',
-        volume: result.audio.busA.volume
-      };
-      this.outputs[3] = {
-        name: 'Bus B',
-        level: [result.audio.busB.meterF1, result.audio.busB.meterF2],
-        active: result.audio.busB.muted == 'False',
-        volume: result.audio.busB.volume
-      }
+      this.outputs[1].level = [result.audio.master.meterF1, result.audio.master.meterF2];
+      this.outputs[1].active = result.audio.master.muted == 'False';
+      this.outputs[1].volume = result.audio.master.volume;
+      this.outputs[2].level = [result.audio.busA.meterF1, result.audio.busA.meterF2];
+      this.outputs[2].active = result.audio.busA.muted == 'False';
+      this.outputs[2].volume = result.audio.busA.volume;
+      this.outputs[3].level = [result.audio.busB.meterF1, result.audio.busB.meterF2];
+      this.outputs[3].active = result.audio.busB.muted == 'False';
+      this.outputs[3].volume = result.audio.busB.volume;
     }
     this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
   }
@@ -386,7 +383,7 @@ class Vmix extends Mixer
       [1, 2, 3].forEach(i => this.emit('controlChange', { w: 'outputs', i: i, level: this.outputs[i].level }));
 
       /* Set input level meters */
-      let inputs = result.inputs.input;
+      let inputs = result.inputs.input || [];
       for (let i = 0; i < inputs.length; i++)
       {
         let input = inputs[i];
@@ -481,7 +478,7 @@ class Vmix extends Mixer
       return false;
     let fnc = state === 1 ? 'ActiveInput' : 'PreviewInput';
     this.client.write('FUNCTION ' + fnc + ' Input=' + input + '\r\n');
-    log.debug('[' + this.name + '][switchInput] Set input', input, 'to state', state);
+    log.debug('[switchInput] Set input', input, 'to state', state);
   }
   /**
    * Send cut command to vMix
@@ -494,7 +491,7 @@ class Vmix extends Mixer
   {
     if(!this.connected) return false;
     this.client.write('FUNCTION CUT\r\n');
-    log.debug('[' + this.name + '][cut]');
+    log.debug('[cut]');
     this.emit('action', 'cut');
   }
   /**
@@ -518,7 +515,7 @@ class Vmix extends Mixer
     if(isNaN(duration)) return false;
     if(typeof this.effects[effect] == 'undefined') return false;
     if(execute) this.client.write('FUNCTION ' + effect + ' DURATION=' + duration + '\r\n');
-    log.debug('[' + this.name + '][transition] Args:', duration, effect, execute);
+    log.debug('[transition] Args:', duration, effect, execute);
     this.emit('action', 'transition', [duration, effect]);
     return true;
   }
@@ -548,7 +545,7 @@ class Vmix extends Mixer
       this._currentTransition = effect;
     }
     if(execute) this.client.write('FUNCTION SetFader Value=' + n + '\r\n');
-    log.debug('[' + this.name + '][fade] Args:', n, effect, execute);
+    log.debug('[fade] Args:', n, effect, execute);
     this.emit('action', 'fade', [n, effect]);
     return true;
   }
@@ -572,7 +569,7 @@ class Vmix extends Mixer
     if(isNaN(overlayN) || isNaN(input)) return false;
     let stateCmd = state == true ? 'In' : 'Out';
     this.client.write('FUNCTION OverlayInput' + overlayN + stateCmd + ' INPUT=' + input + '\r\n');
-    log.debug('[' + this.name + '][overlay] Args:', overlayN, input, state);
+    log.debug('[overlay] Args:', overlayN, input, state);
     if(!state) this.emit('action', 'overlay', [overlayN, input, false]);
   }
   /**

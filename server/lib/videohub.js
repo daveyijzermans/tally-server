@@ -1,6 +1,7 @@
 import Router from './router';
 import { Socket } from 'net';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Videohub');
 
 /**
  * Class for connecting to Blackmagic Videohub.
@@ -105,7 +106,7 @@ class Videohub extends Router
     }
     
     this.emit('updated', this.status);
-    log.trace('[' + this.name + '] Parsed received data:', obj);
+    log.trace(' Parsed received data:', obj);
   };
   /**
    * Setup a new connection to the server and connect
@@ -159,7 +160,7 @@ class Videohub extends Router
     let str = ['VIDEO OUTPUT ROUTING:', (output - 1) + ' ' + (input - 1)].join('\n');
     str += '\n\n';
     this.client.write(str);
-    log.debug('[' + this.name + '][route] Routed input ' + input + ' to output ' + output);
+    log.debug('[route] Routed input ' + input + ' to output ' + output);
     return true;
   }
   /**
@@ -178,7 +179,7 @@ class Videohub extends Router
     let str = ['OUTPUT LABELS:', output + ' ' + label].join('\n');
     str += '\n\n';
     this.client.write(str);
-    log.debug('[' + this.name + '] Set output ' + output + ' label:', label);
+    log.debug(' Set output ' + output + ' label:', label);
     return true;
   };
   /**
@@ -197,7 +198,7 @@ class Videohub extends Router
     var str = ['INPUT LABELS:', input + ' ' + label].join('\n');
     str += '\n\n';
     this.client.write(str);
-    log.debug('[' + this.name + '] Set input ' + input + ' label:', label);
+    log.debug(' Set input ' + input + ' label:', label);
     return true;
   };
 }

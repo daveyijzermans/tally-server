@@ -1,7 +1,8 @@
 import Router from './router';
 import { Socket } from 'net';
 import readline from 'readline';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Aten');
 
 /**
  * Class for connecting to Aten matrix.
@@ -44,7 +45,7 @@ class Aten extends Router
    */
   _line = line =>
   {
-    log.trace('[' + this.name + '][_line]:', line);
+    log.trace('[_line]:', line);
     if(line.indexOf('Connection to VM0808HA is established') == 0)
     {
       this.connected = true;
@@ -160,7 +161,7 @@ class Aten extends Router
     if(isNaN(input) || isNaN(output)) return false;
 
     this.client.write('SS ' + input + ',' + output + '\r\n');
-    log.debug('[' + this.name + '][route] Routed input ' + input + ' to output ' + output);
+    log.debug('[route] Routed input ' + input + ' to output ' + output);
     return true;
   }
 }

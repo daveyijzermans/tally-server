@@ -1,7 +1,8 @@
 import Server from './server';
 import { Socket } from 'net';
 import ping from 'net-ping';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Netgear');
 
 /**
  * Class for connecting to Netgear switch.
@@ -56,7 +57,7 @@ class Netgear extends Server
     this.emit('connection', this.connected);
     if(this.rebootPending)
     {
-      log.info('[' + this.name + '] Rebooting...');
+      log.info(' Rebooting...');
       let socket = new Socket();
       socket.on('connect', () =>
       {

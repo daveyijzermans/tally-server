@@ -1,5 +1,6 @@
 import EventEmitter from './events-custom';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('User');
 
 /**
  * Class for modeling connected users.

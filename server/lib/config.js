@@ -2,7 +2,8 @@ import User from './user';
 import Server from './server';
 import fs from 'fs';
 import EventEmitter from './events-custom';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Config');
 
 /**
  * Class for retrieving and saving configuration.

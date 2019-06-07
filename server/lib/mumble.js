@@ -1,7 +1,8 @@
 import Server from './server';
 import API from 'mumble';
 import fs from 'fs';
-import log from './logger';
+import Logger from './logger';
+const log = Logger.getLogger('Mumble');
 
 /**
  * Class for connecting to Mumble servers.
@@ -134,7 +135,7 @@ class Mumble extends Server
      * @param      {string}  channelName  The channel that the user was moved to
      */
     this.emit('user-move', u.name, u.channel.name);
-    log.info('[' + this.name + '] User ' + u.name + ' moved to ' + u.channel.name);
+    log.info(' User ' + u.name + ' moved to ' + u.channel.name);
   }
   /**
    * Executed when user is disconnected
@@ -147,7 +148,7 @@ class Mumble extends Server
   _userDisconnect = (u) =>
   {
     this.emit('user-move', u.name, '');
-    log.info('[' + this.name + '] User ' + u.name + ' disconnected.');
+    log.info(' User ' + u.name + ' disconnected.');
   }
   /**
    * Executed when voice data is received. Indicates if a user is talking.
@@ -168,7 +169,7 @@ class Mumble extends Server
      * @param      {boolean}  talking   Whether the user is now talking
      */
     this.emit('user-talk', data.name, data.talking);
-    log.trace('[' + this.name + '] Received voice data:', data);
+    log.trace(' Received voice data:', data);
   }
   /**
    * Setup a new connection to the server and connect
