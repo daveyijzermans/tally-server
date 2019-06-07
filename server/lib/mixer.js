@@ -238,7 +238,7 @@ Mixer.getByName = (name) =>
 Mixer.updateMixerNames = (users) =>
 {
   if(typeof users != 'object') return false;
-  let connected = Mixer._instances.filter((a) => a.connected);
+  let connected = Mixer._instances.filter((a) => a.connected && ['vmix', 'atem'].indexOf(a.type) != -1);
   let inputs = users.reduce((a, user) => 
   {
     if(typeof user.camNumber == 'number')
