@@ -455,7 +455,6 @@ class Vmix extends Mixer
     {
       this.connected = false;
       this.inputs = [null];
-      this.outputs = [null];
       this.emit('disconnected');
     }
     this.emit('connection', this.connected);
