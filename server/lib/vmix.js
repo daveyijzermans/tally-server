@@ -351,7 +351,7 @@ class Vmix extends Mixer
       this.outputs[3].active = result.audio.busB.muted == 'False';
       this.outputs[3].volume = result.audio.busB.volume;
     }
-    this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
+    // this.xmlTimeout = setTimeout(this._getControlDataXml, 100);
   }
   /**
    * Gets the audio control data xml.

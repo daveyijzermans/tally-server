@@ -69,7 +69,7 @@ class Audiomixers
    */
   _list = data =>
   {
-    data = data.filter((s) => ['focusrite', 'vmix'].indexOf(s.type) != -1);
+    data = data.filter((s) => ['focusrite'].indexOf(s.type) != -1);
     if(JSON.stringify(data) === JSON.stringify(this._servers))
       return false;
     this._servers = data;
