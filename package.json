@@ -13,7 +13,7 @@
     "apc-ups-snmp": "github:daveyijzermans/apc-ups-snmp",
     "applest-atem": "github:daveyijzermans/node-applest-atem",
     "chalk": "^2.4.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "fast-xml-parser": "^3.12.16",
     "grandiose": "github:daveyijzermans/grandiose",
     "mumble": "^0.3.20",
